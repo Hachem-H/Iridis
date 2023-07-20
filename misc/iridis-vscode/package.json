@@ -1,0 +1,25 @@
+{
+  "name": "iridis-vscode",
+  "displayName": "Iridis-VSCode",
+  "description": "Syntax highlighting for the Iridis programing language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "iridis",
+      "aliases": ["Iridis", "iridis"],
+      "extensions": ["iridis"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "iridis",
+      "scopeName": "source.iridis",
+      "path": "./iridis.tmLanguage.json"
+    }]
+  }
+}

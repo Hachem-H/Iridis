@@ -10,7 +10,7 @@ io :: import!("std.io")
 HumanBeing :: struct
 {
     name: string,
-    age: u8,
+    age: u8,A
     birthYear: u8
 }
 
@@ -54,7 +54,7 @@ main :: proc()
         io.println("Turns out it is!")
     }
 
-    // Creating an array and calculating its sum using a for loop with 'do' syntax.
+    // Creating an array and calculating its sum using a for loop h 'do' syntax.
     array := [1, 2, 3, 4, 5]
     sum := 0
     for number in array; do
@@ -75,7 +75,7 @@ main :: proc()
     zero: u32 // zero = 0
     emptyString: string // emptyString = ""
     noHuman: HumanBeing // name = "", age = 0, birthYear = 0
-    ChangeHumanData(^noHuman)
+    ChangeHumanData(&noHuman)
 
     // Demonstrating different types of loops with 'someArray'.
     someArray := [1, 5, 2, 6, 9]
