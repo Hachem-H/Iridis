@@ -15,8 +15,8 @@ HumanBeing :: struct
 }
 
 // Defining a procedure called ChangeHumanData that takes a pointer to a Human struct as input.
-// It updates the data of the provided 'Human' instance, demonstrating the usage of pointers.
-ChangeHumanData :: proc(human: ^Human)
+// It updates the data of the provided 'human' instance, demonstrating the usage of pointers.
+ChangeHumanData :: proc(human: ^HumanBeing)
 {
     // Modifying the fields of the 'human' instance using the pointer dereference operator (^).
     human.name = "Karen"
@@ -71,7 +71,11 @@ main :: proc()
     }
 
     /* If a type is provided without a value, it is set by default to either 0 or an empty string.
-       For example, zero: u32 // zero = 0, emptyString: string // emptyString = "", noHuman: HumanBeing // name = "", age = 0, birthYear = 0 */
+       For example: */
+    zero: u32 // zero = 0
+    emptyString: string // emptyString = ""
+    noHuman: HumanBeing // name = "", age = 0, birthYear = 0
+    ChangeHumanData(^noHuman)
 
     // Demonstrating different types of loops with 'someArray'.
     someArray := [1, 5, 2, 6, 9]
