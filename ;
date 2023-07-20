@@ -1,0 +1,94 @@
+/* Iridis Programming Language - Basic Example */
+
+/* Importing the standard I/O module in a Zig-like manner.
+   This allows you to use the functions and utilities provided by 'std.io' for input/output operations.
+   You can name the module what ever you would like so you don't get name clashing. 
+   procedure calls ending  with '!' are built-in
+*/
+io :: import!("std.io")
+
+// Defining a struct for representing a HumanBeing with name, age, and birth year.
+HumanBeing :: struct
+{
+    name: string,
+    age: u8,
+    birthYear: u8
+}
+
+// Defining a procedure called ChangeHumanData that takes a pointer to a Human struct as input.
+// It updates the data of the provided 'Human' instance, demonstrating the usage of pointers.
+ChangeHumanData :: proc(human: ^Human)
+{
+    // Modifying the fields of the 'human' instance using the pointer dereference operator (^).
+    human.name = "Karen"
+    human.age = 8
+    human.birthYear = 1998
+
+    // We can dereference the pointer to make a copy of the 'human' instance.
+    humanCopy := human^
+    // Note: The 'humanCopy' is a copy of the original 'human' instance, and changes to it won't affect the original.
+}
+
+// Here, the parameters are passed by value (copy) to the procedure.
+// The procedure calculates the sum of two u32 numbers and returns the result.
+AddTwoNumbers :: proc(x: u32, y: u32) -> u32
+{
+    return x + y
+}
+
+// The main procedure that serves as the entry point for the program.
+main :: proc()
+{
+    /* Note: Procedures are also types, but since procedures cannot be modified,
+       we use the constant definition :: The same applies to structs. */
+
+    // Printing "Hello World!" to the console using the imported I/O module.
+    io.println("Hello World!")
+
+    // Using a constant, someConstant, to store the result of calling AddTwoNumbers(3, 5).
+    someConstant :: AddTwoNumbers(3, 5)
+
+    // Checking if someConstant is equal to 8 and displaying messages accordingly.
+    if someConstant == 8
+    {
+        io.println("Is 3 + 5 = 8?")
+        io.println("Turns out it is!")
+    }
+
+    // Creating an array and calculating its sum using a for loop with 'do' syntax.
+    array := [1, 2, 3, 4, 5]
+    sum := 0
+    for number in array; do
+        sum += number
+    /* Note: The 'do' keyword is used instead of opening a brace for single statements,
+      improving code readability for simple loops. */
+
+    // Defining a HumanBeing instance 'hachem' with specific values for name, age, and birthYear.
+    hachem: HumanBeing =
+    {
+        name: "Hachem",
+        age: 17,
+        birthYear: 2006,
+    }
+
+    /* If a type is provided without a value, it is set by default to either 0 or an empty string.
+       For example, zero: u32 // zero = 0, emptyString: string // emptyString = "", noHuman: HumanBeing // name = "", age = 0, birthYear = 0 */
+
+    // Demonstrating different types of loops with 'someArray'.
+    someArray := [1, 5, 2, 6, 9]
+
+    // Looping through 'someArray' using a range and printing the elements using 'do'.
+    for i in 0..<len!(someArray); do // Equivalent to 'for (int i = 0; i < someArrayLength; i++)'
+        io.print("{} ", someArray[i])
+    io.println()
+
+    // Looping through 'someArray' using an inclusive range and printing the elements using 'do'.
+    for i in 0..=len!(someArray); do // Equivalent to 'for (int i = 0; i <= someArrayLength; i++)'
+        io.print("{} ", someArray[i])
+    io.println()
+
+    // Using a while loop to increment 'someAge' until it becomes 18.
+    someAge := 0
+    while someAge < 18; do
+        someAge += 1
+}
