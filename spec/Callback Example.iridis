@@ -1,0 +1,33 @@
+/* Iridis Programming Language - Callback Example */
+
+// Import the standard I/O module to use its functions later in the code.
+io :: import!("std.io")
+
+// Definition of a procedure that takes a callback as a parameter.
+// The 'callback' parameter is a procedure that takes two i32s and returns an i32.
+// This procedure represents a higher-order function, as it can accept procedures as arguments and invoke them.
+HandleCallback :: proc(callback: proc(i32, i32) -> i32) -> i32
+{
+    // Example values for the callback to use.
+    someNumber := 1
+    someOtherNumber := 2
+
+    // Call the provided callback with the example values and return its result.
+    return callback(someNumber, someOtherNumber)
+}
+
+// Main procedure
+main :: proc()
+{
+    // Define the callback procedure as a regular variable.
+    someProcedure :: proc(num1: i32, num2: i32) -> i32
+    {
+        num1 *= 2
+        num2 /= 3
+        return num1 + num2
+    }
+
+    // Pass the 'someProcedure' callback to the 'HandleCallback' procedure.
+    ret := HandleCallback(someProcedure)
+    io.println("Callback result: {}", ret)
+}
