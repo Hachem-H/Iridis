@@ -1,0 +1,81 @@
+/* Iridis Programming Language - Trait Example */
+
+io :: import!("std.io")
+
+Entity :: struct
+{
+    x:  i32,
+    y:  i32,
+    id: i32,
+}
+
+Player :: struct using Entity
+{
+    somePlayerData: i32,
+    someOtherPlayerData: i32,
+}
+
+Zombie :: struct using Entity
+{
+    someZombieData: i32,
+    someOtherZombiedata: i32,
+}
+
+PrintPlayerData :: proc(player: Player)
+{
+    io.println("--- PLAYER DATA ---")    
+    io.println("Some Data: {}", player.somePlayerData)
+    io.println("Some Other Data: {}", player.someOtherPlayerData)
+}
+
+PrintZombieData :: proc(zombie: Zombie)
+{
+    io.println("--- ZOMBIE DATA ---")    
+    io.println("Some Data: {}", zombie.someZombieData)
+    io.println("Some Other Data: {}", zombie.someOtherZombieData)
+}
+
+PrintEntityData :: proc(entity: Entity)
+{
+    io.println("Entity Data")
+    io.println("--- ENTITY DATA ---")
+    io.println("Position: {}, {}", entity.x, entity.y)
+    io.println("Entity ID: {}", entity.id)
+}
+
+main :: proc()
+{
+    /* since the Player struct uses fields from the Entity struct
+       we can set them during construction as so. Here Entity is called
+       a Trait of Player */
+
+    player := Player 
+    {
+        x:  0,
+        y:  0, 
+        id: 0,
+
+        somePlayerData:      67,
+        someOtherPlayerdata: 21,
+    }
+
+    zombie := Zombie 
+    {
+        x:  10,
+        y:  0,
+        id: 1,
+
+        someZombieData:       5,
+        someOtherZombieData: 10,
+    }
+
+    /* Since both of these structs inherit from Entity, we can 
+       call the PrintEntityData procedure on both */
+
+    PrintEntityData(player)
+    PrintEntityData(zombie)
+
+    // And now we can call the respective functions
+    PrintPlayerData(player)
+    PrintZombieData(zombie)
+}

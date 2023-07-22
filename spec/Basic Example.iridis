@@ -10,7 +10,7 @@ io :: import!("std.io")
 HumanBeing :: struct
 {
     name: string,
-    age: u8,A
+    age: u8,
     birthYear: u8
 }
 
