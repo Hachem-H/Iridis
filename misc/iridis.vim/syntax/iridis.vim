@@ -2,7 +2,7 @@ if exists("b:current_syntax")
     finish
 endif
 
-syntax keyword iridisKeywords if else for while using struct proc do in return
+syntax keyword iridisKeywords if else for while using struct proc do in return extern mod
 syntax keyword iridisTypes u8 u16 u32 u64 i8 i16 i32 i64 f32 f64 string
 
 syntax match iridisInteger "\-\?\<\d\+\>" display

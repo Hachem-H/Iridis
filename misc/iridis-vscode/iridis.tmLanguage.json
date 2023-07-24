@@ -3,7 +3,7 @@
     "patterns": [
         {
             "name": "keyword.iridis",
-            "match": "\\b(if|else|for|while|using|struct|proc|do|in|return)\\b"
+            "match": "\\b(if|else|for|while|mod|extern|using|struct|proc|do|in|return)\\b"
         },
         {
             "name": "type.iridis",
