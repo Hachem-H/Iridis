@@ -59,7 +59,7 @@ namespace Iridis
                          "output_directory = \"bin\"\n";
         projectConfig.close();
         
-        std::ofstream sourceFile(type == "exe" ? "src/main.iridis" : "src/lib.iridis");
+        std::ofstream sourceFile(type == "exe" ? "src/main.iridis" : "src/" + name + ".iridis");
         if (!sourceFile)
         {
             PrintError << "Could not open source file.\n";

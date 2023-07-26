@@ -1,9 +1,17 @@
 #include "Application.h"
 
 #include <iostream>
-#include <cstring>
 
-#define PrintError std::cout << Iridis::TerminalColors::BOLD << Iridis::TerminalColors::RED << "ERROR: " << RESET
+#include <cstring>
+#include <cctype>
+
+static inline bool IsValidProjectName(const std::string& name)
+{
+    for (char character : name)
+        if (!(std::isalpha(character) || std::isdigit(character) || character == '_'))
+            return false;
+    return !name.empty();
+}
 
 int main(int argc, char** argv)
 {
@@ -31,6 +39,12 @@ int main(int argc, char** argv)
             {
                 PrintError << "Unknown project type: `" << type << "`\n";
                 std::cout << "       You can create an executable (exe) or a library (lib).\n\n";
+                return -1;
+            }
+
+            if (!IsValidProjectName(name))
+            {
+                PrintError "`" << name << "` is not a valid project name.\n\n"; 
                 return -1;
             }
 
