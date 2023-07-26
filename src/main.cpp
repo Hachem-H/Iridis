@@ -1,6 +1,10 @@
 #include "Application.h"
+#include "CMDInterface.h"
 
 #include <iostream>
+#include <memory>
+#include <string>
+#include <map>
 
 #include <cstring>
 #include <cctype>
@@ -21,62 +25,18 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    if (std::strcmp(argv[1], "help") == 0) 
-    {
-        Iridis::Application::PrintUsage();
-        return 0;
-    } 
-    else if (std::strcmp(argv[1], "new") == 0)
-    {
-        if (argc == 4)
-        {
-            using namespace Iridis::TerminalColors;
+    std::map<std::string, std::unique_ptr<Iridis::CommandLine::Command>> commands;
+    commands["help"]    = std::make_unique<Iridis::CommandLine::HelpCommand>();
+    commands["new"]     = std::make_unique<Iridis::CommandLine::NewCommand>();
+    commands["build"]   = std::make_unique<Iridis::CommandLine::BuildCommand>();
+    commands["run"]     = std::make_unique<Iridis::CommandLine::RunCommand>();
+    commands["compile"] = std::make_unique<Iridis::CommandLine::CompileCommand>();
+    commands["genbind"] = std::make_unique<Iridis::CommandLine::GenBindCommand>();
 
-            std::string type = argv[2];
-            std::string name = argv[3];
-
-            if (type != "exe" && type != "lib")
-            {
-                PrintError << "Unknown project type: `" << type << "`\n";
-                std::cout << "       You can create an executable (exe) or a library (lib).\n\n";
-                return -1;
-            }
-
-            if (!IsValidProjectName(name))
-            {
-                PrintError << "`" << name << "` is not a valid project name.\n\n"; 
-                return -1;
-            }
-
-            Iridis::Application::CreateProject(name, type);
-        } else
-            Iridis::Application::PrintNewHelp();
-        return 0;
-    }
-    else if (std::strcmp(argv[1], "build") == 0)
-    {
-        Iridis::Application::PrintBuildHelp();
-        return 0;
-    }
-    else if (std::strcmp(argv[1], "run") == 0)
-    {
-        Iridis::Application::PrintRunHelp();
-        return 0;
-    }
-    else if (std::strcmp(argv[1], "compile") == 0)
-    {
-        Iridis::Application::PrintCompileHelp();
-        return 0;
-    }
-    else if (std::strcmp(argv[1], "genbind") == 0)
-    {
-        Iridis::Application::PrintGenBindHelp();
-        return 0;
-    }
-    else
-    {
-        using namespace Iridis::TerminalColors;
-        PrintError << "Unknown command: `" << argv[1] << "`\n\n";
-        Iridis::Application::PrintUsage();
-    }
+    auto command = commands.find(argv[1]);
+    if (command != commands.end())
+        return command->second->execute(argc, argv);
+    
+    PrintError << "Unknown command: `" << argv[1] << "`\n\n";
+    Iridis::Application::PrintUsage();
 }

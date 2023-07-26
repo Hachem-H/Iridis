@@ -7,8 +7,6 @@
 
 #include <cstring>
 
-#define PrintError std::cout << Iridis::TerminalColors::BOLD << Iridis::TerminalColors::RED << "ERROR: " << Iridis::TerminalColors::RESET
-
 namespace Iridis
 {
     static constexpr const char* exeSourceCode = "io :: import!(\"std.io\")\n\nmain :: proc()\n{\n    io.println(\"Hello, World!\")\n}\n";
@@ -40,7 +38,6 @@ namespace Iridis
         fs::permissions(name, fs::perms::others_all, fs::perm_options::remove);
         fs::permissions(name + "/src", fs::perms::others_all, fs::perm_options::remove);
         fs::current_path(name);
-
 
         std::ofstream projectConfig("iridis.toml");
         if (!projectConfig)

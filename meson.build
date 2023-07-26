@@ -1,6 +1,7 @@
 project('Iridis', 'cpp')
 
 iridisSourceFiles = [
+    'src/CMDInterface.cpp',
     'src/Application.cpp',
     'src/main.cpp'
 ]
