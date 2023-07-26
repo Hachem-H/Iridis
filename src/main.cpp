@@ -1,28 +1,50 @@
-#include <optional>
+#include "Application.h"
+
 #include <iostream>
-#include <fstream>
-#include <string>
+#include <cstring>
 
-std::optional<std::string> ReadFile(const char* path)
+int main(int argc, char** argv)
 {
-    std::ifstream file(path);
+    if (argc < 2)
+    {
+        Iridis::Application::PrintUsage();
+        return -1;
+    }
 
-    if (!file)
-        return std::nullopt;
-
-    file.seekg(0, std::ios::end);
-    const std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::string content;
-    content.reserve(size);
-    content.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-
-    return content;
-}
-
-int main()
-{
-    if (auto file = ReadFile("examples/Basic Example.iridis"))
-        std::cout << *file << '\n';
+    if (std::strcmp(argv[1], "help") == 0) 
+    {
+        Iridis::Application::PrintUsage();
+        return 0;
+    } 
+    else if (std::strcmp(argv[1], "new") == 0)
+    {
+        Iridis::Application::PrintNewHelp();
+        return 0;
+    }
+    else if (std::strcmp(argv[1], "build") == 0)
+    {
+        Iridis::Application::PrintBuildHelp();
+        return 0;
+    }
+    else if (std::strcmp(argv[1], "run") == 0)
+    {
+        Iridis::Application::PrintRunHelp();
+        return 0;
+    }
+    else if (std::strcmp(argv[1], "compile") == 0)
+    {
+        Iridis::Application::PrintCompileHelp();
+        return 0;
+    }
+    else if (std::strcmp(argv[1], "genbind") == 0)
+    {
+        Iridis::Application::PrintGenBindHelp();
+        return 0;
+    }
+    else
+    {
+        using namespace Iridis::TerminalColors;
+        std::cout << BOLD << RED << "ERROR:" << RESET<<  " Unknown command: `" << argv[1] << "`\n\n";
+        Iridis::Application::PrintUsage();
+    }
 }
