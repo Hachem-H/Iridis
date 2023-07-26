@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
             if (!IsValidProjectName(name))
             {
-                PrintError "`" << name << "` is not a valid project name.\n\n"; 
+                PrintError << "`" << name << "` is not a valid project name.\n\n"; 
                 return -1;
             }
 
