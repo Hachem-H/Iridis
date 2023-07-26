@@ -33,7 +33,7 @@ io :: import!("std.io")
 
 main :: proc()
 {
-    io.println("Hello, World!\n")
+    io.println("Hello, World!")
 }
 ```
 
@@ -85,6 +85,7 @@ Conditional statements in Iridis work similarly to other programming languages:
 
 ```iridis
 someValue := someProc()
+
 if someValue
 {
     io.println("Some value was true")
@@ -105,7 +106,7 @@ someArray := [1, 2, 3, 4]
 
 for i in someArray
 {
-    io.println("{}")
+    io.println("{}", i)
 }
 ```
 
@@ -115,7 +116,7 @@ Loop using `do` syntax:
 
 ```iridis
 for i in someArray; do
-    io.println("{}")
+    io.println("{}", i)
 ```
 
 The `do` syntax is a shorthand for writing single statement scopes since some people might find single statements in curly braces jarring, commonly used in `if` statements, and loops.
