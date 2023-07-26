@@ -1,10 +1,19 @@
 #include "Application.h"
 
+#include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <string>
+
+#include <cstring>
+
+#define PrintError std::cout << Iridis::TerminalColors::BOLD << Iridis::TerminalColors::RED << "ERROR: " << Iridis::TerminalColors::RESET
 
 namespace Iridis
 {
+    static constexpr const char* exeSourceCode = "io :: import!(\"std.io\")\n\nmain :: proc()\n{\n    io.println(\"Hello, World!\")\n}\n";
+    static constexpr const char* libSourceCode = "Add :: proc(num1: i32, num2: i32) -> i32\n{\n    return num1 + num2\n}\n";
+
     std::optional<std::string> Application::ReadFile(const char* filepath)
     {
         std::ifstream file(filepath);
@@ -22,6 +31,46 @@ namespace Iridis
         
         return buffer;
     }
+
+    void Application::CreateProject(const std::string& name, const std::string& type)
+    {
+        namespace fs = std::filesystem;
+
+        fs::create_directories(name + "/src");
+        fs::permissions(name, fs::perms::others_all, fs::perm_options::remove);
+        fs::permissions(name + "/src", fs::perms::others_all, fs::perm_options::remove);
+        fs::current_path(name);
+
+
+        std::ofstream projectConfig("iridis.toml");
+        if (!projectConfig)
+        {
+            PrintError << "Could not write config file.\n";
+            return;
+        }
+
+        projectConfig << "[project]\n"
+                         "name = \"" << name << "\"\n"
+                         "type = \"" << type << "\"\n"
+                         "version = \"0.0.1\"\n"
+                         "\n"
+                         "[build_options]\n"
+                         "source_directory = \"src\"\n"
+                         "output_directory = \"bin\"\n";
+        projectConfig.close();
+        
+        std::ofstream sourceFile(type == "exe" ? "src/main.iridis" : "src/lib.iridis");
+        if (!sourceFile)
+        {
+            PrintError << "Could not open source file.\n";
+            return;
+        }
+        
+        const char* sourceCode = (type == "exe" ? exeSourceCode : libSourceCode);
+        sourceFile.rdbuf()->pubsetbuf(const_cast<char*>(sourceCode), std::strlen(sourceCode));
+        sourceFile << sourceCode;
+        sourceFile.close();
+   }
 
     void Application::PrintUsage()
     {

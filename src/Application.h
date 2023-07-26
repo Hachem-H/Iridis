@@ -8,14 +8,14 @@ namespace Iridis
     namespace TerminalColors
     {
 #ifdef _WIN32
-    constexpr char* RESET   = "";
-    constexpr char* BOLD    = "";
-    constexpr char* RED     = "";
-    constexpr char* GREEN   = "";
-    constexpr char* YELLOW  = "";
-    constexpr char* BLUE    = "";
-    constexpr char* MAGENTA = "";
-    constexpr char* CYAN    = "";
+    constexpr const char* RESET   = "";
+    constexpr const char* BOLD    = "";
+    constexpr const char* RED     = "";
+    constexpr const char* GREEN   = "";
+    constexpr const char* YELLOW  = "";
+    constexpr const char* BLUE    = "";
+    constexpr const char* MAGENTA = "";
+    constexpr const char* CYAN    = "";
 #else
     constexpr const char* RESET   = "\033[0m";
     constexpr const char* BOLD    = "\033[1m";
@@ -39,5 +39,7 @@ namespace Iridis
         static void PrintRunHelp();
         static void PrintCompileHelp();
         static void PrintGenBindHelp();
+
+        static void CreateProject(const std::string& name, const std::string& type);
     };
 };

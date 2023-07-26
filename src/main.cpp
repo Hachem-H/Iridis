@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstring>
 
+#define PrintError std::cout << Iridis::TerminalColors::BOLD << Iridis::TerminalColors::RED << "ERROR: " << RESET
+
 int main(int argc, char** argv)
 {
     if (argc < 2)
@@ -18,7 +20,23 @@ int main(int argc, char** argv)
     } 
     else if (std::strcmp(argv[1], "new") == 0)
     {
-        Iridis::Application::PrintNewHelp();
+        if (argc == 4)
+        {
+            using namespace Iridis::TerminalColors;
+
+            std::string type = argv[2];
+            std::string name = argv[3];
+
+            if (type != "exe" && type != "lib")
+            {
+                PrintError << "Unknown project type: `" << type << "`\n";
+                std::cout << "       You can create an executable (exe) or a library (lib).\n\n";
+                return -1;
+            }
+
+            Iridis::Application::CreateProject(name, type);
+        } else
+            Iridis::Application::PrintNewHelp();
         return 0;
     }
     else if (std::strcmp(argv[1], "build") == 0)
@@ -44,7 +62,7 @@ int main(int argc, char** argv)
     else
     {
         using namespace Iridis::TerminalColors;
-        std::cout << BOLD << RED << "ERROR:" << RESET<<  " Unknown command: `" << argv[1] << "`\n\n";
+        PrintError << "Unknown command: `" << argv[1] << "`\n\n";
         Iridis::Application::PrintUsage();
     }
 }
