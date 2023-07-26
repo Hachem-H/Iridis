@@ -5,25 +5,27 @@
 
 namespace Iridis
 {
+    static inline bool IsValidProjectName(const std::string& name)
+    {
+        for (char character : name)
+            if (!(std::isalpha(character) || 
+                  std::isdigit(character) || 
+                  character == '_'))
+            return false;
+        return true;
+    }
+
+
     namespace CommandLine
     {
-        int HelpCommand::execute(int argc, char* argv[])
+        int Help(int argc, char* argv[])
         {
             Application::PrintUsage();
             return 0;
         }
 
-        bool NewCommand::IsValidProjectName(const std::string& name)
-        {
-            for (char character : name)
-                if (!(std::isalpha(character) || 
-                      std::isdigit(character) || 
-                      character == '_'))
-                    return false;
-            return true;
-        }
-
-        int NewCommand::execute(int argc, char* argv[])
+        
+        int New(int argc, char* argv[])
         {
             if (argc != 4)
             {
@@ -52,5 +54,10 @@ namespace Iridis
                       << " `" << name << "`\n\n";
             return 0;
         }
+
+        int Build(int argc, char* argv[])   { return 0 ; }
+        int Run(int argc, char* argv[])     { return 0 ; }
+        int Compile(int argc, char* argv[]) { return 0 ; }
+        int GenBind(int argc, char* argv[]) { return 0 ; }
     };
 };
