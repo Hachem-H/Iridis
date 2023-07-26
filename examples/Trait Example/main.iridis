@@ -2,6 +2,7 @@
 
 io :: import!("std.io")
 
+// We start by defining an Entity structure with some base properties
 Entity :: struct
 {
     x:  i32,
@@ -9,6 +10,9 @@ Entity :: struct
     id: i32,
 }
 
+/* Using the `using` keyword, the Player struct inherts all of those properties
+   The size of the Player struct will be the size of the Entity struct + the player properties. 
+   For alignement and layout, the Entity's properties are going to be placed first. */
 Player :: struct using Entity
 {
     somePlayerData: i32,
@@ -45,7 +49,7 @@ PrintEntityData :: proc(entity: Entity)
 
 main :: proc()
 {
-    /* since the Player struct uses fields from the Entity struct
+    /* Since the Player struct uses fields from the Entity struct
        we can set them during construction as so. Here Entity is called
        a Trait of Player */
 

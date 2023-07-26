@@ -1,0 +1,35 @@
+/* Iridis Programming Language - C Interop Example */
+
+/* Consider we have the a C project and we want to incorporate Iridis into it. 
+   In Iridis, to use the functions defined in the C headers, you can include the header file 
+   using the 'include!' directive. It automatically translates char* to 'cstring' for compatibility. */
+
+// Include the C header file 'SomeFile.h' to access the C functions and types.
+SomeFile :: include!("SomeFile.h")
+
+/* For the missing `SomeObscureFunction`, we can just use an extern procedure
+   We place it in the SomeFile module so we can find it with the other functions,
+   noting that this is an optional step, we can place the obscure function in the
+   global scope. */
+
+SomeFile :: mod
+{
+    SomeObscureFunction :: extern proc (Person)
+}
+
+main :: proc()
+{
+    // Create a 'Person' instance using the 'Person' type defined in 'SomeLibrary.h'.
+    hachem := SomeFile.Person
+    {
+        name: "Hachem", // This would be a cstring not a string
+        age: 17         // This would be a u32
+    }
+
+    // Call the C function 'PrintPersonData' to print the 'Person' data.
+    SomeFile.PrintPersonData(hachem)
+    SomeFile.SomeObscureFunction()
+}
+
+/* Now you can use Iridis to work with the SomeLibrary functions and types in your large project.
+   This allows seamless integration between Iridis and the existing C codebase. */

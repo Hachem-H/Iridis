@@ -28,6 +28,6 @@ main :: proc()
     }
 
     // Pass the 'someProcedure' callback to the 'HandleCallback' procedure.
-    ret := HandleCallback(someProcedure)
-    io.println("Callback result: {}", ret)
+    result := HandleCallback(someProcedure)
+    io.println("Callback result: {}", result)
 }
