@@ -6,6 +6,8 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <future>
+#include <vector>
 #include <stack>
 #include <map>
 
@@ -105,7 +107,9 @@ namespace Iridis
 
     CompilationResult Application::CompileProject(const std::string& path, CompileOptions& compileOptions)
     {
-        if (!std::ifstream(path + "/iridis.toml"))
+        namespace fs = std::filesystem;
+
+        if (!fs::exists(path + "/iridis.toml"))
             return CompilationResult::NoProject;
 
         ProjectConfiguration projectConfig = ReadProjectConfiguration(path);
@@ -123,7 +127,6 @@ namespace Iridis
        
         std::string targetPath = outputLocation+profileLocation+compileOptions.outputName;
 
-        namespace fs = std::filesystem;
 
         fs::create_directories(targetPath);
         fs::permissions(outputLocation,                 fs::perms::others_all, fs::perm_options::remove);
@@ -161,11 +164,21 @@ namespace Iridis
                 sourceMapping[sourceFilePath] = targetFilePath;
             }
 
+        std::vector<std::future<int>> compilationFutures;
+        compilationFutures.reserve(sourceMapping.size());
+
         for (const auto& filePair : sourceMapping)
-        {
-            compileOptions.outputName = filePair.second;
-            CompileFile(filePair.first, compileOptions);
+        {  
+            auto compileOptionsCopy = compileOptions;
+            compileOptionsCopy.outputName = filePair.second;
+            compilationFutures.emplace_back(std::async
+            (
+                std::launch::async, CompileFile, filePair.first, compileOptionsCopy
+            ));
         }
+
+        for (auto& future : compilationFutures)
+            future.get();
 
         return CompilationResult::Success;
     }
