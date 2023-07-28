@@ -62,8 +62,8 @@ namespace Iridis
         int ExecuteProcess(const char* executablePath);
     public:
         static int CompileFile(const std::string& path, const CompileOptions& compileOptions);
-        static CompilationResult CompileProject(const std::string& path, const CompileOptions& compileOptions);
-        static int RunProject(const std::string& path, const CompileOptions& compileOptions);
+        static CompilationResult CompileProject(const std::string& path, CompileOptions& compileOptions);
+        static int RunProject(const std::string& path, CompileOptions& compileOptions);
 
         static void CreateProject(const std::string& name, const std::string& type);
     };

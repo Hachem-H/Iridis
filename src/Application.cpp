@@ -7,6 +7,7 @@
 #include <chrono>
 #include <thread>
 #include <stack>
+#include <map>
 
 #include <cstring>
 #include <cstdlib>
@@ -76,11 +77,12 @@ namespace Iridis
     int Application::CompileFile(const std::string& path, const CompileOptions& compileOptions)
     {
         // TODO(Hachem): Implement Compiler
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << "Compiling `" << path << "` as `" << compileOptions.outputName << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         return 0;
     }
 
-    CompilationResult Application::CompileProject(const std::string& path, const CompileOptions& compileOptions)
+    CompilationResult Application::CompileProject(const std::string& path, CompileOptions& compileOptions)
     {
         std::ifstream projectConfig(path + "/iridis.toml");
         if (!projectConfig)
@@ -108,7 +110,6 @@ namespace Iridis
         fs::permissions(outputLocation+profileLocation, fs::perms::others_all, fs::perm_options::remove);
         fs::permissions(targetPath,                     fs::perms::others_all, fs::perm_options::remove);
 
-        // copy the directories from sourceLocation into targetPath
         std::stack<fs::path> directories;
         directories.push(fs::path(sourceLocation));
 
@@ -128,10 +129,28 @@ namespace Iridis
             }
         }
 
+        std::map<std::string, std::string> sourceMapping; 
+
+        for (const auto& entry : fs::recursive_directory_iterator(sourceLocation))
+            if (fs::is_regular_file(entry) && entry.path().extension() == ".iridis")
+            {
+                std::string sourceFilePath = entry.path().string();
+
+                std::string relativePath = entry.path().lexically_relative(fs::path(sourceLocation)).string();
+                std::string targetFilePath = fs::path(targetPath + "/" + relativePath).replace_extension(".o");
+                sourceMapping[sourceFilePath] = targetFilePath;
+            }
+
+        for (const auto& filePair : sourceMapping)
+        {
+            compileOptions.outputName = filePair.second;
+            CompileFile(filePair.first, compileOptions);
+        }
+
         return CompilationResult::Success;
     }
 
-    int Application::RunProject(const std::string& path, const CompileOptions& compileOptions)
+    int Application::RunProject(const std::string& path, CompileOptions& compileOptions)
     {
         int compile = (int) CompileProject(path, compileOptions);
         if (compile != 0)
