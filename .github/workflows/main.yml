@@ -10,6 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Initialize and update submodules
+        run: |
+          git submodule update --init --recursive
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v1
       - uses: BSFishy/meson-build@v1.0.3
