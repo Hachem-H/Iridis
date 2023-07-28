@@ -100,13 +100,13 @@ namespace Iridis
     int Application::CompileFile(const std::string& path, const CompileOptions& compileOptions)
     {
         // TODO(Hachem): Implement Compiler
-        std::cout << "Compiling `" << path << "` as `" << compileOptions.outputName << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500 + rand() % 3500));
         return 0;
     }
 
     CompilationResult Application::CompileProject(const std::string& path, CompileOptions& compileOptions)
     {
+        using namespace TerminalColors;
         namespace fs = std::filesystem;
 
         if (!fs::exists(path + "/iridis.toml"))
@@ -126,7 +126,6 @@ namespace Iridis
         }
        
         std::string targetPath = outputLocation+profileLocation+compileOptions.outputName;
-
 
         fs::create_directories(targetPath);
         fs::permissions(outputLocation,                 fs::perms::others_all, fs::perm_options::remove);
@@ -153,7 +152,6 @@ namespace Iridis
         }
 
         std::map<std::string, std::string> sourceMapping; 
-
         for (const auto& entry : fs::recursive_directory_iterator(sourceLocation))
             if (fs::is_regular_file(entry) && entry.path().extension() == ".iridis")
             {
@@ -170,16 +168,36 @@ namespace Iridis
         for (const auto& filePair : sourceMapping)
         {  
             auto compileOptionsCopy = compileOptions;
-            compileOptionsCopy.outputName = filePair.second;
-            compilationFutures.emplace_back(std::async
-            (
-                std::launch::async, CompileFile, filePair.first, compileOptionsCopy
-            ));
+
+            compilationFutures.emplace_back(std::async(std::launch::async, 
+                [filePair, compileOptions = std::move(compileOptionsCopy)]() mutable 
+                {
+                    compileOptions.outputName = filePair.second;
+                    return CompileFile(filePair.first, compileOptions);
+                }));
         }
 
-        for (auto& future : compilationFutures)
-            future.get();
+        int totalFiles = compilationFutures.size();
+        for (auto it = sourceMapping.begin(); it != sourceMapping.end(); ++it)
+        {
+            const std::string& filename = it->first;
 
+            int currentFile = std::distance(sourceMapping.begin(), it);
+            float progress = static_cast<float>(currentFile + 1) / totalFiles;
+            int barWidth = 50;
+            int progressWidth = static_cast<int>(progress * barWidth);
+
+            std::cout << BOLD << "\r[" << RESET << GREEN << std::string(progressWidth, '=')
+                      << std::string(barWidth - progressWidth, ' ')  << RESET << BOLD
+                      << "] " << RESET << std::setw(3) << static_cast<int>(progress * 100) 
+                      << "% " << ITALIC << filename << RESET << " ";
+            std::cout.flush();
+
+            compilationFutures[currentFile].get();
+        }
+
+        std::cout << "\n`" << BOLD << projectConfig.projectName << RESET 
+                  << "` " << "Compiled succesfully!" << '\n';
         return CompilationResult::Success;
     }
 
