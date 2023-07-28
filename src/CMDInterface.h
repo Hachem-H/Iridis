@@ -11,4 +11,14 @@ namespace Iridis
         int Compile(int argc, char* argv[]);
         int GenBind(int argc, char* argv[]);
     };
+
+    namespace Usages
+    {
+        void PrintUsage();
+        void PrintNewHelp();
+        void PrintBuildHelp();
+        void PrintRunHelp();
+        void PrintCompileHelp();
+        void PrintGenBindHelp();
+    };
 };

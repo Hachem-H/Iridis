@@ -4,8 +4,12 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <chrono>
+#include <thread>
+#include <stack>
 
 #include <cstring>
+#include <cstdlib>
 
 namespace Iridis
 {
@@ -33,7 +37,7 @@ namespace Iridis
     void Application::CreateProject(const std::string& name, const std::string& type)
     {
         namespace fs = std::filesystem;
-
+        
         fs::create_directories(name + "/src");
         fs::permissions(name, fs::perms::others_all, fs::perm_options::remove);
         fs::permissions(name + "/src", fs::perms::others_all, fs::perm_options::remove);
@@ -69,118 +73,69 @@ namespace Iridis
         sourceFile.close();
    }
 
-    void Application::PrintUsage()
+    int Application::CompileFile(const std::string& path, const CompileOptions& compileOptions)
     {
-        using namespace TerminalColors;
-
-        std::cout << GREEN << "Usage: iridis [command] [options]\n\n" << RESET;
-
-        std::cout << BLUE << "Commands:" << RESET << "\n";
-        std::cout << BOLD << "  new" << RESET << " [exe|lib] [name] : Creates a new project of the specified type.\n";
-        std::cout << BOLD << "  build" << RESET << " [project]      : Build the specified project (the argument is optional).\n";
-        std::cout << BOLD << "  run" << RESET << " [project]        : Runs the specified project (the argument is optional).\n";
-        std::cout << BOLD << "  compile" << RESET << " [file]       : Compiles the specified file.\n";
-        std::cout << BOLD << "  genbind" << RESET << " [file]       : Generates C header files from the iridis file.\n\n";
-
-        std::cout << CYAN << "Options:\n";
-        std::cout << BOLD << "  -h, --help" << RESET << "           : Display this help message and quits.\n";
-        std::cout << BOLD << "  -v, --version" << RESET << "        : Display the version of the Iridis Compiler.\n\n";
-
-        std::cout << YELLOW << "Note:\n";
-        std::cout << "  run " << BOLD << "`iridis [command] help`" << RESET << " to get additional help information for each command.\n";
+        // TODO(Hachem): Implement Compiler
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        return 0;
     }
 
-    void Application::PrintNewHelp()
+    CompilationResult Application::CompileProject(const std::string& path, const CompileOptions& compileOptions)
     {
-        using namespace TerminalColors;
+        std::ifstream projectConfig(path + "/iridis.toml");
+        if (!projectConfig)
+            return CompilationResult::NoProject;
 
-        std::cout << GREEN << "Usage: iridis new [type] [name]\n\n" << RESET;
+        // TODO(Hachem) Read TOML data, and replace `outputLocation` and `outputName`
 
-        std::cout << "Create a new project of the specified type in a directory with the given name,\n";
-        std::cout << "which includes an iridis.tml and a src/main.iridis file.\n\n";
+        namespace fs = std::filesystem;
 
-        std::cout << CYAN << "Options:\n" << RESET;
-        std::cout << BOLD << "  [type]" << RESET << " : Use 'lib' for a library and 'exe' for an executable.\n";
-        std::cout << BOLD << "  [name]" << RESET << " : Specify the name for your project.\n\n";
+        std::string outputLocation = path + "/bin/";
+        std::string sourceLocation = path + "/src/";
+        std::string profileLocation;
 
-        std::cout << BLUE << "Commands:" << RESET << "\n";
-        std::cout << BOLD << "  help" << RESET << "   : Display this help information.\n\n";
-    }
-        
+        switch (compileOptions.profile)
+        {
+        case CompileOptions::CompilationProfiles::Debug:        profileLocation = "debug/";        break;
+        case CompileOptions::CompilationProfiles::Release:      profileLocation = "release/";      break;
+        case CompileOptions::CompilationProfiles::Distribution: profileLocation = "distribution/"; break;
+        }
+       
+        std::string targetPath = outputLocation+profileLocation+compileOptions.outputName;
 
-    void Application::PrintBuildHelp()
-    {
-        using namespace TerminalColors;
+        fs::create_directories(targetPath);
+        fs::permissions(outputLocation,                 fs::perms::others_all, fs::perm_options::remove);
+        fs::permissions(outputLocation+profileLocation, fs::perms::others_all, fs::perm_options::remove);
+        fs::permissions(targetPath,                     fs::perms::others_all, fs::perm_options::remove);
 
-        std::cout << GREEN << "Usage: iridis build [optional: project location]\n\n" << RESET;
+        // copy the directories from sourceLocation into targetPath
+        std::stack<fs::path> directories;
+        directories.push(fs::path(sourceLocation));
 
-        std::cout << "Builds a project. If the current directory is a project, it will build the current project.\n";
-        std::cout << "If not, it will compile the project provided in the specified project location.\n\n";
+        while (!directories.empty())
+        {
+            fs::path current = directories.top();
+            directories.pop();
 
-        std::cout << CYAN << "Options:\n" << RESET;
-        std::cout << BOLD << "  --release" << RESET << "                      : Build with the release profile (includes optimizations and symbols).\n";
-        std::cout << BOLD << "  --distribution" << RESET << "                 : Build with the distribution profile (includes optimizations and no symbols).\n\n";
+            if (fs::is_directory(current))
+            {
+                fs::path newDestination = fs::path(targetPath)/current.lexically_relative(fs::path(sourceLocation));
+                fs::create_directories(newDestination);
 
-        std::cout << BOLD << "  --includes:[dir1],[dir2],[...]" << RESET << " : Specify directories for C header include files.\n";
-        std::cout << BOLD << "  --imports:[dir1],[dir2],[...]" << RESET << "  : Specify directories for external modules.\n";
+                for (const auto& entry : fs::directory_iterator(current))
+                    if (fs::is_directory(entry))
+                        directories.push(entry);
+            }
+        }
 
-        std::cout << BLUE << "Commands:\n" << RESET;
-        std::cout << BOLD << "  help" << RESET << "                           : Display this help information.\n\n";
-    }
-
-    void Application::PrintRunHelp()
-    {
-        using namespace TerminalColors;
-
-        std::cout << GREEN << "Usage: iridis run [optional: project location]\n\n" << RESET;
-
-        std::cout << "Builds the project and runs the executable. If the current directory is a project,\n";
-        std::cout << "it will build and run the current project. If not, it will compile the project provided\n";
-        std::cout << "in the specified project location and then run the executable.\n\n";
-
-        std::cout << CYAN << "Options:\n" << RESET;
-        std::cout << BOLD << "  --release" << RESET << "                      : Build with the release profile (includes optimizations and symbols).\n";
-        std::cout << BOLD << "  --distribution" << RESET << "                 : Build with the distribution profile (includes optimizations and no symbols).\n\n";
-
-        std::cout << BOLD << "  --includes:[dir1],[dir2],[...]" << RESET << " : Specify directories for C header include files.\n";
-        std::cout << BOLD << "  --imports:[dir1],[dir2],[...]" << RESET << "  : Specify directories for external modules.\n";
-
-        std::cout << BLUE << "Commands:\n" << RESET;
-        std::cout << BOLD << "  help" << RESET << "                           : Display this help information.\n\n";
+        return CompilationResult::Success;
     }
 
-    void Application::PrintCompileHelp()
+    int Application::RunProject(const std::string& path, const CompileOptions& compileOptions)
     {
-        using namespace TerminalColors;
-
-        std::cout << GREEN << "Usage: iridis compile [file]\n\n" << RESET;
-
-        std::cout << "Compiles the specified individual file into an executable.\n";
-        std::cout << "This command is used for compiling a single source file without creating a project.\n\n";
-
-        std::cout << CYAN << "Options:\n" << RESET;
-        std::cout << BOLD << "  --output:[name]" << RESET << "                : Specify the output name for the compiled executable.\n";
-        std::cout << BOLD << "  --optimize" << RESET << "                     : Enable compiler optimizations.\n";
-        std::cout << BOLD << "  --debug" << RESET << "                        : Include debugging symbols in the executable.\n\n";
-
-        std::cout << BOLD << "  --includes:[dir1],[dir2],[...]" << RESET << " : Specify directories for C header include files.\n";
-        std::cout << BOLD << "  --imports:[dir1],[dir2],[...]" << RESET << "  : Specify directories for external modules.\n";
-
-        std::cout << BLUE << "Commands:\n" << RESET;
-        std::cout << BOLD << "  help" << RESET << "                           : Display this help information.\n\n";
-    }
-
-    void Application::PrintGenBindHelp()
-    {
-        using namespace TerminalColors;
-        std::cout << GREEN << "Usage: iridis genbind [file] --output [header file]\n\n" << RESET;
-
-        std::cout << "Generates header bindings from the specified Iridis file to C in a header file.\n\n";
-
-        std::cout << CYAN << "Options:\n" << RESET;
-        std::cout << BOLD << "  --output:[header file]" << RESET << " : Specify the output header file where bindings will be generated.\n\n";
-
-        std::cout << BLUE << "Commands:\n" << RESET;
-        std::cout << BOLD << "  help" << RESET << "                   : Display this help information.\n\n";
+        int compile = (int) CompileProject(path, compileOptions);
+        if (compile != 0)
+            return compile;
+        return 0;
     }
 };

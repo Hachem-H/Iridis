@@ -1,5 +1,5 @@
-#include "Application.h"
 #include "CMDInterface.h"
+#include "Application.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
     if (argc < 2)
     {
-        Iridis::Application::PrintUsage();
+        Iridis::Usages::PrintUsage();
         return -1;
     }
 
@@ -28,5 +28,5 @@ int main(int argc, char** argv)
         return command->second(argc, argv);
     
     PrintError << "Unknown command: `" << argv[1] << "`\n\n";
-    Iridis::Application::PrintUsage();
+    Iridis::Usages::PrintUsage();
 }

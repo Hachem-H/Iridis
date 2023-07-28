@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <string>
 #include <optional>
 
@@ -9,6 +10,7 @@ namespace Iridis
 {
     namespace TerminalColors
     {
+        // TODO(Hachem): For windows, use the Win32 API and have a better Terminal Abstraction.
 #ifdef _WIN32
     constexpr const char* RESET   = "";
     constexpr const char* BOLD    = "";
@@ -29,18 +31,39 @@ namespace Iridis
     constexpr const char* CYAN    = "\033[96m";
 #endif
     };
+    
+    struct CompileOptions
+    {
+        enum class CompilationProfiles
+        {
+            Debug, Release, Distribution,
+        };
+
+        std::vector<std::string> importDirectories;
+        std::vector<std::string> includeDirectories;
+        
+        CompilationProfiles profile = CompilationProfiles::Debug;
+        std::string outputName = "output";
+    };
+
+    enum class CompilationResult
+        : int
+    {
+        CompileError = -1,
+        LinkerError = -2,
+        NoProject = -3,
+        Success = 0,
+    };
 
     class Application
     {
     private:
         std::optional<std::string> ReadFile(const char* filepath);
+        int ExecuteProcess(const char* executablePath);
     public:
-        static void PrintUsage();
-        static void PrintNewHelp();
-        static void PrintBuildHelp();
-        static void PrintRunHelp();
-        static void PrintCompileHelp();
-        static void PrintGenBindHelp();
+        static int CompileFile(const std::string& path, const CompileOptions& compileOptions);
+        static CompilationResult CompileProject(const std::string& path, const CompileOptions& compileOptions);
+        static int RunProject(const std::string& path, const CompileOptions& compileOptions);
 
         static void CreateProject(const std::string& name, const std::string& type);
     };
