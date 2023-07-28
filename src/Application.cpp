@@ -12,6 +12,8 @@
 #include <cstring>
 #include <cstdlib>
 
+#include <toml.hpp>
+
 namespace Iridis
 {
     static constexpr const char* exeSourceCode = "io :: import!(\"std.io\")\n\nmain :: proc()\n{\n    io.println(\"Hello, World!\")\n}\n";
@@ -72,7 +74,26 @@ namespace Iridis
         sourceFile.rdbuf()->pubsetbuf(const_cast<char*>(sourceCode), std::strlen(sourceCode));
         sourceFile << sourceCode;
         sourceFile.close();
-   }
+    }
+
+    ProjectConfiguration Application::ReadProjectConfiguration(const std::string& path)
+    {
+        ProjectConfiguration result;
+        std::string configPath = path + "/iridis.toml";
+
+        const auto data = toml::parse(configPath);
+        const auto projectTable = toml::find(data, "project");
+        const auto buildOptionsTable = toml::find(data, "build_options");
+
+        result.projectName = toml::find<std::string>(projectTable, "name");
+        result.projectType = toml::find<std::string>(projectTable, "type");
+        result.version = toml::find<std::string>(projectTable, "version");
+
+        result.sourceDirectory = toml::find<std::string>(buildOptionsTable, "source_directory");
+        result.outputDirectory = toml::find<std::string>(buildOptionsTable, "output_directory");
+
+        return result;
+    }
 
     int Application::CompileFile(const std::string& path, const CompileOptions& compileOptions)
     {
@@ -84,16 +105,13 @@ namespace Iridis
 
     CompilationResult Application::CompileProject(const std::string& path, CompileOptions& compileOptions)
     {
-        std::ifstream projectConfig(path + "/iridis.toml");
-        if (!projectConfig)
+        if (!std::ifstream(path + "/iridis.toml"))
             return CompilationResult::NoProject;
 
-        // TODO(Hachem) Read TOML data, and replace `outputLocation` and `outputName`
+        ProjectConfiguration projectConfig = ReadProjectConfiguration(path);
 
-        namespace fs = std::filesystem;
-
-        std::string outputLocation = path + "/bin/";
-        std::string sourceLocation = path + "/src/";
+        std::string outputLocation = path + "/" + projectConfig.outputDirectory + "/";
+        std::string sourceLocation = path + "/" + projectConfig.sourceDirectory + "/";
         std::string profileLocation;
 
         switch (compileOptions.profile)
@@ -104,6 +122,8 @@ namespace Iridis
         }
        
         std::string targetPath = outputLocation+profileLocation+compileOptions.outputName;
+
+        namespace fs = std::filesystem;
 
         fs::create_directories(targetPath);
         fs::permissions(outputLocation,                 fs::perms::others_all, fs::perm_options::remove);

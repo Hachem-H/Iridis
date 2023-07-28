@@ -55,11 +55,21 @@ namespace Iridis
         Success = 0,
     };
 
+    struct ProjectConfiguration
+    {
+        std::string projectName;
+        std::string projectType;
+        std::string version;
+
+        std::string sourceDirectory;
+        std::string outputDirectory;
+    };
+
     class Application
     {
     private:
-        std::optional<std::string> ReadFile(const char* filepath);
-        int ExecuteProcess(const char* executablePath);
+        static std::optional<std::string> ReadFile(const char* filepath);
+        static ProjectConfiguration ReadProjectConfiguration(const std::string& path);
     public:
         static int CompileFile(const std::string& path, const CompileOptions& compileOptions);
         static CompilationResult CompileProject(const std::string& path, CompileOptions& compileOptions);

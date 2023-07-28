@@ -7,7 +7,8 @@ iridisSourceFiles = [
 ]
 
 iridisIncludeDirectories = [
-    include_directories('src')
+    include_directories('src'),
+    include_directories('Vendor/toml11')
 ]
 
 executable(
