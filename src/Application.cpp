@@ -21,10 +21,10 @@ namespace Iridis
     static constexpr const char* exeSourceCode = "io :: import!(\"std.io\")\n\nmain :: proc()\n{\n    io.println(\"Hello, World!\")\n}\n";
     static constexpr const char* libSourceCode = "Add :: proc(num1: i32, num2: i32) -> i32\n{\n    return num1 + num2\n}\n";
 
-    std::optional<std::string> Application::ReadFile(const char* filepath)
+    std::optional<std::wstring> Application::ReadFile(const char* filepath)
     {
-        std::ifstream file(filepath);
-
+        std::wifstream file(filepath);
+        
         if (!file)
             return std::nullopt;
         
@@ -32,9 +32,9 @@ namespace Iridis
         const std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        std::string buffer;
+        std::wstring buffer;
         buffer.reserve(size);
-        buffer.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>(0));
+        buffer.assign(std::istreambuf_iterator<wchar_t>(file), std::istreambuf_iterator<wchar_t>());
         
         return buffer;
     }

@@ -70,7 +70,7 @@ namespace Iridis
     class Application
     {
     private:
-        static std::optional<std::string> ReadFile(const char* filepath);
+        static std::optional<std::wstring> ReadFile(const char* filepath);
         static ProjectConfiguration ReadProjectConfiguration(const std::string& path);
     public:
         static int CompileFile(const std::string& path, const CompileOptions& compileOptions);
