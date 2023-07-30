@@ -1,0 +1,100 @@
+%YAML 1.2
+---
+name: Iridis
+scope: source.iridis
+file_extensions:
+  - iridis
+contexts:
+  main:
+    - include: global
+
+  global:
+    - include: comments
+    - include: strings
+    - include: string-escaped-char
+
+    - match: \b(if|else|for|while|mod|extern|using|struct|proc|do|in|return)\b
+      scope: keyword.iridis
+    
+    - match: \b(u8|u16|u32|u64|i8|i16|i32|i64|f32|f64|string)\b
+      scope: type.iridis
+      captures:
+        0: support.type.iridis
+    
+    - match: \[;^\]
+      captures:
+        0: keyword.operator.iridis
+
+    - match: \b(\d*\.?\d+)\b
+      captures:
+        1: constant.numeric.iridis
+
+    - match: \b([a-zA-Z_][a-zA-Z0-9_]*)\\s*::(?=\\s*proc\b)
+      scope: function.definition.iridis
+      captures:
+        1: entity.name.function.iridis
+
+    - match: \b[a-zA-Z_][a-zA-Z0-9_]*\s*(?=\()
+      scope: function.call.iridis
+      captures:
+        0: entity.name.function.iridis
+
+    - match: \b[a-zA-Z_][a-zA-Z0-9_]*!\s*(?=\()
+      scope: builtin.call.iridis
+      captures:
+        0: support.function.builtin.iridis
+        
+# TODO(Hachem): Match them with the VSCode extension
+  block-comment:
+    - match: /\*
+      scope: punctuation.definition.comment.iridis
+      push:
+        - meta_scope: comment.block.iridis
+        - match: \*/
+          scope: punctuation.definition.comment.iridis
+          pop: true
+        - include: block-comment
+  comments:
+    - include: block-comment
+    - match: //
+      scope: punctuation.definition.comment.iridis
+      push:
+        - meta_scope: comment.line.double-slash.iridis
+        - match: \n
+          pop: true
+    - match: "#!"
+      scope: punctuation.definition.comment.iridis
+      push:
+        - meta_scope: comment.line.double-slash.iridis
+        - match: \n
+          pop: true
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.iridis
+      push:
+        - meta_scope: string.quoted.double.iridis
+        - match: '"'
+          scope: punctuation.definition.string.end.iridis
+          pop: true
+        - include: string-escaped-char
+    - match: "`"
+      scope: punctuation.definition.string.begin.iridis
+      push:
+        - meta_scope: string.quoted.raw.iridis
+        - match: "`"
+          scope: punctuation.definition.string.end.iridis
+          pop: true
+    - match: "'"
+      scope: punctuation.definition.string.begin.iridis
+      push:
+        - meta_scope: string.quoted.raw.iridis
+        - match: "'"
+          scope: punctuation.definition.string.end.iridis
+          pop: true
+        - include: string-escaped-char
+
+  string-escaped-char:
+    - match: '\\(\\|[abefnrutv''"]|x\h{2}|u\h{4}|U\h{8}|[0-7]{3})'
+      scope: constant.character.escape.iridis
+    - match: \\.
+      scope: invalid.illegal.unknown-escape.iridis
