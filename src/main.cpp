@@ -1,5 +1,6 @@
 #include "CMDInterface.h"
 #include "Application.h"
+#include "Log.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -23,10 +24,12 @@ int main(int argc, char** argv)
         { "genbind", Iridis::CommandLine::GenBind, },
     };
 
+    Iridis::Logger::Init();
+    
     auto command = commands.find(argv[1]);
     if (command != commands.end())
         return command->second(argc, argv);
     
-    PrintError << "Unknown command: `" << argv[1] << "`\n\n";
+    IRIDIS_ERROR("Unknown command: `{}`\n", argv[1]);
     Iridis::Usages::PrintUsage();
 }

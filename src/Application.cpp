@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Log.h"
 
 #include <filesystem>
 #include <iostream>
@@ -51,7 +52,7 @@ namespace Iridis
         std::ofstream projectConfig("iridis.toml");
         if (!projectConfig)
         {
-            PrintError << "Could not write config file.\n";
+            IRIDIS_ERROR("Could not write config file.");
             return;
         }
 
@@ -68,7 +69,7 @@ namespace Iridis
         std::ofstream sourceFile(type == "exe" ? "src/main.iridis" : "src/" + name + ".iridis");
         if (!sourceFile)
         {
-            PrintError << "Could not open source file.\n";
+            IRIDIS_ERROR("Could not open source file.");
             return;
         }
         
@@ -195,9 +196,9 @@ namespace Iridis
 
             compilationFutures[currentFile].get();
         }
+        std::cout << std::endl;
 
-        std::cout << "\n`" << BOLD << projectConfig.projectName << RESET 
-                  << "` " << "Compiled succesfully!" << '\n';
+        IRIDIS_INFO("`{}` compiled successfully!", projectConfig.projectName);
         return CompilationResult::Success;
     }
 

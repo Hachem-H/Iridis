@@ -4,8 +4,6 @@
 #include <string>
 #include <optional>
 
-#define PrintError std::cout << Iridis::TerminalColors::BOLD << Iridis::TerminalColors::RED << "ERROR: " << Iridis::TerminalColors::RESET
-
 namespace Iridis
 {
     namespace TerminalColors

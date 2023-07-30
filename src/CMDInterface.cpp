@@ -1,5 +1,6 @@
-#include "Application.h"
 #include "CMDInterface.h"
+#include "Application.h"
+#include "Log.h"
 
 #include <iostream>
 
@@ -15,7 +16,6 @@ namespace Iridis
         return true;
     }
 
-
     namespace CommandLine
     {
         int Help(int argc, char* argv[])
@@ -23,9 +23,10 @@ namespace Iridis
             Usages::PrintUsage();
             return 0;
         }
-        
+       
         int New(int argc, char* argv[])
         {
+            // TODO(Hachem): Check if project already exists
             if (argc != 4)
             {
                 Usages::PrintNewHelp();
@@ -37,20 +38,19 @@ namespace Iridis
 
             if (type != "exe" && type != "lib")
             {
-                PrintError << "Unknown project type: `" << type << "`\n" << "       " <<
-                              "You can create an executable (exe) or a library (lib).\n\n";
+                IRIDIS_ERROR("Unknown project type: `{}`\n         "
+                             "You can create an executable (exe) or a library (lib).\n");
                 return -1;
             }
 
             if (!IsValidProjectName(name))
             {
-                PrintError << "`" << name << "` is not a valid project name.\n\n"; 
+                IRIDIS_ERROR("`{}` is not a valid project name.\n", name); 
                 return -1;
             }
 
             Application::CreateProject(name, type);
-            std::cout << "Succefully created the " << (type == "exe" ? "executable" : "library")
-                      << " `" << name << "`\n\n";
+            IRIDIS_INFO("Succesffuly create the {} `{}`\n", (type == "exe" ? "executable" : "library"), name);
             return 0;
         }
 
