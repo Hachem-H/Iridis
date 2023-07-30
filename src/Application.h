@@ -6,32 +6,6 @@
 
 namespace Iridis
 {
-    namespace TerminalColors
-    {
-        // TODO(Hachem): For windows, use the Win32 API and have a better Terminal Abstraction.
-#ifdef _WIN32
-    constexpr const char* RESET   = "";
-    constexpr const char* BOLD    = "";
-    constexpr const char* RED     = "";
-    constexpr const char* GREEN   = "";
-    constexpr const char* YELLOW  = "";
-    constexpr const char* BLUE    = "";
-    constexpr const char* MAGENTA = "";
-    constexpr const char* CYAN    = "";
-    constexpr const char* ITALIC  = "";
-#else
-    constexpr const char* RESET   = "\033[0m";
-    constexpr const char* BOLD    = "\033[1m";
-    constexpr const char* ITALIC  = "\033[3m";
-    constexpr const char* RED     = "\033[91m";
-    constexpr const char* GREEN   = "\033[92m";
-    constexpr const char* YELLOW  = "\033[93m";
-    constexpr const char* BLUE    = "\033[94m";
-    constexpr const char* MAGENTA = "\033[95m";
-    constexpr const char* CYAN    = "\033[96m";
-#endif
-    };
-    
     struct CompileOptions
     {
         enum class CompilationProfiles

@@ -107,7 +107,7 @@ namespace Iridis
 
     CompilationResult Application::CompileProject(const std::string& path, CompileOptions& compileOptions)
     {
-        using namespace TerminalColors;
+        using namespace ConsoleColors;
         namespace fs = std::filesystem;
 
         if (!fs::exists(path + "/iridis.toml"))
@@ -194,10 +194,16 @@ namespace Iridis
                       << "% " << ITALIC << filename << RESET << " ";
             std::cout.flush();
 
-            compilationFutures[currentFile].get();
+            int compilationResult = compilationFutures[currentFile].get();
+            if (compilationResult != 0)
+            {
+                std::cout << std::endl;
+                IRIDIS_ERROR("`{}` was not compiled successfully!", projectConfig.projectName);
+                return CompilationResult::CompileError;
+            }
         }
-        std::cout << std::endl;
 
+        std::cout << std::endl;
         IRIDIS_INFO("`{}` compiled successfully!", projectConfig.projectName);
         return CompilationResult::Success;
     }

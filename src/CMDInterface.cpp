@@ -72,7 +72,7 @@ namespace Iridis
 
     namespace Usages
     {
-        using namespace TerminalColors;
+        using namespace ConsoleColors;
 
         void PrintUsage()
         {

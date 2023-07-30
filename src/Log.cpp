@@ -1,7 +1,7 @@
 #include "Log.h"
+#include "Platform.h"
 
 #include <spdlog/sinks/stdout_color_sinks.h>
-
 #include <vector>
 
 namespace Iridis
@@ -9,6 +9,39 @@ namespace Iridis
     std::shared_ptr<spdlog::logger> Logger::s_GlobalLogger;
     std::shared_ptr<spdlog::logger> Logger::s_InternalLogger;
     
+    namespace ConsoleColors
+    {
+#ifdef IRIDIS_WINDOWS
+#include <windows.h>
+        void Enable()
+        {
+            HANDLE outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+
+            if (outputHandle == INVALID_HANDLE_VALUE)
+            {
+                return;
+                IRIDIS_CORE_ERROR("Could not get the standard output handle.");
+            }
+
+            DWORD consoleMode = 0;
+            if (!GetConsoleMode(outputHandle, &consoleMode))
+            {
+                IRIDIS_CORE_ERROR("Could not get the console mode.");
+                return;
+            }
+            
+            consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            if (!SetConsoleMode(outputHandle, consoleMode))
+            {
+                IRIDIS_CORE_ERROR("Could not enable `ENABLE_VIRUAL_TERMINAL_PROCESSING` mode on the output handle.");
+                return;
+            }
+        }
+#else
+        void Enable() { }
+#endif
+    }
+
     void Logger::Init()
     {
 		std::vector<spdlog::sink_ptr> globalLogSinks;

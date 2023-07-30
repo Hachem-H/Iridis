@@ -3,11 +3,13 @@
 #include "Log.h"
 
 #include <unordered_map>
-#include <iostream>
 #include <string>
 
 int main(int argc, char** argv)
 {
+    Iridis::Logger::Init();
+    Iridis::ConsoleColors::Enable();
+
     if (argc < 2)
     {
         Iridis::Usages::PrintUsage();
@@ -23,8 +25,6 @@ int main(int argc, char** argv)
         { "compile", Iridis::CommandLine::Compile, },
         { "genbind", Iridis::CommandLine::GenBind, },
     };
-
-    Iridis::Logger::Init();
     
     auto command = commands.find(argv[1]);
     if (command != commands.end())
