@@ -1,18 +1,37 @@
 #include "Token.h"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 namespace Iridis
 {
     Token Token::ToToken(const std::wstring& buffer)
     {
+        bool isNumber = true;
+        for (wchar_t character : buffer)
+            if (!std::isdigit(character))
+            {
+                isNumber = false;
+                break;
+            }
+
+        if (isNumber)
+        {
+            std::wistringstream stream(buffer);
+            int value = 0;
+            if (stream >> value)
+                return Token(value);
+        }
+
              if (buffer == L"{")      return Token(Type::RCurlyBrace);
         else if (buffer == L"}")      return Token(Type::LCurlyBrace);
         else if (buffer == L"[")      return Token(Type::RBracket);
         else if (buffer == L"]")      return Token(Type::LBracket);
         else if (buffer == L"(")      return Token(Type::RParen);
         else if (buffer == L")")      return Token(Type::LParen);
+        else if (buffer == L"<")      return Token(Type::RAngleBracket);
+        else if (buffer == L">")      return Token(Type::LAngleBracket);
 
         else if (buffer == L":")      return Token(Type::Colon);
         else if (buffer == L";")      return Token(Type::SemiColon);
@@ -49,44 +68,48 @@ namespace Iridis
 
     std::wstring Token::ToString()
     {
-             if (type == Type::RCurlyBrace) return L"RCurlyBrace";
-        else if (type == Type::LCurlyBrace) return L"LCurlyBrace";
-        else if (type == Type::RBracket)    return L"RBracket";
-        else if (type == Type::LBracket)    return L"LBracket";
-        else if (type == Type::RParen)      return L"RParen";
-        else if (type == Type::LParen)      return L"LParen";
-  
-        else if (type == Type::Colon)       return L"Colon";
-        else if (type == Type::SemiColon)   return L"SemiColon";
-        else if (type == Type::Caret)       return L"Caret";
-        else if (type == Type::Ampersand)   return L"Ampersand";
-        else if (type == Type::Exclamation) return L"Exclamation";
-        else if (type == Type::Comma)       return L"Comma";
-        else if (type == Type::Dot)         return L"Dot";
+             if (type == Type::RCurlyBrace)   return L"RCurlyBrace";
+        else if (type == Type::LCurlyBrace)   return L"LCurlyBrace";
+        else if (type == Type::RBracket)      return L"RBracket";
+        else if (type == Type::LBracket)      return L"LBracket";
+        else if (type == Type::RParen)        return L"RParen";
+        else if (type == Type::LParen)        return L"LParen";
+        else if (type == Type::RAngleBracket) return L"RAngleBracket";
+        else if (type == Type::LAngleBracket) return L"LAngleBracket";
 
-        else if (type == Type::In)          return L"In";
-        else if (type == Type::Do)          return L"Do";
-        else if (type == Type::If)          return L"If";
-        else if (type == Type::For)         return L"For";
-        else if (type == Type::Else)        return L"Else";
-        else if (type == Type::While)       return L"While";
-        else if (type == Type::Using)       return L"Using";
-        else if (type == Type::Return)      return L"Return";
+        else if (type == Type::Colon)         return L"Colon";
+        else if (type == Type::SemiColon)     return L"SemiColon";
+        else if (type == Type::Caret)         return L"Caret";
+        else if (type == Type::Ampersand)     return L"Ampersand";
+        else if (type == Type::Exclamation)   return L"Exclamation";
+        else if (type == Type::Comma)         return L"Comma";
+        else if (type == Type::Dot)           return L"Dot";
 
-        else if (type == Type::Plus)        return L"Plus";
-        else if (type == Type::Minus)       return L"Minus";
-        else if (type == Type::Asterisk)    return L"Asterisk";
-        else if (type == Type::Slash)       return L"Slash";
-        else if (type == Type::Equal)       return L"Equal";
+        else if (type == Type::In)            return L"In";
+        else if (type == Type::Do)            return L"Do";
+        else if (type == Type::If)            return L"If";
+        else if (type == Type::For)           return L"For";
+        else if (type == Type::Else)          return L"Else";
+        else if (type == Type::While)         return L"While";
+        else if (type == Type::Using)         return L"Using";
+        else if (type == Type::Return)        return L"Return";
+
+        else if (type == Type::Plus)          return L"Plus";
+        else if (type == Type::Minus)         return L"Minus";
+        else if (type == Type::Asterisk)      return L"Asterisk";
+        else if (type == Type::Slash)         return L"Slash";
+        else if (type == Type::Equal)         return L"Equal";
   
-        else if (type == Type::Procedure)   return L"Procedure";
-        else if (type == Type::Structure)   return L"Structure";
-        else if (type == Type::Enum)        return L"Enum";
-        else if (type == Type::Extern)      return L"Extern";
-        else if (type == Type::Module)      return L"Module";
+        else if (type == Type::Procedure)     return L"Procedure";
+        else if (type == Type::Structure)     return L"Structure";
+        else if (type == Type::Enum)          return L"Enum";
+        else if (type == Type::Extern)        return L"Extern";
+        else if (type == Type::Module)        return L"Module";
 
         else if (type == Type::Identifier)
             return L"Identifier(" + identifier + L")";
+        else if (type == Type::Number)
+            return L"Number(" + std::to_wstring(numberValue) + L")";
         
         else return L"Unknown Token";
     }

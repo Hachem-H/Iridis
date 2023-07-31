@@ -13,6 +13,8 @@ namespace Iridis
         enum class Type
         {
             Identifier,
+            Number,
+
             Procedure,
             Structure,
             Extern,
@@ -34,6 +36,8 @@ namespace Iridis
             LParen,
             RBracket,
             LBracket,
+            RAngleBracket,
+            LAngleBracket,
 
             Colon,      // NOTE(Hachem): Haha colon
             SemiColon,
@@ -49,8 +53,6 @@ namespace Iridis
             Asterisk,
             Slash,
 
-            String,
-            Number,
         };
         
         Token(const int& number)
