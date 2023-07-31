@@ -65,8 +65,21 @@ namespace Iridis
             return (int)Application::CompileProject(path, options);
         }
 
+        int Compile(int argc, char* argv[])
+        {
+            if (argc != 3)
+            {
+                IRIDIS_ERROR("File expected!\n");
+                Usages::PrintCompileHelp();
+                return -1;
+            }
+
+            const char* path = argv[2];
+            CompileOptions options = {};
+            return Application::CompileFile(path, options);
+        }
+
         int Run(int argc, char* argv[])     { return 0 ; }
-        int Compile(int argc, char* argv[]) { return 0 ; }
         int GenBind(int argc, char* argv[]) { return 0 ; }
     };
 

@@ -39,6 +39,7 @@ namespace Iridis
 #define IRIDIS_ERROR(...) ::Iridis::Logger::GetGlobalLogger()->error(__VA_ARGS__)
 #define IRIDIS_WARN(...)  ::Iridis::Logger::GetGlobalLogger()->warn(__VA_ARGS__)
 #define IRIDIS_INFO(...)  ::Iridis::Logger::GetGlobalLogger()->info(__VA_ARGS__)
+#define IRIDIS_DEBUG(...)  ::Iridis::Logger::GetGlobalLogger()->debug(__VA_ARGS__)
 
 #define IRIDIS_CORE_ERROR(...) ::Iridis::Logger::GetInternalLogger()->error(__VA_ARGS__) 
 #define IRIDIS_CORE_WARN(...)  ::Iridis::Logger::GetInternalLogger()->warn(__VA_ARGS__) 

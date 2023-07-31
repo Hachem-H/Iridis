@@ -1,6 +1,9 @@
 #include "Application.h"
 #include "Log.h"
 
+#include "Backend/Lexer.h"
+#include "Backend/Token.h"
+
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -100,8 +103,18 @@ namespace Iridis
 
     int Application::CompileFile(const std::string& path, const CompileOptions& compileOptions)
     {
-        // TODO(Hachem): Implement Compiler
-        std::this_thread::sleep_for(std::chrono::milliseconds(500 + rand() % 3500));
+        std::optional<std::wstring> file = ReadFile(&path[0]);
+
+        if (!file)
+        {
+            IRIDIS_CORE_ERROR("Could not load file");
+            return -1;
+        }
+
+        std::vector<Token> tokens =  Lexer::Tokenize(*file);
+        for (Token& token : tokens)
+            std::wcout << token.ToString() << std::endl;
+
         return 0;
     }
 

@@ -1,9 +1,12 @@
 project('Iridis', 'cpp')
 
 iridisSourceFiles = [
-    'src/CMDInterface.cpp',
-    'src/Application.cpp',
-    'src/Log.cpp',
+    'src/Core/CMDInterface.cpp',
+    'src/Core/Application.cpp',
+    'src/Core/Log.cpp',
+
+    'src/Backend/Token.cpp',
+    'src/Backend/Lexer.cpp',
 
     'src/main.cpp'
 ]

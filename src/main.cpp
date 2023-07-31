@@ -1,6 +1,6 @@
-#include "CMDInterface.h"
-#include "Application.h"
-#include "Log.h"
+#include "Core/CMDInterface.h"
+#include "Core/Application.h"
+#include "Core/Log.h"
 
 #include <unordered_map>
 #include <string>
