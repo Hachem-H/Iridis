@@ -64,8 +64,6 @@ namespace Iridis
         {
             if (type == Type::Identifier)
                 identifier = value;
-            if (type == Type::String)
-                stringValue = value;
         }
 
         Token(const Type& type)
@@ -85,14 +83,6 @@ namespace Iridis
         inline std::optional<std::wstring> GetIdentifier() const
         {
             if (type == Type::Identifier)
-                return identifier;
-            else
-                return { };
-        }
-
-        inline std::optional<std::wstring> GetStringValue() const
-        {
-            if (type == Type::String)
                 return identifier;
             else
                 return { };
