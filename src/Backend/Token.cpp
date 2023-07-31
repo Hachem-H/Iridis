@@ -49,41 +49,41 @@ namespace Iridis
 
     std::wstring Token::ToString()
     {
-             if (type == Type::RCurlyBrace)   return L"RCurlyBrace";
-        else if (type == Type::LCurlyBrace)   return L"LCurlyBrace";
-        else if (type == Type::RBracket)      return L"RBracket";
-        else if (type == Type::LBracket)      return L"LBracket";
-        else if (type == Type::RParen)        return L"RParen";
-        else if (type == Type::LParen)        return L"LParen";
+             if (type == Type::RCurlyBrace) return L"RCurlyBrace";
+        else if (type == Type::LCurlyBrace) return L"LCurlyBrace";
+        else if (type == Type::RBracket)    return L"RBracket";
+        else if (type == Type::LBracket)    return L"LBracket";
+        else if (type == Type::RParen)      return L"RParen";
+        else if (type == Type::LParen)      return L"LParen";
   
-        else if (type == Type::Colon)         return L"Colon";
-        else if (type == Type::SemiColon)     return L"SemiColon";
-        else if (type == Type::Caret)         return L"Caret";
-        else if (type == Type::Ampersand)     return L"Ampersand";
-        else if (type == Type::Exclamation)   return L"Exclamation";
-        else if (type == Type::Comma)         return L"Comma";
-        else if (type == Type::Dot)           return L"Dot";
+        else if (type == Type::Colon)       return L"Colon";
+        else if (type == Type::SemiColon)   return L"SemiColon";
+        else if (type == Type::Caret)       return L"Caret";
+        else if (type == Type::Ampersand)   return L"Ampersand";
+        else if (type == Type::Exclamation) return L"Exclamation";
+        else if (type == Type::Comma)       return L"Comma";
+        else if (type == Type::Dot)         return L"Dot";
 
-        else if (type == Token(Type::In))     return L"In";
-        else if (type == Token(Type::Do))     return L"Do";
-        else if (type == Token(Type::If))     return L"If";
-        else if (type == Token(Type::For))    return L"For";
-        else if (type == Token(Type::Else))   return L"Else";
-        else if (type == Token(Type::While))  return L"While";
-        else if (type == Token(Type::Using))  return L"Using";
-        else if (type == Token(Type::Return)) return L"Return";
+        else if (type == Type::In)          return L"In";
+        else if (type == Type::Do)          return L"Do";
+        else if (type == Type::If)          return L"If";
+        else if (type == Type::For)         return L"For";
+        else if (type == Type::Else)        return L"Else";
+        else if (type == Type::While)       return L"While";
+        else if (type == Type::Using)       return L"Using";
+        else if (type == Type::Return)      return L"Return";
 
-        else if (type == Type::Plus)          return L"Plus";
-        else if (type == Type::Minus)         return L"Minus";
-        else if (type == Type::Asterisk)      return L"Asterisk";
-        else if (type == Type::Slash)         return L"Slash";
-        else if (type == Type::Equal)         return L"Equal";
+        else if (type == Type::Plus)        return L"Plus";
+        else if (type == Type::Minus)       return L"Minus";
+        else if (type == Type::Asterisk)    return L"Asterisk";
+        else if (type == Type::Slash)       return L"Slash";
+        else if (type == Type::Equal)       return L"Equal";
   
-        else if (type == Type::Procedure)     return L"Procedure";
-        else if (type == Type::Structure)     return L"Structure";
-        else if (type == Type::Enum)          return L"Enum";
-        else if (type == Type::Extern)        return L"Extern";
-        else if (type == Type::Module)        return L"Module";
+        else if (type == Type::Procedure)   return L"Procedure";
+        else if (type == Type::Structure)   return L"Structure";
+        else if (type == Type::Enum)        return L"Enum";
+        else if (type == Type::Extern)      return L"Extern";
+        else if (type == Type::Module)      return L"Module";
 
         else if (type == Type::Identifier)
             return L"Identifier(" + identifier + L")";
