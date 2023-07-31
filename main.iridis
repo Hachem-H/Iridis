@@ -1,5 +1,0 @@
-main :: proc()
-{
-    number := 1234
-    io.println(number)
-}
