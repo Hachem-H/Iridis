@@ -15,7 +15,18 @@ namespace Iridis
             Identifier,
             Procedure,
             Structure,
+            Extern,
+            Module,
             Enum,
+            
+            In,
+            Do,
+            If,
+            For,
+            Else,
+            While,
+            Using,
+            Return,
 
             RCurlyBrace,
             LCurlyBrace,
@@ -30,6 +41,8 @@ namespace Iridis
             Ampersand,
             Exclamation,
             Equal,
+            Comma,
+            Dot,
 
             Plus,
             Minus,
