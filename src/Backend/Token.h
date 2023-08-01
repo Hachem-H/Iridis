@@ -61,6 +61,7 @@ namespace Iridis
             : line(line),
               column(column),
               type(Type::Number),
+              repr(L"number"), // TODO(Hachem): proper parsing
               numberValue(number) { }
 
         Token(const int line, 
@@ -69,7 +70,8 @@ namespace Iridis
               const std::wstring& value)
             : line(line),
               column(column),
-              type(type)
+              type(type),
+              repr(value)
         {
             if (type == Type::Identifier)
                 identifier = value;
@@ -77,10 +79,12 @@ namespace Iridis
 
         Token(const int line, 
               const int column,
+              const std::wstring& representation,
               const Type& type)
             : line(line),
               column(column),
-              type(type) { }
+              type(type),
+              repr(representation) { }
 
 
         inline const Type GetType() const { return type; }
@@ -101,8 +105,9 @@ namespace Iridis
                 return { };
         }
 
-        inline const int GetLine()   const { return line;    }
-        inline const int GetColumn() const { return column;  }
+        inline const int GetLine()                    const { return line;           }
+        inline const int GetColumn()                  const { return column;         }
+        inline const std::wstring GetRepresentation() const { return repr; }
 
         static Token ToToken(int line, int column, const std::wstring& buffer);
         std::wstring ToString();
@@ -111,6 +116,7 @@ namespace Iridis
         int column;
 
         Type type;
+        std::wstring repr = L"";
         int numberValue = 0;
 
         std::wstring identifier  = L"";

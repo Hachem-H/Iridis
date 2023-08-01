@@ -17,7 +17,7 @@ namespace Iridis
         bool HandleIdentifier();
 
         void ShowErrorLocation();
-        void Parse();
+        int Parse();
     private:
         bool ReadNextToken();
         bool ReadPreviousToken();

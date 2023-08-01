@@ -115,9 +115,7 @@ namespace Iridis
         std::wstring sourceCode = *file;
         std::vector<Token> tokens =  Lexer::Tokenize(sourceCode);
         Parser parser(sourceCode, tokens);
-        parser.Parse();
-        
-        return 0;
+        return parser.Parse();
     }
 
     CompilationResult Application::CompileProject(const std::string& path, CompileOptions& compileOptions)

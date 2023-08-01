@@ -30,7 +30,7 @@ namespace Iridis
             numDigits++;
         }
 
-        std::wcout << std::endl << GREEN << line << RESET << ": " << sourceLines[line-1] << std::endl;
+        std::wcout << GREEN << line << RESET << ": " << sourceLines[line-1] << std::endl;
         std::cout << std::string(numDigits+column+1, ' ') << "^ " << UNDERLINE << "here" << RESET;
     }
 
@@ -60,6 +60,8 @@ namespace Iridis
 
     bool Parser::HandleIdentifier()
     {
+        std::cout << std::endl;
+
         const std::wstring name = *currentToken.GetIdentifier();
         ReadNextToken(); ReadNextToken();
         if (currentToken.GetType() != Token::Type::Colon &&
@@ -72,6 +74,8 @@ namespace Iridis
             ShowErrorLocation(); 
             if (auto identifierName = currentToken.GetIdentifier())
                 std::wcout << ": Did you mean `=` or `:` instead of `" << *identifierName << "`?";
+            else
+                std::wcout << ": Did you mean `=` or `:` instead of `" << currentToken.GetRepresentation() << "`?";
             std::cout << std::endl;
             return false;
         }
@@ -109,15 +113,19 @@ namespace Iridis
         return false;
     }
 
-    void Parser::Parse()
+    int Parser::Parse()
     {
+        int result = 0;
+
         for (; currentTokenIndex < (int) tokens.size(); currentTokenIndex++)
         {
             currentToken = tokens[currentTokenIndex];
 
             if (currentToken.GetType() == Token::Type::Identifier)
                 if (!HandleIdentifier())
-                    break;
+                    result = -1;
         }
+
+        return result;
     }
 };

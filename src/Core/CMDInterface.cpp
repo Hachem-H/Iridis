@@ -50,7 +50,7 @@ namespace Iridis
             }
 
             Application::CreateProject(name, type);
-            IRIDIS_INFO("Succesffuly create the {} `{}`\n", (type == "exe" ? "executable" : "library"), name);
+            IRIDIS_INFO("Successfully created the {} `{}`\n", (type == "exe" ? "executable" : "library"), name);
             return 0;
         }
 
@@ -76,7 +76,10 @@ namespace Iridis
 
             const char* path = argv[2];
             CompileOptions options = {};
-            return Application::CompileFile(path, options);
+
+            int ret = Application::CompileFile(path, options);
+            std::cout << std::endl;
+            return ret;
         }
 
         int Run(int argc, char* argv[])     { return 0 ; }
