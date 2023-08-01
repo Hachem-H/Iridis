@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Log.h"
 
+#include "Backend/Parser.h"
 #include "Backend/Lexer.h"
 #include "Backend/Token.h"
 
@@ -112,9 +113,9 @@ namespace Iridis
         }
 
         std::vector<Token> tokens =  Lexer::Tokenize(*file);
-        for (Token& token : tokens)
-            std::wcout << token.ToString() << std::endl;
-
+        Parser parser = Parser(tokens);
+        parser.Parse();
+        
         return 0;
     }
 

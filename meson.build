@@ -5,6 +5,7 @@ iridisSourceFiles = [
     'src/Core/Application.cpp',
     'src/Core/Log.cpp',
 
+    'src/Backend/Parser.cpp',
     'src/Backend/Token.cpp',
     'src/Backend/Lexer.cpp',
 

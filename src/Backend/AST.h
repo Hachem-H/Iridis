@@ -6,43 +6,23 @@
 
 namespace Iridis
 {
+    enum class BuiltinType
+    {
+        I64, I32, I16, I8,
+        U64, U32, U16, U8,
+
+        String, Character, Boolean,
+    };
+
+    struct BasicArgument
+    {
+        std::string name;
+        BuiltinType type;
+    };
+
     struct ExpressionAST
     {
         virtual ~ExpressionAST() = default;
-    };
-
-    class NumberAST
-        : public ExpressionAST
-    {
-    public:
-        NumberAST(double value)
-            : value(value) { }
-    private:
-        double value;
-    };
-
-    class VariableAST
-        : public ExpressionAST
-    {
-    public:
-        VariableAST(const std::wstring& name)
-            : name(name) { }
-    private:
-        std::wstring name;
-    };
-
-    class BinaryExpressionAST
-        : public ExpressionAST
-    {
-    public:
-        BinaryExpressionAST(char op, std::unique_ptr<ExpressionAST> leftHandSide,
-                            std::unique_ptr<ExpressionAST> rightHandSide) 
-            : op(op), leftHandSide(std::move(leftHandSide)),
-                      rightHandSide(std::move(rightHandSide)) { }
-    private:
-        char op;
-        std::unique_ptr<ExpressionAST> leftHandSide;
-        std::unique_ptr<ExpressionAST> rightHandSide;
     };
 
     class ProcedureCallAST
@@ -54,31 +34,18 @@ namespace Iridis
             : callee(callee), arguments(std::move(arguments)) { }
 
     private:
-        std::vector<std::unique_ptr<ExpressionAST>> arguments;
         std::string callee;
-    };
-
-    class ProcedurePrototypeAST
-    {
-    public:
-        ProcedurePrototypeAST(const std::wstring& name,
-                              const std::vector<std::wstring> arguments)
-            : name(name), arguments(std::move(arguments)) { }
-
-        inline const std::wstring& GetName() const { return name; }
-    private:
-        std::wstring name;
-        std::vector<std::wstring> arguments;
+        std::vector<std::unique_ptr<ExpressionAST>> arguments;
     };
 
     class ProcedureAST
     {
     public:
-        ProcedureAST(std::unique_ptr<ProcedurePrototypeAST> prototype,
-                     std::unique_ptr<ExpressionAST> body)
-            : prototype(std::move(prototype)), body(std::move(body)) { }
-    private:
-        std::unique_ptr<ProcedurePrototypeAST> prototype;
-        std::unique_ptr<ExpressionAST> body;
+        ProcedureAST(const std::wstring& name, 
+                     std::vector<BasicArgument> arguments)
+            : name(name), arguments(std::move(arguments)) { }
+    public:
+        std::wstring name;
+        std::vector<BasicArgument> arguments;
     };
 };
