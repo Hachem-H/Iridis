@@ -8,6 +8,6 @@ namespace Iridis
 {
     namespace Lexer
     {
-        std::vector<Token> Tokenize(std::wstring& source);
+        std::vector<Token> Tokenize(const std::wstring& source);
     };
 };

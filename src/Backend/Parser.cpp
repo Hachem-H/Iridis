@@ -1,17 +1,38 @@
 #include "Core/Log.h"
 #include "Parser.h"
 
+#include <iostream>
+#include <iomanip>
+
 namespace Iridis
 {
-    const std::map<Token::Type, int> Parser::BinaryOperatorPrecedence =
+    Parser::Parser(const std::wstring& sourceCode, std::vector<Token> tokens)
+        : tokens(tokens), currentToken(tokens[0])
+    {
+        std::wstringstream ss(sourceCode);
+        std::wstring line;
+
+        while (std::getline(ss, line))
+            sourceLines.push_back(line);
+    }
+
+    void Parser::ShowErrorLocation()
+    {
+        using namespace ConsoleColors;
+
+        int line = currentToken.GetLine();
+        int column = currentToken.GetColumn();
+
+        int numDigits = 0;
+        for (int number = line; number != 0;)
         {
-            {Token::Type::RAngleBracket, 10},
-            {Token::Type::LAngleBracket, 10},
-            {Token::Type::Plus, 20},
-            {Token::Type::Minus, 20},
-            {Token::Type::Asterisk, 40},
-            {Token::Type::Slash, 40},
-    };
+            number /= 10;
+            numDigits++;
+        }
+
+        std::wcout << std::endl << GREEN << line << RESET << ": " << sourceLines[line-1] << std::endl;
+        std::cout << std::string(numDigits+column+1, ' ') << "^ " << UNDERLINE << "here" << RESET << std::endl;
+    }
 
     bool Parser::ReadNextToken()
     {
@@ -44,7 +65,11 @@ namespace Iridis
         if (currentToken.GetType() != Token::Type::Colon &&
             currentToken.GetType() != Token::Type::Equal)
         {
-            IRIDIS_ERROR("Expected `=` or `:` after type declaration.");
+            int line = currentToken.GetLine();
+            int column = currentToken.GetColumn();
+
+            IRIDIS_ERROR("Expected `=` or `:` after type declaration @ Line: {}, Column: {}", line, column);
+            ShowErrorLocation();
             return false;
         }
 
@@ -70,13 +95,16 @@ namespace Iridis
             }
         }
 
-        IRIDIS_ERROR("Unexpected symbol: {}", WideToNarrow(currentToken.ToString()));
+        IRIDIS_ERROR("Unexpected symbol {} @ Line: {}, Column {}", 
+                     WideToNarrow(currentToken.ToString()),
+                     currentToken.GetLine(), currentToken.GetColumn());
+        ShowErrorLocation();
         return false;
     }
 
     void Parser::Parse()
     {
-        for (;currentTokenIndex < (int) tokens.size(); currentTokenIndex++)
+        for (; currentTokenIndex < (int) tokens.size(); currentTokenIndex++)
         {
             currentToken = tokens[currentTokenIndex];
 

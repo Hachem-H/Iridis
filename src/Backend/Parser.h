@@ -3,6 +3,7 @@
 #include "Token.h"
 #include "AST.h"
 
+#include <sstream>
 #include <memory>
 #include <map>
 
@@ -11,24 +12,20 @@ namespace Iridis
     class Parser
     {
     public:
-        Parser(std::vector<Token> tokens)
-            : tokens(tokens), currentToken(tokens[currentTokenIndex]) { }
-
-        // std::unique_ptr<ProcedureAST> ParseProcedure();
-        // std::unique_ptr<StructureAST> ParseStructure();
+        Parser(const std::wstring& sourceCode, std::vector<Token> tokens);
 
         bool HandleIdentifier();
 
+        void ShowErrorLocation();
         void Parse();
     private:
         bool ReadNextToken();
         bool ReadPreviousToken();
     private:
-        int currentTokenIndex = 0;
-
+        std::vector<std::wstring> sourceLines;
         std::vector<Token> tokens;
         Token currentToken;
 
-        const static std::map<Token::Type, int> BinaryOperatorPrecedence;
+        int currentTokenIndex = 0;
     };
 };

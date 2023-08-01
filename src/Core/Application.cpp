@@ -112,8 +112,9 @@ namespace Iridis
             return -1;
         }
 
-        std::vector<Token> tokens =  Lexer::Tokenize(*file);
-        Parser parser = Parser(tokens);
+        std::wstring sourceCode = *file;
+        std::vector<Token> tokens =  Lexer::Tokenize(sourceCode);
+        Parser parser(sourceCode, tokens);
         parser.Parse();
         
         return 0;

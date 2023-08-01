@@ -7,34 +7,66 @@ namespace Iridis
 {
     namespace Lexer
     {
-        std::vector<Token> Tokenize(std::wstring& source)
+        std::vector<Token> Tokenize(const std::wstring& source)
         {
-            std::vector<std::wstring> stringTokens;
+            struct TokenInfo
+            {
+                int line = 0;
+                int column = 0;
+                std::wstring identifier;
+            };
+
+            std::vector<TokenInfo> tokenInfo;
             std::wstring buffer;
+
+            int currentLine = 1;
+            int currentColumn = 1;
+            int tokenStartLine = 1;
+            int tokenStartColumn = 1;
 
             for (wchar_t character : source)
             {
+                if (character == L'\n')
+                {
+                    currentLine++;
+                    currentColumn = 1;
+                    continue;
+                }
+
                 if (std::iswspace(character) || std::iswpunct(character))
                 {
                     if (!buffer.empty())
                     {
-                        stringTokens.push_back(buffer);
+                        tokenInfo.push_back({ tokenStartLine, tokenStartColumn, buffer });
                         buffer.clear();
                     }
 
                     if (std::iswpunct(character))
-                        stringTokens.push_back(std::wstring(1, character));
-                } 
+                        tokenInfo.push_back({ currentLine, currentColumn, std::wstring(1, character) });
+
+                    tokenStartLine = currentLine;
+                    tokenStartColumn = currentColumn + 1;
+                }
                 else
+                {
+                    if (buffer.empty())
+                    {
+                        tokenStartLine = currentLine;
+                        tokenStartColumn = currentColumn;
+                    }
+
                     buffer += character;
+                }
+
+                ++currentColumn;
             }
 
             if (!buffer.empty())
-                stringTokens.push_back(buffer);
+                tokenInfo.push_back({ tokenStartLine, tokenStartColumn, buffer });
 
             std::vector<Token> tokens;
-            for (std::wstring stringToken : stringTokens)
-                tokens.push_back(Token::ToToken(stringToken));
+            for (TokenInfo tokenInfo : tokenInfo)
+                tokens.push_back(Token::ToToken(tokenInfo.line, tokenInfo.column, tokenInfo.identifier));
 
             return tokens;
         }

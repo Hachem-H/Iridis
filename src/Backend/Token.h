@@ -55,19 +55,32 @@ namespace Iridis
 
         };
         
-        Token(const int& number)
-            : type(Type::Number),
+        Token(const int line, 
+              const int column,
+              const int& number)
+            : line(line),
+              column(column),
+              type(Type::Number),
               numberValue(number) { }
 
-        Token(const Type& type, const std::wstring& value)
-            : type(type)
+        Token(const int line, 
+              const int column,
+              const Type& type, 
+              const std::wstring& value)
+            : line(line),
+              column(column),
+              type(type)
         {
             if (type == Type::Identifier)
                 identifier = value;
         }
 
-        Token(const Type& type)
-            : type(type) { }
+        Token(const int line, 
+              const int column,
+              const Type& type)
+            : line(line),
+              column(column),
+              type(type) { }
 
 
         inline const Type GetType() const { return type; }
@@ -88,12 +101,18 @@ namespace Iridis
                 return { };
         }
 
-        static Token ToToken(const std::wstring& buffer);
+        inline const int GetLine()   const { return line;    }
+        inline const int GetColumn() const { return column;  }
+
+        static Token ToToken(int line, int column, const std::wstring& buffer);
         std::wstring ToString();
     private:
-        Type type;
+        int line;
+        int column;
 
-        int numberValue          = 0;
+        Type type;
+        int numberValue = 0;
+
         std::wstring identifier  = L"";
         std::wstring stringValue = L"";
     };

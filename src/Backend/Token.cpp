@@ -6,7 +6,7 @@
 
 namespace Iridis
 {
-    Token Token::ToToken(const std::wstring& buffer)
+    Token Token::ToToken(int line, int column, const std::wstring& buffer)
     {
         bool isNumber = true;
         for (wchar_t character : buffer)
@@ -21,49 +21,48 @@ namespace Iridis
             std::wistringstream stream(buffer);
             int value = 0;
             if (stream >> value)
-                return Token(value);
+                return Token(line, column, value);
         }
 
-             if (buffer == L"{")      return Token(Type::RCurlyBrace);
-        else if (buffer == L"}")      return Token(Type::LCurlyBrace);
-        else if (buffer == L"[")      return Token(Type::RBracket);
-        else if (buffer == L"]")      return Token(Type::LBracket);
-        else if (buffer == L"(")      return Token(Type::RParen);
-        else if (buffer == L")")      return Token(Type::LParen);
-        else if (buffer == L"<")      return Token(Type::RAngleBracket);
-        else if (buffer == L">")      return Token(Type::LAngleBracket);
+             if (buffer == L"{")      return Token(line, column, Type::RCurlyBrace);
+        else if (buffer == L"}")      return Token(line, column, Type::LCurlyBrace);
+        else if (buffer == L"[")      return Token(line, column, Type::RBracket);
+        else if (buffer == L"]")      return Token(line, column, Type::LBracket);
+        else if (buffer == L"(")      return Token(line, column, Type::RParen);
+        else if (buffer == L")")      return Token(line, column, Type::LParen);
+        else if (buffer == L"<")      return Token(line, column, Type::RAngleBracket);
+        else if (buffer == L">")      return Token(line, column, Type::LAngleBracket);
 
-        else if (buffer == L":")      return Token(Type::Colon);
-        else if (buffer == L";")      return Token(Type::SemiColon);
-        else if (buffer == L"^")      return Token(Type::Caret);
-        else if (buffer == L"&")      return Token(Type::Ampersand);
-        else if (buffer == L"!")      return Token(Type::Exclamation);
-        else if (buffer == L",")      return Token(Type::Comma);
-        else if (buffer == L".")      return Token(Type::Dot);
+        else if (buffer == L":")      return Token(line, column, Type::Colon);
+        else if (buffer == L";")      return Token(line, column, Type::SemiColon);
+        else if (buffer == L"^")      return Token(line, column, Type::Caret);
+        else if (buffer == L"&")      return Token(line, column, Type::Ampersand);
+        else if (buffer == L"!")      return Token(line, column, Type::Exclamation);
+        else if (buffer == L",")      return Token(line, column, Type::Comma);
+        else if (buffer == L".")      return Token(line, column, Type::Dot);
 
-        else if (buffer == L"+")      return Token(Type::Plus);
-        else if (buffer == L"-")      return Token(Type::Minus);
-        else if (buffer == L"*")      return Token(Type::Asterisk);
-        else if (buffer == L"/")      return Token(Type::Slash);
-        else if (buffer == L"=")      return Token(Type::Equal);
+        else if (buffer == L"+")      return Token(line, column, Type::Plus);
+        else if (buffer == L"-")      return Token(line, column, Type::Minus);
+        else if (buffer == L"*")      return Token(line, column, Type::Asterisk);
+        else if (buffer == L"/")      return Token(line, column, Type::Slash);
+        else if (buffer == L"=")      return Token(line, column, Type::Equal);
 
-        else if (buffer == L"in")     return Token(Type::In);
-        else if (buffer == L"do")     return Token(Type::Do);
-        else if (buffer == L"if")     return Token(Type::If);
-        else if (buffer == L"for")    return Token(Type::For);
-        else if (buffer == L"else")   return Token(Type::Else);
-        else if (buffer == L"while")  return Token(Type::While);
-        else if (buffer == L"using")  return Token(Type::Using);
-        else if (buffer == L"return") return Token(Type::Return);
+        else if (buffer == L"in")     return Token(line, column, Type::In);
+        else if (buffer == L"do")     return Token(line, column, Type::Do);
+        else if (buffer == L"if")     return Token(line, column, Type::If);
+        else if (buffer == L"for")    return Token(line, column, Type::For);
+        else if (buffer == L"else")   return Token(line, column, Type::Else);
+        else if (buffer == L"while")  return Token(line, column, Type::While);
+        else if (buffer == L"using")  return Token(line, column, Type::Using);
+        else if (buffer == L"return") return Token(line, column, Type::Return);
 
-        else if (buffer == L"proc")   return Token(Type::Procedure);
-        else if (buffer == L"struct") return Token(Type::Structure);
-        else if (buffer == L"enum")   return Token(Type::Enum);
-        else if (buffer == L"extern") return Token(Type::Extern);
-        else if (buffer == L"mod")    return Token(Type::Module);
+        else if (buffer == L"proc")   return Token(line, column, Type::Procedure);
+        else if (buffer == L"struct") return Token(line, column, Type::Structure);
+        else if (buffer == L"enum")   return Token(line, column, Type::Enum);
+        else if (buffer == L"extern") return Token(line, column, Type::Extern);
+        else if (buffer == L"mod")    return Token(line, column, Type::Module);
 
-        // TODO(Hachem): Strings and Numbers
-        return Token(Type::Identifier, buffer);
+        return Token(line, column, Type::Identifier, buffer);
     }
 
     std::wstring Token::ToString()
