@@ -31,7 +31,7 @@ namespace Iridis
         }
 
         std::wcout << std::endl << GREEN << line << RESET << ": " << sourceLines[line-1] << std::endl;
-        std::cout << std::string(numDigits+column+1, ' ') << "^ " << UNDERLINE << "here" << RESET << std::endl;
+        std::cout << std::string(numDigits+column+1, ' ') << "^ " << UNDERLINE << "here" << RESET;
     }
 
     bool Parser::ReadNextToken()
@@ -69,7 +69,10 @@ namespace Iridis
             int column = currentToken.GetColumn();
 
             IRIDIS_ERROR("Expected `=` or `:` after type declaration @ Line: {}, Column: {}", line, column);
-            ShowErrorLocation();
+            ShowErrorLocation(); 
+            if (auto identifierName = currentToken.GetIdentifier())
+                std::wcout << ": Did you mean `=` or `:` instead of `" << *identifierName << "`?";
+            std::cout << std::endl;
             return false;
         }
 
@@ -77,6 +80,7 @@ namespace Iridis
 
         if (currentToken.GetType() == Token::Type::Structure)
         {
+            // TODO(Hachem): Parse structure
             std::vector<BasicArgument> empty = {};
             if (auto ast = std::make_unique<StructureAST>(name, empty))
             {
@@ -87,6 +91,7 @@ namespace Iridis
 
         if (currentToken.GetType() == Token::Type::Procedure)
         {
+            // TODO(Hachem): Parse procedure
             std::vector<BasicArgument> empty = {};
             if (auto ast = std::make_unique<ProcedureAST>(name, empty))
             {
@@ -95,10 +100,12 @@ namespace Iridis
             }
         }
 
-        IRIDIS_ERROR("Unexpected symbol {} @ Line: {}, Column {}", 
-                     WideToNarrow(currentToken.ToString()),
+        IRIDIS_ERROR("Unexpected symbol @ Line: {}, Column {}", 
                      currentToken.GetLine(), currentToken.GetColumn());
         ShowErrorLocation();
+        if (auto identifierName = currentToken.GetIdentifier())
+            std::wcout << L": `" << *identifierName << "` doesn't seem to be a valid symbol";
+        std::cout << '.' << std::endl;
         return false;
     }
 
