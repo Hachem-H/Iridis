@@ -4,6 +4,8 @@
                              "ERROR", "CRITICAL", "OFF" }
 
 #include <spdlog/spdlog.h>
+
+#include <sstream>
 #include <memory>
 
 namespace Iridis
@@ -22,6 +24,8 @@ namespace Iridis
 
         void Enable();
     };
+    
+    std::string WideToNarrow(const std::wstring& wideString);
 
     class Logger
     {

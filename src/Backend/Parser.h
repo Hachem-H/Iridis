@@ -14,7 +14,10 @@ namespace Iridis
         Parser(std::vector<Token> tokens)
             : tokens(tokens), currentToken(tokens[currentTokenIndex]) { }
 
-        std::unique_ptr<ProcedureAST> ParseProcedure();
+        // std::unique_ptr<ProcedureAST> ParseProcedure();
+        // std::unique_ptr<StructureAST> ParseStructure();
+
+        bool HandleIdentifier();
 
         void Parse();
     private:

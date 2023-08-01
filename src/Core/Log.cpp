@@ -42,6 +42,14 @@ namespace Iridis
 #endif
     }
 
+    std::string WideToNarrow(const std::wstring& wideString)
+    {
+        std::wostringstream wideOutStringStream;
+        wideOutStringStream << wideString;
+        std::wstring wstr = wideOutStringStream.str();
+        return std::string(wstr.begin(), wstr.end());
+    }
+
     void Logger::Init()
     {
 		std::vector<spdlog::sink_ptr> globalLogSinks;

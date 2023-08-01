@@ -25,26 +25,23 @@ namespace Iridis
         virtual ~ExpressionAST() = default;
     };
 
-    class ProcedureCallAST
-        : public ExpressionAST
-    {
-    public:
-        ProcedureCallAST(const std::string& callee,
-                         std::vector<std::unique_ptr<ExpressionAST>> arguments)
-            : callee(callee), arguments(std::move(arguments)) { }
 
-    private:
-        std::string callee;
-        std::vector<std::unique_ptr<ExpressionAST>> arguments;
+    struct StructureAST
+    {
+        StructureAST(const std::wstring& name,
+                     std::vector<BasicArgument> members)
+            : name(name), members(std::move(members)) { }
+
+        std::wstring name;
+        std::vector<BasicArgument> members;
     };
 
-    class ProcedureAST
+    struct ProcedureAST
     {
-    public:
         ProcedureAST(const std::wstring& name, 
                      std::vector<BasicArgument> arguments)
             : name(name), arguments(std::move(arguments)) { }
-    public:
+
         std::wstring name;
         std::vector<BasicArgument> arguments;
     };

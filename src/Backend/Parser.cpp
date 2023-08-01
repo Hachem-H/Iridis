@@ -1,6 +1,5 @@
+#include "Core/Log.h"
 #include "Parser.h"
-
-#include <iostream>
 
 namespace Iridis
 {
@@ -38,18 +37,41 @@ namespace Iridis
         return false;
     }
 
-    std::unique_ptr<ProcedureAST> Parser::ParseProcedure()
+    bool Parser::HandleIdentifier()
     {
-        std::wstring name = *currentToken.GetIdentifier();
-        ReadNextToken();
-        ReadNextToken();
+        const std::wstring name = *currentToken.GetIdentifier();
+        ReadNextToken(); ReadNextToken();
+        if (currentToken.GetType() != Token::Type::Colon &&
+            currentToken.GetType() != Token::Type::Equal)
+        {
+            IRIDIS_ERROR("Expected `=` or `:` after type declaration.");
+            return false;
+        }
+
         ReadNextToken();
 
-        if (currentToken.GetType() != Token::Type::Procedure)
-            return nullptr;
+        if (currentToken.GetType() == Token::Type::Structure)
+        {
+            std::vector<BasicArgument> empty = {};
+            if (auto ast = std::make_unique<StructureAST>(name, empty))
+            {
+                IRIDIS_CORE_INFO("Got structure called {}", WideToNarrow(name));
+                return true;
+            }
+        }
 
-        std::vector<BasicArgument> empty = {};
-        return std::make_unique<ProcedureAST>(name, empty);
+        if (currentToken.GetType() == Token::Type::Procedure)
+        {
+            std::vector<BasicArgument> empty = {};
+            if (auto ast = std::make_unique<ProcedureAST>(name, empty))
+            {
+                IRIDIS_CORE_INFO("Got procedure called {}", WideToNarrow(name));
+                return true;
+            }
+        }
+
+        IRIDIS_ERROR("Unexpected symbol: {}", WideToNarrow(currentToken.ToString()));
+        return false;
     }
 
     void Parser::Parse()
@@ -59,8 +81,8 @@ namespace Iridis
             currentToken = tokens[currentTokenIndex];
 
             if (currentToken.GetType() == Token::Type::Identifier)
-                if (auto procedure = ParseProcedure())
-                    std::wcout << L"Got procedure: " << procedure->name << std::endl;
+                if (!HandleIdentifier())
+                    break;
         }
     }
 };
