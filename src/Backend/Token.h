@@ -13,6 +13,8 @@ namespace Iridis
         enum class Type
         {
             Identifier,
+            Character,
+            String,
             Number,
 
             Procedure,
@@ -44,6 +46,8 @@ namespace Iridis
             Caret,
             Ampersand,
             Exclamation,
+            Quote,
+            DoubleQuote,
             Equal,
             Comma,
             Dot,
@@ -61,7 +65,7 @@ namespace Iridis
             : line(line),
               column(column),
               type(Type::Number),
-              repr(L"number"), // TODO(Hachem): proper parsing
+              repr(std::to_wstring(number)),
               numberValue(number) { }
 
         Token(const int line, 
@@ -76,6 +80,16 @@ namespace Iridis
             if (type == Type::Identifier)
                 identifier = value;
         }
+
+        Token(const int line, 
+              const int column,
+              const std::wstring& value,
+              const std::wstring& repr)
+            : line(line),
+              column(column),
+              type(Type::String),
+              repr(repr),
+              stringValue(value) { }
 
         Token(const int line, 
               const int column,
@@ -105,9 +119,9 @@ namespace Iridis
                 return { };
         }
 
-        inline const int GetLine()                    const { return line;           }
-        inline const int GetColumn()                  const { return column;         }
-        inline const std::wstring GetRepresentation() const { return repr; }
+        inline const int GetLine()                    const { return line;   }
+        inline const int GetColumn()                  const { return column; }
+        inline const std::wstring GetRepresentation() const { return repr;   }
 
         static Token ToToken(int line, int column, const std::wstring& buffer);
         std::wstring ToString();

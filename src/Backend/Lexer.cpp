@@ -26,6 +26,7 @@ namespace Iridis
 
             bool insideSingleLineComment = false;
             bool insideMultiLineComment = false;
+            bool insideQuote = false;
 
             for (size_t i = 0; i < source.size(); i++)
             {
@@ -36,11 +37,15 @@ namespace Iridis
                 {
                     currentLine++;
                     currentColumn = 1;
-                    if (insideSingleLineComment)
+
+                    if (!buffer.empty())
                     {
-                        insideSingleLineComment = false;
-                        buffer.clear(); // Discard the comment content
+                        tokenInfo.push_back({ tokenStartLine, tokenStartColumn, buffer });
+                        buffer.clear();
                     }
+
+                    if (insideSingleLineComment)
+                        insideSingleLineComment = false;
                     continue;
                 }
 
@@ -49,35 +54,64 @@ namespace Iridis
                     if (character == L'*' && nextCharacter == L'/')
                     {
                         insideMultiLineComment = false;
-                        i++; // Skip the next character '/'
+                        i++;
                         currentColumn += 2;
                     }
                     else
-                    {
                         currentColumn++;
-                    }
-                    continue; // Ignore characters inside the multi-line comment
+                    continue;
                 }
 
                 if (insideSingleLineComment)
-                {
-                    continue; // Ignore characters after "//" until the end of line
-                }
+                    continue;
 
                 if (character == L'/' && nextCharacter == L'*')
                 {
                     insideMultiLineComment = true;
-                    i++; // Skip the next character '*'
+                    i++;
                     currentColumn += 2;
-                    continue; // Ignore the '/*' characters
+                    continue;
                 }
 
                 if (character == L'/' && nextCharacter == L'/')
                 {
                     insideSingleLineComment = true;
-                    i++; // Skip the next character '/'
+                    i++;
                     currentColumn += 2;
-                    continue; // Ignore the '//' characters
+                    continue;
+                }
+
+                if (insideQuote)
+                {
+                    buffer += character;
+
+                    if (character == L'"' && nextCharacter != L'\\')
+                    {
+                        insideQuote = false;
+                        tokenInfo.push_back({ tokenStartLine, tokenStartColumn, buffer });
+                        buffer.clear();
+                    }
+                    else if (character == L'\\' && nextCharacter == L'"')
+                    {
+                        buffer += nextCharacter;
+                        i++;
+                    }
+
+                    currentColumn++;
+                    continue;
+                }
+
+                if (character == L'"')
+                {
+                    insideQuote = true;
+                    if (!buffer.empty())
+                    {
+                        tokenInfo.push_back({ tokenStartLine, tokenStartColumn, buffer });
+                        buffer.clear();
+                    }
+                    buffer += character;
+                    currentColumn++;
+                    continue;
                 }
 
                 if (std::iswspace(character) || std::iswpunct(character))

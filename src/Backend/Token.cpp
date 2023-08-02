@@ -6,6 +6,33 @@
 
 namespace Iridis
 {
+    static std::wstring ProcessEscapedEscapeCharacterSequence(const std::wstring& buffer)
+    {
+        std::wstring output;
+        bool escapeMode = false;
+
+        for (char character : buffer)
+        {
+            if (escapeMode)
+            {
+                if (character == '\\' || 
+                    character == '\'' ||
+                    character == '\"')
+                    output += character;
+                else if (character == 'n')
+                    output += '\n';
+
+                escapeMode = false;
+            } 
+            else if (character == '\\')
+                escapeMode = true;
+            else
+                output += character;
+        }
+
+        return output;
+    }
+
     Token Token::ToToken(int line, int column, const std::wstring& buffer)
     {
         bool isNumber = true;
@@ -22,6 +49,14 @@ namespace Iridis
             int value = 0;
             if (stream >> value)
                 return Token(line, column, value);
+        }
+
+        if (buffer[0] == '\"')
+        {
+            std::wstring value(&buffer[0] + 1);
+            value.pop_back();
+            std::wstring parsedValue = ProcessEscapedEscapeCharacterSequence(value);
+            return Token(line, column, buffer, parsedValue);
         }
 
              if (buffer == L"{")      return Token(line, column, buffer, Type::RCurlyBrace);
@@ -107,6 +142,8 @@ namespace Iridis
 
         else if (type == Type::Identifier)
             return L"Identifier(" + identifier + L")";
+        else if (type == Type::String)
+            return L"String(" + stringValue + L")";
         else if (type == Type::Number)
             return L"Number(" + std::to_wstring(numberValue) + L")";
         
