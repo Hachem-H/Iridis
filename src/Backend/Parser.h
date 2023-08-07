@@ -3,9 +3,9 @@
 #include "Token.h"
 #include "AST.h"
 
+#include <unordered_map>
 #include <sstream>
 #include <memory>
-#include <map>
 
 namespace Iridis
 {
@@ -14,10 +14,21 @@ namespace Iridis
     public:
         Parser(const std::wstring& sourceCode, std::vector<Token> tokens);
 
-        bool HandleIdentifier();
+        std::unique_ptr<ExpressionAST> HandleIdentifierExpression();
+        std::unique_ptr<ExpressionAST> HandleNumberExpression();
+        std::unique_ptr<ExpressionAST> HandleParenExpression();
+
+        std::unique_ptr<ExpressionAST> ParseBinaryOperatorRHS(
+                int execPrecedence,
+                std::unique_ptr<ExpressionAST> LHS);
+        std::unique_ptr<ExpressionAST> HandleExpression();
 
         void ShowErrorLocation();
+
+        std::unique_ptr<ExpressionAST> ParseExpression();
         int Parse();
+    public:
+        static std::unordered_map<Token::Type, int> BinaryOperatorPrecedence;
     private:
         bool ReadNextToken();
         bool ReadPreviousToken();
