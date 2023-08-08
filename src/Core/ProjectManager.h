@@ -12,7 +12,6 @@ typedef enum CompilationProfile_t
 typedef struct BuildConfiguration_t
 {
     char* targetName;
-    char** outputDirectory;
 
     char** includeDirectories;
     char** importDirectories;
@@ -23,18 +22,21 @@ typedef struct BuildConfiguration_t
 typedef struct ProjectConfiguration_t
 {
     char* name;
+    char* type;
     char* version;
     char** authors;
 
     char* projectPath;
+    char* sourceDirectoryPath;
+    char* outputDirectoryPath;
     BuildConfiguration buildConfiguration;
 } ProjectConfiguration;
 
 bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath);
 void DestroyProjectConfiguration(ProjectConfiguration* configuration);
 
-void GenerateProject(ProjectConfiguration configuration);
-void BuildProject(ProjectConfiguration configuration);
-void RunProject(ProjectConfiguration configuration);
-void TestProject(ProjectConfiguration configuration);
-void CleanProject(ProjectConfiguration configuration);
+void GenerateProject(ProjectConfiguration* configuration);
+void BuildProject(ProjectConfiguration* configuration);
+void RunProject(ProjectConfiguration* configuration);
+void TestProject(ProjectConfiguration* configuration);
+void CleanProject(ProjectConfiguration* configuration);
