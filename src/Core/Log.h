@@ -1,52 +1,39 @@
 #pragma once
 
-#define SPDLOG_LEVEL_NAMES { "TRACE",   "DEBUG", "INFO", "WARNING", \
-                             "ERROR", "CRITICAL", "OFF" }
+#include <stdio.h>
 
-#include <spdlog/spdlog.h>
+static const char* const CONSOLE_MODE_RESET     = "\033[0m";
+static const char* const CONSOLE_MODE_BOLD      = "\033[1m";
+static const char* const CONSOLE_MODE_UNDERLINE = "\033[4m";
+static const char* const CONSOLE_MODE_ITALIC    = "\033[3m";
 
-#include <sstream>
-#include <memory>
+static const char* const CONSOLE_COLORS_RED       = "\033[91m";
+static const char* const CONSOLE_COLORS_GREEN     = "\033[92m";
+static const char* const CONSOLE_COLORS_YELLOW    = "\033[93m";
+static const char* const CONSOLE_COLORS_BLUE      = "\033[94m";
+static const char* const CONSOLE_COLORS_MAGENTA   = "\033[95m";
+static const char* const CONSOLE_COLORS_CYAN      = "\033[96m";
 
-namespace Iridis
-{
-    namespace ConsoleColors
-    {
-        constexpr const char* RESET     = "\033[0m";
-        constexpr const char* BOLD      = "\033[1m";
-        constexpr const char* UNDERLINE = "\033[4m";
-        constexpr const char* ITALIC    = "\033[3m";
+#define LOG_INFO(...) {                           \
+    printf("[%s%sINFO%s]: ", CONSOLE_COLORS_CYAN, \
+                             CONSOLE_MODE_BOLD,   \
+                             CONSOLE_MODE_RESET); \
+    printf(__VA_ARGS__); printf("\n"); }
 
-        constexpr const char* RED       = "\033[91m";
-        constexpr const char* GREEN     = "\033[92m";
-        constexpr const char* YELLOW    = "\033[93m";
-        constexpr const char* BLUE      = "\033[94m";
-        constexpr const char* MAGENTA   = "\033[95m";
-        constexpr const char* CYAN      = "\033[96m";
+#define LOG_DEBUG(...) {                           \
+    printf("[%s%sDEBUG%s]: ", CONSOLE_COLORS_BLUE, \
+                              CONSOLE_MODE_BOLD,   \
+                              CONSOLE_MODE_RESET); \
+    printf(__VA_ARGS__); printf("\n") }
 
-        void Enable();
-    };
-    
-    std::string WideToNarrow(const std::wstring& wideString);
+#define LOG_WARN(...) {                             \
+    printf("[%s%sWARN%s]: ", CONSOLE_COLORS_YELLOW, \
+                             CONSOLE_MODE_BOLD,     \
+                             CONSOLE_MODE_RESET);   \
+    printf(__VA_ARGS__); printf("\n"); }
 
-    class Logger
-    {
-    public:
-        static void Init();
-
-        static std::shared_ptr<spdlog::logger>& GetGlobalLogger()   { return s_GlobalLogger;   }
-        static std::shared_ptr<spdlog::logger>& GetInternalLogger() { return s_InternalLogger; }
-    private:
-        static std::shared_ptr<spdlog::logger> s_GlobalLogger;
-        static std::shared_ptr<spdlog::logger> s_InternalLogger;
-    };
-};
-
-#define IRIDIS_ERROR(...) ::Iridis::Logger::GetGlobalLogger()->error(__VA_ARGS__)
-#define IRIDIS_WARN(...)  ::Iridis::Logger::GetGlobalLogger()->warn(__VA_ARGS__)
-#define IRIDIS_INFO(...)  ::Iridis::Logger::GetGlobalLogger()->info(__VA_ARGS__)
-#define IRIDIS_DEBUG(...)  ::Iridis::Logger::GetGlobalLogger()->debug(__VA_ARGS__)
-
-#define IRIDIS_CORE_ERROR(...) ::Iridis::Logger::GetInternalLogger()->error(__VA_ARGS__) 
-#define IRIDIS_CORE_WARN(...)  ::Iridis::Logger::GetInternalLogger()->warn(__VA_ARGS__) 
-#define IRIDIS_CORE_INFO(...)  ::Iridis::Logger::GetInternalLogger()->info(__VA_ARGS__) 
+#define LOG_ERROR(...) {                           \
+    printf("[%s%sERROR%s]: ", CONSOLE_COLORS_RED,  \
+                              CONSOLE_MODE_BOLD,   \
+                              CONSOLE_MODE_RESET); \
+    printf(__VA_ARGS__); printf("\n"); }

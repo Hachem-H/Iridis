@@ -9,3 +9,8 @@
 #else
     #error "Unsupported platform"
 #endif
+
+#include <stdbool.h>
+
+bool MakeDirectory(const char* path);
+void EnableConsoleColors();

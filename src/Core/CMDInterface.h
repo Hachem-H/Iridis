@@ -1,24 +1,23 @@
 #pragma once
 
-namespace Iridis
-{   
-    namespace CommandLine
-    {
-        int Help(int argc, char* argv[]);
-        int New(int argc, char* argv[]);
-        int Build(int argc, char* argv[]);
-        int Run(int argc, char* argv[]);
-        int Compile(int argc, char* argv[]);
-        int GenBind(int argc, char* argv[]);
-    };
+typedef int (*CommandFunction)(int, char*[]);
 
-    namespace Usages
-    {
-        void PrintUsage();
-        void PrintNewHelp();
-        void PrintBuildHelp();
-        void PrintRunHelp();
-        void PrintCompileHelp();
-        void PrintGenBindHelp();
-    };
-};
+typedef struct CommandEntry_t
+{
+    char* command;
+    CommandFunction callback;
+} CommandEntry;
+
+int CMDLineHelp(int argc, char* argv[]);
+int CMDLineNew(int argc, char* argv[]);
+int CMDLineBuild(int argc, char* argv[]);
+int CMDLineRun(int argc, char* argv[]);
+int CMDLineCompile(int argc, char* argv[]);
+int CMDLineGenBind(int argc, char* argv[]);
+
+void PrintUsage();
+void PrintNewHelp();
+void PrintBuildHelp();
+void PrintRunHelp();
+void PrintCompileHelp();
+void PrintGenBindHelp();

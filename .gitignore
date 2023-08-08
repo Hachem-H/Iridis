@@ -2,8 +2,13 @@
 
 .vs/
 .vscode/
+!misc/Editor-Extensions/iridis-vscode/.vscode/
 
 bin/
 bin-int/
 
 build/
+
+.cache/
+.clangd
+compile_flags.txt

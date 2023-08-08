@@ -1,22 +1,22 @@
-project('Iridis', 'cpp')
+project('Iridis', 'c')
 
 iridisSourceFiles = [
-    'src/Core/CMDInterface.cpp',
-    'src/Core/Application.cpp',
-    'src/Core/Log.cpp',
+    'src/Backend/Compiler.c',
+    'src/Backend/Lexer.c',
+    'src/Backend/Token.c',
 
-    'src/Backend/Parser.cpp',
-    'src/Backend/Token.cpp',
-    'src/Backend/Lexer.cpp',
+    'src/Core/Implementations.c',
+    'src/Core/ProjectManager.c',
+    'src/Core/CMDInterface.c',
+    'src/Core/Platform.c',
+    'src/Core/Utils.c',
 
-    'src/main.cpp'
+    'src/main.c'
 ]
 
 iridisIncludeDirectories = [
+    include_directories('Vendor/stb'),
     include_directories('src'),
-
-    include_directories('Vendor/toml11'),
-    include_directories('Vendor/spdlog/include')
 ]
 
 executable('iridis', 
