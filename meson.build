@@ -1,6 +1,7 @@
 project('Iridis', 'c')
 
 iridisSourceFiles = [
+    'src/Backend/Token.c',
     'src/main.c'
 ]
 
