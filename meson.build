@@ -4,7 +4,10 @@ iridisSourceFiles = [
     'src/Backend/Lexer.c',
     'src/Backend/Token.c',
 
-    'src/Implementations.c',
+    'src/Core/Implementations.c',
+    'src/Core/ProjectManager.c',
+    'src/Core/Platform.c',
+
     'src/main.c'
 ]
 
