@@ -26,6 +26,50 @@ static bool IsFloat(const char* buffer)
     return true;
 }
 
+static void ProcessStringLiteral(char* string)
+{
+    char* source = string;
+    char* destination = string;
+
+    while (*source)
+    {
+        if (*source == '\\' && *(source + 1))
+        {
+            source++;
+            switch (*source)
+            {
+                case 'n':
+                    *destination = '\n';
+                    break;
+                case 't':
+                    *destination = '\t';
+                    break;
+                case 'b':
+                    *destination = '\b';
+                    break;
+                case 'r':
+                    *destination = '\r';
+                    break;
+                case '"':
+                    *destination = '\"';
+                    break;
+                case '\'':
+                    *destination = '\'';
+                    break;
+                default:
+                    *destination = '\\';
+                    destination++;
+                    continue;
+            }
+        } else
+            *destination = *source;
+        source++;
+        destination++;
+    }
+
+    *destination = '\0'; 
+}
+
 Token TokenFromString(int line, int column, const char* buffer)
 {
     Token token;
@@ -50,7 +94,7 @@ Token TokenFromString(int line, int column, const char* buffer)
         return token;
     }
 
-         if (strcmp(buffer, "[")       == 0) token.type = TokenType_RBracket;
+    if      (strcmp(buffer, "[")       == 0) token.type = TokenType_RBracket;
     else if (strcmp(buffer, "]")       == 0) token.type = TokenType_LBracket;
     else if (strcmp(buffer, "{")       == 0) token.type = TokenType_RBrace;
     else if (strcmp(buffer, "}")       == 0) token.type = TokenType_LBrace;
@@ -78,6 +122,15 @@ Token TokenFromString(int line, int column, const char* buffer)
     else if (strcmp(buffer, "proc")    == 0) token.type = TokenType_Procedure;
     else if (strcmp(buffer, "extern")  == 0) token.type = TokenType_External;
     else if (strcmp(buffer, "mod")     == 0) token.type = TokenType_Module;
+
+    else if (buffer[0] == '"')
+    {
+        token.type = TokenType_String;
+        token.literal.identifier = token.representation+1;
+        token.literal.identifier[strlen(token.literal.identifier)-1] = 0;
+        ProcessStringLiteral(token.literal.identifier);
+    }
+
     else
     {
         token.type = TokenType_Identifier;

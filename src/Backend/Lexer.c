@@ -15,11 +15,13 @@ static Lexer LexingState = (Lexer)
     .currentLine      = 0,
     .currentColumn    = 0,
     .tokenStartLine   = 0,
+    .floatStartIndex  = 0,
     .tokenStartColumn = 0,
 
-    .insideSingleLineComment = 0,
-    .insideMultilineComment  = 0,
-    .insideQuote             = 0,
+    .insideSingleLineComment = false,
+    .insideMultilineComment  = false,
+    .insideQuote             = false,
+    .insideFloat             = false,
 };
 
 TokenInfo CreateTokenInfo(const uint32_t line, const uint32_t column, const char* identifier)
@@ -39,128 +41,149 @@ Token* Tokenize(const char* source)
         char character = source[i];
         char nextCharacter = (i+1 < strlen(source)) ? source[i+1] : 0x00;
 
-        if (character == '\n')
+        if (isdigit(character) || (character == '.' && isdigit(nextCharacter)))
         {
-            LexingState.currentLine++;
-            LexingState.currentColumn = 1;
-
-            if (stbds_arrlen(LexingState.buffer) != 0)
+            if (!LexingState.insideFloat)
             {
-                stbds_arrpush(LexingState.buffer, 0);
-                stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
-                stbds_arrsetlen(LexingState.buffer, 0);
-                LexingState.buffer[0] = 0;
+                LexingState.insideFloat = true;
+                LexingState.floatStartIndex = i;
             }
-
-            if (LexingState.insideSingleLineComment)
-                LexingState.insideSingleLineComment = false;
-            continue;
-        }
-
-        if (LexingState.insideMultilineComment)
-        {
-            if (character == '*' && nextCharacter == '/')
-            {
-                LexingState.insideMultilineComment = false;
-                LexingState.currentColumn += 2;
-                i++;
-            }
-            else
-                LexingState.currentColumn++;
-            continue;
-        }
-
-        if (LexingState.insideSingleLineComment)
-            continue;
-
-        if (character == '/' && nextCharacter == '*')
-        {
-            LexingState.insideMultilineComment = true;
-            LexingState.currentColumn += 2;
-            i++;
-            continue;
-        }
-
-        if (character == '/' && nextCharacter == '/')
-        {
-            LexingState.insideSingleLineComment = true;
-            LexingState.currentColumn += 2;
-            i++;
-            continue;
-        }
-
-        if (LexingState.insideQuote)
-        {
-            stbds_arrpush(LexingState.buffer, character);
-
-            if (character == '"' && nextCharacter != '\\')
-            {
-                stbds_arrpush(LexingState.buffer, 0);
-                stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
-                stbds_arrsetlen(LexingState.buffer, 0);
-                LexingState.buffer[0] = 0;
-                LexingState.insideQuote = false;
-            }
-            else if (character == '\\' && nextCharacter == '"')
-            {
-                stbds_arrpush(LexingState.buffer, nextCharacter);
-                i++;
-            }
-
-            LexingState.currentColumn++;
-            continue;
-        }
-
-        if (character == '"')
-        {
-            LexingState.insideQuote = true;
-
-            if (stbds_arrlen(LexingState.buffer) != 0)
-            {
-                stbds_arrpush(LexingState.buffer, 0);
-                stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
-                stbds_arrsetlen(LexingState.buffer, 0);
-                LexingState.buffer[0] = 0;
-            }
-
-            stbds_arrpush(LexingState.buffer, character);
-            LexingState.currentColumn++;
-            continue;
-        }
-
-        if (isspace(character) || ispunct(character))
-        {
-            if (stbds_arrlen(LexingState.buffer) != 0)
-            {
-                stbds_arrpush(LexingState.buffer, 0);
-                stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
-                stbds_arrsetlen(LexingState.buffer, 0);
-                LexingState.buffer[0] = 0;
-            }
-
-            if (ispunct(character))
-            {
-                char* toPush = (char*) malloc(2);
-                toPush[0] = character;
-                toPush[1] = 0;
-                stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, toPush));
-                free(toPush);
-            }
-            
-            LexingState.tokenStartLine = LexingState.currentLine;
-            LexingState.tokenStartColumn = LexingState.currentColumn+1;
         }
         else
         {
-            if (stbds_arrlen(LexingState.buffer) != 0)
+            if (LexingState.insideFloat)
             {
-                LexingState.tokenStartLine = LexingState.currentLine;
-                LexingState.tokenStartColumn = LexingState.currentColumn;
+                LexingState.insideFloat = false;
+                size_t floatLength = i - LexingState.floatStartIndex;
+                char* floatBuffer = (char*)malloc(floatLength + 1);
+                strncpy(floatBuffer, source + LexingState.floatStartIndex, floatLength);
+                floatBuffer[floatLength] = '\0';
+                stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.tokenStartLine, LexingState.tokenStartColumn, floatBuffer));
+                free(floatBuffer);
             }
 
-            stbds_arrpush(LexingState.buffer, character);
-        }
+            if (character == '\n')
+            {
+                LexingState.currentLine++;
+                LexingState.currentColumn = 1;
 
+                if (stbds_arrlen(LexingState.buffer) != 0)
+                {
+                    stbds_arrpush(LexingState.buffer, 0);
+                    stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
+                    stbds_arrsetlen(LexingState.buffer, 0);
+                    LexingState.buffer[0] = 0;
+                }
+
+                if (LexingState.insideSingleLineComment)
+                    LexingState.insideSingleLineComment = false;
+                continue;
+            }
+
+            if (LexingState.insideMultilineComment)
+            {
+                if (character == '*' && nextCharacter == '/')
+                {
+                    LexingState.insideMultilineComment = false;
+                    LexingState.currentColumn += 2;
+                    i++;
+                }
+                else
+                    LexingState.currentColumn++;
+                continue;
+            }
+
+            if (LexingState.insideSingleLineComment)
+                continue;
+
+            if (character == '/' && nextCharacter == '*')
+            {
+                LexingState.insideMultilineComment = true;
+                LexingState.currentColumn += 2;
+                i++;
+                continue;
+            }
+
+            if (character == '/' && nextCharacter == '/')
+            {
+                LexingState.insideSingleLineComment = true;
+                LexingState.currentColumn += 2;
+                i++;
+                continue;
+            }
+
+            if (LexingState.insideQuote)
+            {
+                stbds_arrpush(LexingState.buffer, character);
+
+                if (character == '"' && nextCharacter != '\\')
+                {
+                    stbds_arrpush(LexingState.buffer, 0);
+                    stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
+                    stbds_arrsetlen(LexingState.buffer, 0);
+                    LexingState.buffer[0] = 0;
+                    LexingState.insideQuote = false;
+                }
+                else if (character == '\\' && nextCharacter == '"')
+                {
+                    stbds_arrpush(LexingState.buffer, nextCharacter);
+                    i++;
+                }
+
+                LexingState.currentColumn++;
+                continue;
+            }
+
+            if (character == '"')
+            {
+                LexingState.insideQuote = true;
+
+                if (stbds_arrlen(LexingState.buffer) != 0)
+                {
+                    stbds_arrpush(LexingState.buffer, 0);
+                    stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
+                    stbds_arrsetlen(LexingState.buffer, 0);
+                    LexingState.buffer[0] = 0;
+                }
+
+                stbds_arrpush(LexingState.buffer, character);
+                LexingState.currentColumn++;
+                continue;
+            }
+
+            if (isspace(character) || ispunct(character))
+            {
+                if (stbds_arrlen(LexingState.buffer) != 0)
+                {
+                    stbds_arrpush(LexingState.buffer, 0);
+                    stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
+                    stbds_arrsetlen(LexingState.buffer, 0);
+                    LexingState.buffer[0] = 0;
+                }
+
+                if (ispunct(character))
+                {
+                    char* toPush = (char*) malloc(2);
+                    toPush[0] = character;
+                    toPush[1] = 0;
+                    stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, toPush));
+                    free(toPush);
+                }
+
+                LexingState.tokenStartLine = LexingState.currentLine;
+                LexingState.tokenStartColumn = LexingState.currentColumn+1;
+            }
+            else
+            {
+                if (stbds_arrlen(LexingState.buffer) != 0)
+                {
+                    LexingState.tokenStartLine = LexingState.currentLine;
+                    LexingState.tokenStartColumn = LexingState.currentColumn;
+                }
+
+                stbds_arrpush(LexingState.buffer, character);
+            }
+        }
         LexingState.currentColumn++;
     }
 

@@ -18,14 +18,16 @@ typedef struct Lexer_t
 {
     TokenInfo* tokenInfos;
     char* buffer;
-
+    
     int currentLine;
     int currentColumn;
     int tokenStartLine;
+    int floatStartIndex;
     int tokenStartColumn;
 
     bool insideSingleLineComment;
     bool insideMultilineComment;
+    bool insideFloat;
     bool insideQuote;
 } Lexer;
 
