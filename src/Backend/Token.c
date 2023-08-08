@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <stb_ds.h>
+
 static bool IsInteger(const char* buffer)
 {
     for (int i = 0; buffer[i] != 0x00; i++)
@@ -57,6 +59,7 @@ Token TokenFromString(int line, int column, const char* buffer)
     else if (strcmp(buffer, "<")       == 0) token.type = TokenType_RAngle;
     else if (strcmp(buffer, ">")       == 0) token.type = TokenType_LAngle;
     else if (strcmp(buffer, "+")       == 0) token.type = TokenType_Plus;
+
     else if (strcmp(buffer, "-")       == 0) token.type = TokenType_Minus;
     else if (strcmp(buffer, "*")       == 0) token.type = TokenType_Asterisk;
     else if (strcmp(buffer, "/")       == 0) token.type = TokenType_Slash;
@@ -67,6 +70,9 @@ Token TokenFromString(int line, int column, const char* buffer)
     else if (strcmp(buffer, "!")       == 0) token.type = TokenType_Bang;
     else if (strcmp(buffer, ",")       == 0) token.type = TokenType_Comma;
     else if (strcmp(buffer, ".")       == 0) token.type = TokenType_Period;
+    else if (strcmp(buffer, "'")       == 0) token.type = TokenType_Quote;
+    else if (strcmp(buffer, "\"")      == 0) token.type = TokenType_DoubleQuote;
+
     else if (strcmp(buffer, "enum")    == 0) token.type = TokenType_Enumeration;
     else if (strcmp(buffer, "struct")  == 0) token.type = TokenType_Structure;
     else if (strcmp(buffer, "proc")    == 0) token.type = TokenType_Procedure;
@@ -81,7 +87,57 @@ Token TokenFromString(int line, int column, const char* buffer)
     return token;
 }
 
+char* StringFromTokenType(TokenType type)
+{
+    switch (type)
+    {
+    case TokenType_Identifier:  return "Identifier";
+    case TokenType_Integer:     return "Integer";
+    case TokenType_String:      return "String";
+    case TokenType_Float:       return "Float";
+
+    case TokenType_Enumeration: return "Enumeration";
+    case TokenType_Procedure:   return "Procedure";
+    case TokenType_Structure:   return "Structure";
+    case TokenType_External:    return "External";
+    case TokenType_Module:      return "Module";
+
+    case TokenType_RBracket:    return "RBracket";
+    case TokenType_LBracket:    return "LBracket";
+    case TokenType_RBrace:      return "RBrace";
+    case TokenType_LBrace:      return "LBrace";
+    case TokenType_RParen:      return "RParen";
+    case TokenType_LParen:      return "LParen";
+    case TokenType_RAngle:      return "RAngle";
+    case TokenType_LAngle:      return "LAngle";
+
+    case TokenType_Colon:       return "Colon";
+    case TokenType_SemiColon:   return "SemiColon";
+    case TokenType_Caret:       return "Caret";
+    case TokenType_Ampersand:   return "Ampersand";
+    case TokenType_Bang:        return "Bang";
+    case TokenType_Quote:       return "Quote";
+    case TokenType_DoubleQuote: return "DoubleQuote";
+    case TokenType_Equal:       return "Equal";
+    case TokenType_Comma:       return "Comma";
+    case TokenType_Period:      return "Period";
+
+    case TokenType_Plus:        return "Plus";
+    case TokenType_Minus:       return "Minus";
+    case TokenType_Asterisk:    return "Asterisk";
+    case TokenType_Slash:       return "Slash";
+    }
+}
+
 void DestroyToken(Token* token)
 {
     free(token->representation);
 }
+
+void DestroyTokens(Token* tokens)
+{
+    for (int i = 0; i < stbds_arrlen(tokens); i++)
+        DestroyToken(&tokens[i]);
+    stbds_arrfree(tokens);
+}
+

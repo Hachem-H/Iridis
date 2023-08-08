@@ -44,7 +44,7 @@ Token* Tokenize(const char* source)
             LexingState.currentLine++;
             LexingState.currentColumn = 1;
 
-            if (LexingState.buffer != NULL && strlen(LexingState.buffer) != 0)
+            if (stbds_arrlen(LexingState.buffer) != 0)
             {
                 stbds_arrpush(LexingState.buffer, 0);
                 stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
@@ -115,7 +115,7 @@ Token* Tokenize(const char* source)
         {
             LexingState.insideQuote = true;
 
-            if (LexingState.buffer != NULL && strlen(LexingState.buffer) != 0)
+            if (stbds_arrlen(LexingState.buffer) != 0)
             {
                 stbds_arrpush(LexingState.buffer, 0);
                 stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
@@ -130,7 +130,7 @@ Token* Tokenize(const char* source)
 
         if (isspace(character) || ispunct(character))
         {
-            if (LexingState.buffer != NULL && strlen(LexingState.buffer) != 0)
+            if (stbds_arrlen(LexingState.buffer) != 0)
             {
                 stbds_arrpush(LexingState.buffer, 0);
                 stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
@@ -152,7 +152,7 @@ Token* Tokenize(const char* source)
         }
         else
         {
-            if (LexingState.buffer != NULL && strlen(LexingState.buffer) != 0)
+            if (stbds_arrlen(LexingState.buffer) != 0)
             {
                 LexingState.tokenStartLine = LexingState.currentLine;
                 LexingState.tokenStartColumn = LexingState.currentColumn;
@@ -164,7 +164,7 @@ Token* Tokenize(const char* source)
         LexingState.currentColumn++;
     }
 
-    if (LexingState.buffer != NULL && strlen(LexingState.buffer) != 0)
+    if (stbds_arrlen(LexingState.buffer) != 0)
     {
         stbds_arrpush(LexingState.buffer, 0);
         stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, LexingState.buffer));
@@ -182,6 +182,9 @@ Token* Tokenize(const char* source)
 
     for (int i = 0; i < stbds_arrlen(LexingState.tokenInfos); i++)
         free(LexingState.tokenInfos[i].identifier);
+
+    stbds_arrfree(LexingState.tokenInfos);
+    stbds_arrfree(LexingState.buffer);
 
     return tokens;
 }

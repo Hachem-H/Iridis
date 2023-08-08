@@ -1,0 +1,16 @@
+// This is a comment
+
+/* this is a multiline comment */
+
+SomeStruct :: /* multiline in awkward
+    spot */ struct
+{
+    
+}
+
+main :: proc()
+{
+    variable := 1234
+    thing := 123.45
+    text := "Hello World"
+}

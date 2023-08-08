@@ -4,7 +4,7 @@
 
 typedef enum TokenType_t
 {
-    TokenType_Identifier = 0,
+    TokenType_Identifier,
     TokenType_Integer,
     TokenType_String,
     TokenType_Float,
@@ -58,4 +58,7 @@ typedef struct Token_t
 } Token;
 
 Token TokenFromString(int line, int column, const char* buffer);
+char* StringFromTokenType(TokenType type);
+
+void DestroyTokens(Token* tokens);
 void DestroyToken(Token* token);
