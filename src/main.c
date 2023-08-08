@@ -20,12 +20,12 @@ int main(int argc, char** argv)
 
     CommandEntry commandEntries[] =
     {
-        (CommandEntry) { "help",    CMDLine_Help    },
-        (CommandEntry) { "new",     CMDLine_New     },
-        (CommandEntry) { "build",   CMDLine_Build   },
-        (CommandEntry) { "run",     CMDLine_Run     },
-        (CommandEntry) { "compile", CMDLine_Compile },
-        (CommandEntry) { "genbind", CMDLine_GenBind },
+        (CommandEntry) { "help",    CMDLineHelp    },
+        (CommandEntry) { "new",     CMDLineNew     },
+        (CommandEntry) { "build",   CMDLineBuild   },
+        (CommandEntry) { "run",     CMDLineRun     },
+        (CommandEntry) { "compile", CMDLineCompile },
+        (CommandEntry) { "genbind", CMDLineGenBind },
     };
 
     for (size_t i = 0; i < sizeof(commandEntries)/sizeof(CommandEntry); i++)

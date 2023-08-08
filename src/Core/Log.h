@@ -14,26 +14,26 @@ static const char* const CONSOLE_COLORS_BLUE      = "\033[94m";
 static const char* const CONSOLE_COLORS_MAGENTA   = "\033[95m";
 static const char* const CONSOLE_COLORS_CYAN      = "\033[96m";
 
-#define LOG_INFO(...)                             \
+#define LOG_INFO(...) {                           \
     printf("[%s%sINFO%s]: ", CONSOLE_COLORS_CYAN, \
                              CONSOLE_MODE_BOLD,   \
                              CONSOLE_MODE_RESET); \
-    printf(__VA_ARGS__); printf("\n")
+    printf(__VA_ARGS__); printf("\n"); }
 
-#define LOG_DEBUG(...)                             \
+#define LOG_DEBUG(...) {                           \
     printf("[%s%sDEBUG%s]: ", CONSOLE_COLORS_BLUE, \
                               CONSOLE_MODE_BOLD,   \
                               CONSOLE_MODE_RESET); \
-    printf(__VA_ARGS__); printf("\n")
+    printf(__VA_ARGS__); printf("\n") }
 
-#define LOG_WARN(...)                               \
+#define LOG_WARN(...) {                             \
     printf("[%s%sWARN%s]: ", CONSOLE_COLORS_YELLOW, \
                              CONSOLE_MODE_BOLD,     \
                              CONSOLE_MODE_RESET);   \
-    printf(__VA_ARGS__); printf("\n")
+    printf(__VA_ARGS__); printf("\n"); }
 
-#define LOG_ERROR(...)                             \
+#define LOG_ERROR(...) {                           \
     printf("[%s%sERROR%s]: ", CONSOLE_COLORS_RED,  \
                               CONSOLE_MODE_BOLD,   \
                               CONSOLE_MODE_RESET); \
-    printf(__VA_ARGS__); printf("\n")
+    printf(__VA_ARGS__); printf("\n"); }

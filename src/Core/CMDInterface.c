@@ -1,9 +1,13 @@
 #include "ProjectManager.h"
 #include "CMDInterface.h"
+#include "Utils.h"
 #include "Log.h"
+
+#include "Backend/Compiler.h"
 
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 #include <stdbool.h>
 
 static inline bool IsValidProjectName(const char* name)
@@ -14,13 +18,13 @@ static inline bool IsValidProjectName(const char* name)
     return true;
 }
 
-int CMDLine_Help(int argc, char* argv[])
+int CMDLineHelp(int argc, char* argv[])
 {
     PrintUsage();
     return 0;
 }
 
-int CMDLine_New(int argc, char* argv[])
+int CMDLineNew(int argc, char* argv[])
 {
     if (argc != 4)
     {
@@ -57,22 +61,37 @@ int CMDLine_New(int argc, char* argv[])
     return 0;
 }
 
-int CMDLine_Build(int argc, char* argv[])
+int CMDLineBuild(int argc, char* argv[])
 {
     return 0;
 }
 
-int CMDLine_Run(int argc, char* argv[])
+int CMDLineRun(int argc, char* argv[])
 {
     return 0;
 }
 
-int CMDLine_Compile(int argc, char* argv[])
+int CMDLineCompile(int argc, char* argv[])
 {
-    return 0;
+    if (argc < 3)
+    {
+        PrintCompileHelp();
+        return -1;
+    }
+
+    char* sourceFilePath = argv[2];
+    char* sourceCode = ReadFile(sourceFilePath);
+
+    if (!sourceCode)
+        return -1;
+
+    int compileStatus = CompileSourceCode(sourceCode);
+
+    free(sourceCode);
+    return compileStatus;
 }
 
-int CMDLine_GenBind(int argc, char* argv[])
+int CMDLineGenBind(int argc, char* argv[])
 {
     return 0;
 }

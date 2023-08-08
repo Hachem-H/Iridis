@@ -112,6 +112,7 @@ Token TokenFromString(int line, int column, const char* buffer)
     else if (strcmp(buffer, "^")       == 0) token.type = TokenType_Caret;
     else if (strcmp(buffer, "&")       == 0) token.type = TokenType_Ampersand;
     else if (strcmp(buffer, "!")       == 0) token.type = TokenType_Bang;
+    else if (strcmp(buffer, "=")       == 0) token.type = TokenType_Equal;
     else if (strcmp(buffer, ",")       == 0) token.type = TokenType_Comma;
     else if (strcmp(buffer, ".")       == 0) token.type = TokenType_Period;
     else if (strcmp(buffer, "'")       == 0) token.type = TokenType_Quote;

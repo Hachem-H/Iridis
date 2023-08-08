@@ -1,6 +1,7 @@
 project('Iridis', 'c')
 
 iridisSourceFiles = [
+    'src/Backend/Compiler.c',
     'src/Backend/Lexer.c',
     'src/Backend/Token.c',
 
@@ -8,6 +9,7 @@ iridisSourceFiles = [
     'src/Core/ProjectManager.c',
     'src/Core/CMDInterface.c',
     'src/Core/Platform.c',
+    'src/Core/Utils.c',
 
     'src/main.c'
 ]

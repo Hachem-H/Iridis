@@ -8,12 +8,12 @@ typedef struct CommandEntry_t
     CommandFunction callback;
 } CommandEntry;
 
-int CMDLine_Help(int argc, char* argv[]);
-int CMDLine_New(int argc, char* argv[]);
-int CMDLine_Build(int argc, char* argv[]);
-int CMDLine_Run(int argc, char* argv[]);
-int CMDLine_Compile(int argc, char* argv[]);
-int CMDLine_GenBind(int argc, char* argv[]);
+int CMDLineHelp(int argc, char* argv[]);
+int CMDLineNew(int argc, char* argv[]);
+int CMDLineBuild(int argc, char* argv[]);
+int CMDLineRun(int argc, char* argv[]);
+int CMDLineCompile(int argc, char* argv[]);
+int CMDLineGenBind(int argc, char* argv[]);
 
 void PrintUsage();
 void PrintNewHelp();
