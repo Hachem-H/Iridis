@@ -1,34 +1,17 @@
 #include "Backend/Token.h"
+#include "Backend/Lexer.h"
 
+#include <stb_ds.h>
 #include <stdio.h>
 
-static void PrintToken(Token* token)
-{
-    if (token->type == TokenType_Identifier)
-        printf("%s\n", token->literal.identifier);
-    else if (token->type == TokenType_Integer)
-        printf("%d\n", token->literal.integer);
-    else if (token->type == TokenType_Float)
-        printf("%f\n", token->literal.floating);
-    else
-        puts("");
-}
+static const char* const TestSourceCode = "main :: proc()";
 
-int main()
+int main(void)
 {
-    Token tokens[5] = 
+    Token* tokens = Tokenize(TestSourceCode);
+    for (int i = 0; i < stbds_arrlen(tokens); i++)
     {
-        TokenFromString(0, 0, "{"),
-        TokenFromString(0, 0, "proc"),
-        TokenFromString(0, 0, "1234"),
-        TokenFromString(0, 0, "1.234"),
-        TokenFromString(0, 0, "something")
-    };
-
-    for (int i = 0 ; i < 5; i++)
-    {
-        printf("%d, %s, ", tokens[i].type, tokens[i].representation);
-        PrintToken(&tokens[i]);
+        printf("%s END\n", tokens[i].representation);
         DestroyToken(&tokens[i]);
     }
 }
