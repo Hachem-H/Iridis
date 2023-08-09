@@ -2,6 +2,7 @@ project('Iridis', 'c')
 
 iridisSourceFiles = [
     'src/Backend/Compiler.c',
+    'src/Backend/Parser.c',
     'src/Backend/Lexer.c',
     'src/Backend/Token.c',
 

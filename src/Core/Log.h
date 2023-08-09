@@ -24,7 +24,7 @@ static const char* const CONSOLE_COLORS_CYAN      = "\033[96m";
     printf("[%s%sDEBUG%s]: ", CONSOLE_COLORS_BLUE, \
                               CONSOLE_MODE_BOLD,   \
                               CONSOLE_MODE_RESET); \
-    printf(__VA_ARGS__); printf("\n") }
+    printf(__VA_ARGS__); printf("\n");}
 
 #define LOG_WARN(...) {                             \
     printf("[%s%sWARN%s]: ", CONSOLE_COLORS_YELLOW, \
