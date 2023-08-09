@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stb_ds.h>
 
+#include <llvm-c/ExecutionEngine.h>
+
 static Token* GetToken(Parser* parser)
 {
     return &parser->tokens[parser->currentTokenIndex];
@@ -61,7 +63,15 @@ static void HandleIdentifier(Parser* parser)
     {
         ExpressionAST expression;
         expression.procedure.name = strdup(identifierName);
-        LOG_INFO("Got procedure with name: %s", expression.procedure.name);
+        
+        LLVMTypeRef returnType = LLVMVoidType();
+        LLVMTypeRef paramTypes[] = {};
+
+        LLVMTypeRef functionType = LLVMFunctionType(returnType, paramTypes, 0, 0);
+        LLVMValueRef entryPointFunction = LLVMAddFunction(parser->module, expression.procedure.name, functionType);
+         
+        LLVMBasicBlockRef entryBlock = LLVMAppendBasicBlock(entryPointFunction, "entry");
+        LLVMPositionBuilderAtEnd(parser->builder, entryBlock);
         free(expression.procedure.name);
     } break;
 
@@ -70,8 +80,10 @@ static void HandleIdentifier(Parser* parser)
     {
         ExpressionAST expression;
         expression.structure.name = strdup(identifierName);
-        LOG_INFO("Got structure with name: %s", expression.structure.name);
-        free(expression.procedure.name);
+
+        LLVMTypeRef structTypes[] = {};
+        LLVMStructSetBody(LLVMStructCreateNamed(LLVMGetGlobalContext(), expression.structure.name), structTypes, 0, false);
+        free(expression.structure.name);
     } break;
 
     default: 
@@ -85,11 +97,21 @@ static void HandleIdentifier(Parser* parser)
 
 void Parse(char* sourceCode)
 {
+    // TODO(Hachem): Proper backend
+    LLVMInitializeX86TargetInfo();
+    LLVMInitializeX86Target();
+    LLVMInitializeX86TargetMC();
+    LLVMInitializeX86AsmParser();
+    LLVMInitializeX86AsmPrinter();
+
     Parser parser;
     parser.tokens            = Tokenize(sourceCode);
     parser.sourceLines       = NULL;
     parser.currentTokenIndex = 0;
 
+    parser.builder            = LLVMCreateBuilder();
+    parser.module             = LLVMModuleCreateWithName("Test");
+    
     char* sourceLine = strtok(sourceCode, "\n");
     while (sourceLine != NULL)
     {
@@ -104,7 +126,15 @@ void Parse(char* sourceCode)
 
         token = GetNextToken(&parser);
     }
+
+    char* generatedIR = LLVMPrintModuleToString(parser.module);
+    printf("%s\n", generatedIR);
+    LLVMDisposeMessage(generatedIR);
     
     stbds_arrfree(parser.sourceLines);
     DestroyTokens(parser.tokens);
+
+    LLVMDisposeModule(parser.module);
+    LLVMDisposeBuilder(parser.builder);
 }
+

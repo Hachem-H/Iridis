@@ -15,6 +15,7 @@ iridisSourceFiles = [
     'src/main.c'
 ]
 
+
 iridisIncludeDirectories = [
     include_directories('Vendor/stb'),
     include_directories('src'),
@@ -23,4 +24,5 @@ iridisIncludeDirectories = [
 executable('iridis', 
     sources:             iridisSourceFiles,
     include_directories: iridisIncludeDirectories,
+    link_args: ['-lLLVM-15' ]
 )
