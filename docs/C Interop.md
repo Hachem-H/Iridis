@@ -47,8 +47,8 @@ The same way you would write custom bindings to link your source code with a C l
 
 Person :: struct
 {
-	name : cstring,
-	age  : u32,
+    name : cstring,
+    age  : u32,
 }
 
 PrintPersonData     :: extern proc (Person)
@@ -98,15 +98,15 @@ io :: import("std.io")
 
 Person :: struct
 {
-	name : cstring, // NOTE: Using cstring
-	age  : u32,
+    name : cstring, // NOTE: Using cstring
+    age  : u32,
 }
 
 #[export]
 PrintPersonData :: proc(person: Person)
 {
-	io.println("Name: {}", person.name)
-	io.println("Age: {}", person.age)
+    io.println("Name: {}", person.name)
+    io.println("Age: {}", person.age)
 }
 
 #[export]
@@ -125,7 +125,7 @@ Using this in C would be rather easy, all we have to do is similarly redefine ev
 
 typedef struct Person_t
 {
-	char* name;
+    char* name;
     uint32_t age;
 } Person;
 
@@ -134,7 +134,7 @@ extern void SomeObscureProcedure();
 
 int main()
 {
-	Person hachem = { "Hachem", 16 };
+    Person hachem = { "Hachem", 16 };
     PrintPersonData(hachem);
     SomeObscureProcedure():
 }
