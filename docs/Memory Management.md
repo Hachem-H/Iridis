@@ -7,7 +7,7 @@ Iridis solves this by the idea of a Allocators. Simply put, an allocator is a st
 ```iridis
 memory :: import!("std.memory")
 
-CustomAlloc<T> :: proc(size: i32) -> ^T
+CustomAlloc<T> :: proc(count: i32) -> ^T
 {
     // ...
 }
