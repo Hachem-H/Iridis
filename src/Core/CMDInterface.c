@@ -32,6 +32,12 @@ int CMDLineNew(int argc, char* argv[])
         return -1;
     }
 
+    if (strcmp(argv[2], "help") == 0)
+    {
+        PrintNewHelp();
+        return 0;
+    }
+
     char* type = argv[2];
     char* name = argv[3];
 
@@ -77,6 +83,12 @@ int CMDLineCompile(int argc, char* argv[])
     {
         PrintCompileHelp();
         return -1;
+    }
+    
+    if (strcmp(argv[2], "help") == 0)
+    {
+        PrintCompileHelp();
+        return 0;
     }
 
     char* sourceFilePath = argv[2];
