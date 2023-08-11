@@ -13,7 +13,7 @@
 static inline bool IsValidProjectName(const char* name)
 {
     for (int i = 0; i < strlen(name); i++)
-        if (!isalpha(name[i]) || isdigit(name[i]) || name[i] == '_')
+        if (!isalpha(name[i]) || !isdigit(name[i]) || name[i] != '_')
             return false;
     return true;
 }
