@@ -5,7 +5,7 @@ Iridis is advertised as a system's programming language. So memory management (a
 Iridis solves this by the idea of a Allocators. Simply put, an allocator is a structure with 2 callbacks, `Alloc` and `Free`. Meaning you can pass in your own custom allocate and free methods. For example, lets say that we were in a custom bare-metal environment, I could implement a custom allocator like this 
 
 ```iridis
-memory :: import!("std.memory")
+Memory :: import!("std.Memory")
 
 CustomAlloc<T> :: proc(count: i32) -> ^T
 {
@@ -19,7 +19,7 @@ CustomFree<T> :: proc(buffer: ^T)
 
 main :: proc()
 {
-    customAllocator := memory.Allocator
+    customAllocator := Memory.Allocator
     {
         Alloc = CustomAlloc,
         Free  = CustomFree,
@@ -32,20 +32,20 @@ Now how is this useful? Well, simply let the standard library not use a pre-defi
 ```iridis
 // ...
 
-types :: import!("std.types")
+Types :: import!("std.Types")
 
 main :: proc()
 {
-    customAllocator := memory.Allocator
+    customAllocator := Memory.Allocator
     {
         Alloc = CustomAlloc,
         Free  = CustomFree,
     }
 
-    dynamicArray := types.CreateDynamicArray<i32>(customAllocator)
-    defer types.DestroyDynamicArray(dynamicArray)
+    dynamicArray := Types.CreateDynamicArray<i32>(customAllocator)
+    defer Types.DestroyDynamicArray(dynamicArray)
     
-    types.PushToDynamicArray(&dynamicArray, 1, 2, 3)
+    Types.PushToDynamicArray(&dynamicArray, 1, 2, 3)
 }
 ```
 
@@ -54,10 +54,10 @@ Now, what if I was on Windows and Linux or whatever, some platform that natively
 ```iridis
 main :: proc()
 {
-    dynamicArray := types.CreateDynamicArray<i32>(memory.GetDefaultAllocator())
-    defer types.DestroyDynamicArray(dynamicArray)
+    dynamicArray := Types.CreateDynamicArray<i32>(Memory.GetDefaultAllocator())
+    defer Types.DestroyDynamicArray(dynamicArray)
     
-    types.PushToDynamicArray(&dynamicArray, 1, 2, 3)
+    Types.PushToDynamicArray(&dynamicArray, 1, 2, 3)
 
 }
 ```
@@ -107,7 +107,8 @@ GetDefaultAllocator :: proc() -> Allocator
 Now you might be wondering: *why doesn't the `DefaultAlloc`/`DefaultFree` just implement the native procedures directly instead of making a different procedure for it?* Well my friend, because this is not going to **ONLY** be the implementation. What I can start by doing, is defining a simple `MemoryTracker` which is a dynamic array. But wait, *don't dynamic arrays use allocators to do stuff?* but if this is the default allocator, what will it use? Well, this is why I did the 2 internal procedures
 
 ```iridis
-types :: import!("std.types")
+Types   :: import!("std.Types")
+Runtime :: import!("std.Runtime")
 
 #[private]
 InternalAllocator :: Allocator
@@ -117,7 +118,7 @@ InternalAllocator :: Allocator
 }
 
 #[private]
-MemoryTracker := types.CreateDynamicArray<(runtime.StackTrace, i32)>(InternalAllocator)
+MemoryTracker := Types.CreateDynamicArray<(Runtime.StackTrace, i32)>(InternalAllocator)
 // The Runtime Stacktrace is a type which holds information about where the functions were called. We can use this determine where an allocation happened.
 // The i32 is the allocated buffer address.
 ```
@@ -129,7 +130,7 @@ meaning we can modify the `DefaultAlloc`/`DefaultFree` functions to push allocat
 DefaultAlloc<T> :: proc(count: i32) -> ^T
 {
     buffer := InternalAlloc<T>(count)
-    types.PushToDynamicArray(&MemoryTracker, (runtime.GetStackTrace(), buffer));
+    Types.PushToDynamicArray(&MemoryTracker, (Runtime.GetStackTrace(), buffer));
     return buffer
 }
 
@@ -139,11 +140,11 @@ DefaultFree<T> :: proc(buffer: ^T)
     bufferIndex := 0
     for i in 0..<MemoryTracker.size
     {
-        (_, address) := types.DynamicArrayAt(MemoryTracker, i)
+        (_, address) := Types.DynamicArrayAt(MemoryTracker, i)
         if address == buffer; do
             bufferIndex = i
     }
-    types.DynamicArrayPopAt(&MemoryTracker, bufferIndex)
+    Types.DynamicArrayPopAt(&MemoryTracker, bufferIndex)
     
     InternalFree(buffer)
 }
@@ -152,14 +153,14 @@ DefaultFree<T> :: proc(buffer: ^T)
 Noe that we stored them, *then what?* Well, let me introduce you to a keyword called `defer`. What `defer` usually does, is that it executes a line of code when a scope ends. But when you do it globally, it would run this line of code at the end of the program execution. So what I could do, is check if all the buffers have been freed like this:
 
 ```iridis
-io :: import!("std.io")
+IO :: import!("std.IO")
 
 defer
 {
     if MemoryTracker.size != 0
     {
         for (location, address) in MemoryTracker; do
-            io.error("You allocated a buffer at address {} in {} but it wasn't freed", address, location)
+            IO.Error("You allocated a buffer at address {} in {} but it wasn't freed", address, location)
     }
 }
 ```
@@ -177,12 +178,10 @@ I to introduce you the `comptime` keyword, which turns anything into a compile t
 Well, iridis has access to the runtime information from the compiler. So, we can use when to check what profile we are using. And ONLY check for non-freed blocks in the distribution build like this:
 
 ```
-runtime :: import!("std.memory")
-
-comptime if runtime.profile != .Distribution
+comptime if Runtime.profile != .Distribution
 {
     #[private]
-    MemoryTracker := types.CreateDynamicArray<...>(InternalAllocator) 
+    MemoryTracker := Types.CreateDynamicArray<...>(InternalAllocator) 
 
     defer
     {
@@ -195,10 +194,10 @@ comptime if runtime.profile != .Distribution
 #[private]
 DefaultAlloc<T> :: proc(count: i32) -> ^T
 {
-    comptime if runtime.profile != .Distribution
+    comptime if Runtime.profile != .Distribution
     {
         buffer := InternalAlloc<T>(count)
-        types.PushToDynamicArray(&MemoryTracker, (runtime.GetStackTrace(), buffer));
+        Types.PushToDynamicArray(&MemoryTracker, (Runtime.GetStackTrace(), buffer));
     }
 
     return buffer
@@ -207,17 +206,17 @@ DefaultAlloc<T> :: proc(count: i32) -> ^T
 #[private]
 DefaultFree<T> :: proc(buffer: ^T)
 {
-    comptime if runtime.profile != .Distribution
+    comptime if Runtime.profile != .Distribution
     {
         bufferIndex := 0
         for i in 0..<MemoryTracker.size
         {
-            (_, address) := types.DynamicArrayAt(MemoryTracker, i)
+            (_, address) := Types.DynamicArrayAt(MemoryTracker, i)
             if address == buffer; do
                 bufferIndex = i
         }
 
-        types.DynamicArrayPopAt(&MemoryTracker, bufferIndex)
+        Types.DynamicArrayPopAt(&MemoryTracker, bufferIndex)
     }
 
     InternalFree(buffer)
@@ -229,13 +228,13 @@ DefaultFree<T> :: proc(buffer: ^T)
 Realistically, I will probably split this into a `GlobalAllocator` and a `DefaultAllocator`, as it would be practicall for game-developpment. Consider this example:
 
 ```iridis
-memory :: import!("std.memory")
+Memory :: import!("std.Memory")
 
 // ...
 
 UpdateEntities :: proc()
 {
-    allocator := memory.GetGlobalAllocator()
+    allocator := Memory.GetGlobalAllocator()
     entities := allocator.Allocate<Entity>(100)
     UpdateEntity(entities)
 }
@@ -256,8 +255,8 @@ This is obviously a memory leak, but we would get a 100 error messages per game 
 
 UpdateEntities :: proc()
 {
-    allocator := memory.CreateDefaultAllocator()
-    defer memory.DestroyDefaultAllocator(allocator)
+    allocator := Memory.CreateDefaultAllocator()
+    defer Memory.DestroyDefaultAllocator(allocator)
     
     entities := allocator.Allocate<Entity>(100)
     UpdateEntity(entities)

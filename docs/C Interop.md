@@ -94,7 +94,7 @@ The inverse passage is also possible, and the process is also rather similar, we
 ```main.iridis
 // SomeFile.iridis
 
-io :: import("std.io")
+IO :: import("std.IO")
 
 Person :: struct
 {
@@ -105,14 +105,14 @@ Person :: struct
 #[export]
 PrintPersonData :: proc(person: Person)
 {
-    io.println("Name: {}", person.name)
-    io.println("Age: {}", person.age)
+    IO.PrintLine("Name: {}", person.name)
+    IO.PrintLine("Age: {}", person.age)
 }
 
 #[export]
 SomeObscureProcedure :: proc()
 {
-    io.println("I am some other function with a definition")
+    IO.PrintLine("I am some other function with a definition")
 }
 ```
 
