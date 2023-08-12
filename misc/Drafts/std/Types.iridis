@@ -1,0 +1,128 @@
+Memory :: import!("Memory")
+
+/************ DYNAMIC-ARRAY ************/
+
+#[private]
+INITIAL_CAPACITY : u32 : 64
+
+DynamicArray<T> :: struct
+{
+    allocator : Memory.Allocator,
+    buffer    : ^T,
+
+    capacity  : u32,
+    size      : u32,
+}
+
+DynamicArrayError :: enum
+{
+    IndexOutOfBounds,
+    EmptyBuffer,
+}
+
+#[private]
+DoubleDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError?
+{
+    newCapacity := 2*array.capacity
+    newBuffer := array.allocator.Allocate<T>(newCapacity)
+
+    for i in 0..<array.size; do
+        newBuffer[i] = array.buffer[i]
+    array.allocator.Free(array.buffer)
+
+    array.buffer   = newBuffer
+    array.capacity = newCapacity
+}
+
+#[private]
+HalfDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError?
+{
+    if array.capacity <= INITIAL_CAPACITY; do
+        return
+    
+    newCapacity := array.capacity/2
+    newSize := min!(array.size, newCapacity)
+    newBuffer := array.allocator.Allocate<T>(newCapacity)
+
+    for i in 0..<newSize; do
+        newBuffer[i] = array.buffer[i]
+    allocator.Free(array.buffer)
+
+    array.buffer   = newBuffer
+    array.capacity = newCapacity
+    array.size     = newSize
+}
+
+CreateDynamicArray<T> :: proc(allocator: Memory.Allocator) -> DynamicArray<T>
+{
+    return DynamicArray
+    {
+        capacity  = INITIAL_CAPACITY,
+        size      = 0,
+        allocator = allocator,
+        buffer    = allocator.Allocate<T>(INITIAL_CAPACITY),
+    }
+}
+
+PushToDynamicArray<T> :: proc(array: ^DynamicArray<T>, elements: ..T)
+{
+    for element in elements
+    {
+        if array.size >= array.capacity; do
+            DoubleDynamicArrayCapacity(array)
+        array.buffer[array.size] = element
+        array.size += 1
+    }
+}
+
+PopDynamicArray<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError!
+{
+    if array.size == 0; do
+        return .EmptyBuffer
+
+    array.size -= 1
+
+    if 4*array.size < array.capacity; do
+        HalfDynamicArrayCapacity(array)
+}
+
+InsertInDynamicArray<T> :: proc(array: ^DynamicArray<T>, element: T, at: u32) -> DynamicArrayError!
+{
+    if at >= array.size; do
+        return .IndexOutOfBounds
+
+    if array.size >= array.capacity; do
+        DoubleDynamicArrayCapacity(array)
+    for i in i+1..=array.size; do
+        array.buffer[i-1] = array.buffer[i]
+
+    array.buffer[i] = element
+    array.size += 1
+}
+
+DeleteInDynamicArray<T> :: proc(array: ^DynamicArray<T>, at: u32) -> DynamicArrayError!
+{
+    if at >= array.size; do
+        return .IndexOutOfBounds
+
+    for i in i+1..<array.size; do
+        array.buffer[i-1] = array.buffer[i]
+
+    array.size -= 1
+
+    if 4*array.size < array.capacity; do
+        HalfDynamicArrayCapacity(array)
+}
+
+ClearDynamicArray<T> :: proc(array: ^DynamicArray)
+{
+    array.size = 0
+    while array.capacity > INITIAL_CAPACITY; do
+        HalfDynamicArrayCapacity(array)
+}
+
+DestoryDynamicArray<T> :: proc(array: DynamicArray<T>)
+{
+    array.allocator.Free(array.buffer)
+}
+
