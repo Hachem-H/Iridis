@@ -169,7 +169,7 @@ This way, we can inform the programmer that they didn't free their memory withou
 
 ## Optimizing safe memory allocation
 
-I to introduce you the `comptime` keyword, which turns anything into a compile time statement (this includes `if`, `for` and`while`). Basically, Iridis can compile into 3 different profiles;
+I want to introduce you the `comptime` keyword, which turns anything into a compile time statement (this includes `if`, `for` and`while`). Basically, Iridis can compile into 3 different profiles;
 
 - Debug: "Compile with no optimizations and debug symbols"
 - Release: "Compile with optimizations and debug symbols"
