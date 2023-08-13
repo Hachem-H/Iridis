@@ -1,0 +1,137 @@
+// TODOs(Hachem):
+// - Error handling
+// - Thread safety
+// - Memory arenas
+// - Garbage collector 
+
+IO      :: import!("std.IO")
+Types   :: import!("std.Types")
+Runtime :: import!("std.Runtime")
+
+Allocator :: struct
+{
+    Allocate<T> : proc(^Allocator, u32) -> ^T,
+    Free<T>     : proc(^Allocator, ^T)
+}
+
+/*********** Internal ***********/
+
+#[private]
+InternalAlloc<T> :: proc(context: ^Allocator, count: u32) -> ^T
+{
+    // OS implementation
+}
+
+#[private]
+InternalFree<T> :: proc(context: ^Allocator, buffer: ^T)
+{
+    // OS implementation
+}
+
+#[private]
+InternalAllocator := Allocator
+{
+    Allocate = InternalAlloc,
+    Free     = InternalFree,
+}
+
+/*********** Default ***********/
+
+comptime if Runtime.Profile != .Distribution
+{
+    DefaultAllocator :: struct using Allocator
+    {
+            tracker : Types.DynamicArray<(Runtime.CallTrace, u32)>
+    }
+}
+else
+{
+    DefaultAllocator :: struct using Allocator
+}
+
+#[private]
+DefaultAlloc<T> :: proc(context: ^Allocator, count: u32) -> ^T
+{
+    allocator := context as ^DefaultAllocator
+
+    comptime if Runtime.Profile != .Distribution
+    {
+        buffer := InternalAlloc<T>(count)
+        tracked := (Runtime.GetStackTrace(), buffer as u32)
+        Types.PushToDynamicArray(&allocator.tracker, tracked)
+    }
+    
+    return buffer
+}
+
+#[private]
+DefaultFree<T> :: proc(context: ^Allocator, buffer: ^T)
+{
+    comptime if Runtime.Profile != .Distribution
+    {
+        allocator := context as ^DefaultAllocator
+        bufferIndex := 0
+
+        for i in 0..<allocator.tracker.size
+        {
+            (_, address) := Types.DynamicArrayAt(allocator.tracker, i)
+            if address == buffer as u32; do
+                bufferIndex = i
+        }
+        
+        Types.DynamicArrayRemoveAt(&allocator.tracker, bufferIndex)!
+    }
+
+    InternalFree(buffer)
+}
+
+CreateDefaultAllocator :: proc() -> DefaultAllocator
+{
+    comptime if Runtime.Profile != .Distribution
+    {
+        return DefaultAllocator
+        {
+            Allocate = DefaultAllocate,
+            Free     = DefaultFree,
+
+            tracker  = Types.CreateDynamicArray(InternalAllocator)
+        }
+    }
+    else
+    {
+        return DefaultAllocator
+        {
+            Allocate = DefaultAllocate,
+            Free     = DefaultFree,
+            tracker  = Types.CreateDynamicArray(InternalAllocator)
+        }
+    }
+}
+
+DestroyDefaultAllocator :: proc(allocator: ^DefaultAllocator)
+{
+    comptime if Runtime.Profile != .Distribution
+    {
+        if allocator.tracker.size != 0; do
+            for i in allocator.tracker.size
+            {
+                (callTrace, address) = allocator.tracker.buffer[i]
+                IO.ErrorLine("Unfreed buffer @ {}: ", address)
+                
+                indent := 0
+                for entry in callTrace
+                {
+                    for _ in 0..<indent; do
+                       IO.Error(' ')
+                    io.Error("{}:{} in {}", entry.line, entry.file, entry.name)
+                }
+            }
+
+        Types.DestroyDynamicArray(allocator.tracker)
+    }
+}
+
+/*********** Global ***********/
+
+GlobalAllocator := CreateDefaultAllocator()
+defer DestroyDefaultAllocator(&GlobalAllocator)

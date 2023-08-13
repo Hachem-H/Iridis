@@ -1,3 +1,8 @@
+// TODOs(Hachem)
+// - StringBuilder
+// - HashMap
+// - Iterators
+
 Memory :: import!("Memory")
 
 /************ DYNAMIC-ARRAY ************/
@@ -24,11 +29,11 @@ DynamicArrayError :: enum
 DoubleDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError?
 {
     newCapacity := 2*array.capacity
-    newBuffer := array.allocator.Allocate<T>(newCapacity)
+    newBuffer := array.allocator.Allocate<T>(&array.allocator, newCapacity)
 
     for i in 0..<array.size; do
         newBuffer[i] = array.buffer[i]
-    array.allocator.Free(array.buffer)
+    array.allocator.Free(&array.alloactor, array.buffer)
 
     array.buffer   = newBuffer
     array.capacity = newCapacity
@@ -42,11 +47,11 @@ HalfDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayErro
     
     newCapacity := array.capacity/2
     newSize := min!(array.size, newCapacity)
-    newBuffer := array.allocator.Allocate<T>(newCapacity)
+    newBuffer := array.allocator.Allocate<T>(&array.allocator, newCapacity)
 
     for i in 0..<newSize; do
         newBuffer[i] = array.buffer[i]
-    allocator.Free(array.buffer)
+    array.allocator.Free(&array.allocator, array.buffer)
 
     array.buffer   = newBuffer
     array.capacity = newCapacity
@@ -60,7 +65,7 @@ CreateDynamicArray<T> :: proc(allocator: Memory.Allocator) -> DynamicArray<T>
         capacity  = INITIAL_CAPACITY,
         size      = 0,
         allocator = allocator,
-        buffer    = allocator.Allocate<T>(INITIAL_CAPACITY),
+        buffer    = allocator.Allocate<T>(&allocator, INITIAL_CAPACITY),
     }
 }
 
@@ -114,15 +119,19 @@ DeleteInDynamicArray<T> :: proc(array: ^DynamicArray<T>, at: u32) -> DynamicArra
         HalfDynamicArrayCapacity(array)
 }
 
-ClearDynamicArray<T> :: proc(array: ^DynamicArray)
+ClearDynamicArray<T> :: proc(array: ^DynamicArray<T>)
 {
     array.size = 0
     while array.capacity > INITIAL_CAPACITY; do
         HalfDynamicArrayCapacity(array)
 }
 
-DestoryDynamicArray<T> :: proc(array: DynamicArray<T>)
+DynamicArrayAt<T> :: proc(array: ^DynamicArray<T>) -> T
 {
-    array.allocator.Free(array.buffer)
+    return array.buffer[i]
 }
 
+DestoryDynamicArray<T> :: proc(array: DynamicArray<T>)
+{
+    array.allocator.Free(&array.allocator, array.buffer)
+}

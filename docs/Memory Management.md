@@ -267,9 +267,9 @@ UpdateEntities :: proc()
 
 When the `DestroyDefaultAllocator` method is called, we would immediately get information about the memory leak and cause a crash possibly. And so the `GlobalAllocator` would simply be a default one where the global `defer` would call the destroy procedure.
 
-# Garbage Collection
+# Residue Allocator
 
-Now due to the way that we wrote our `GlobalAllocator` we can simply use the same exact method to implement a basic garbage collector which frees the buffers for you like so:
+Now due to the way that we wrote our `GlobalAllocator` we can simply use the same exact method to implement a _Residue Allocator_ which should be used. What a residue allocator does is that you allocate the memory like normal, and when the memory is freed, it would free all the memory up-front.
 
 ```iridis
 // In this case, the MemoryTracker doesn't need to store the stack trace since we aren't warning the programmer
@@ -281,7 +281,7 @@ defer
 }
 ```
 
- Though, yes, this would mean that using the garbage collector will come with reduced performance to maintain memory. Which is why when you use the garbage collector, when the program exit, you will have a duck being mean to you:
+ Though, yes, this would mean that using the this comes with reduced performance to maintain a log of allocated buffers. Which is why when you use the _Resiude Allocator_, when the program exit, you will have a duck being mean to you:
 
 ```
       __
@@ -294,7 +294,7 @@ defer
 
 # Conclusion
 
-The way that Iridis handles memory management through the use of `comptime` and the `defer` keyword allows it to be quite portable and makes it quite useful in terms of kernel design. It also means that it could potentially be used in various fields of application where memory management isn't the main goal through the "Garbage Collector".
+The way that Iridis handles memory management through the use of `comptime` and the `defer` keyword allows it to be quite portable and makes it quite useful in terms of kernel design.
 
 ---
 
