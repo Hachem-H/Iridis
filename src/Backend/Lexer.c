@@ -29,8 +29,7 @@ TokenInfo CreateTokenInfo(const uint32_t line, const uint32_t column, const char
     TokenInfo tokenInfo;
     tokenInfo.line   = line;
     tokenInfo.column = column;
-    tokenInfo.identifier = (char*) malloc(sizeof(identifier));
-    strcpy(tokenInfo.identifier, identifier);
+    tokenInfo.identifier = strdup(identifier);
     return tokenInfo;
 }
 

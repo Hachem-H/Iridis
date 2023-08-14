@@ -75,10 +75,7 @@ Token TokenFromString(int line, int column, const char* buffer)
     Token token;
     token.line   = line;
     token.column = column;
-
-    token.representation = (char*) malloc(strlen(buffer)+1);
-    token.representation[strlen(buffer)] = 0;
-    strcpy(token.representation, buffer);
+    token.representation = strdup(buffer);
 
     if (IsInteger(buffer))
     {
@@ -127,8 +124,7 @@ Token TokenFromString(int line, int column, const char* buffer)
     else if (buffer[0] == '"')
     {
         token.type = TokenType_String;
-        token.literal.identifier = token.representation+1;
-        token.literal.identifier[strlen(token.literal.identifier)-1] = 0;
+        token.literal.identifier = strdup(token.representation+1);
         ProcessStringLiteral(token.literal.identifier);
     }
 
