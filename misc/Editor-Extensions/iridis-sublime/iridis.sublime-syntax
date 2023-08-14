@@ -13,7 +13,7 @@ contexts:
     - include: strings
     - include: string-escaped-char
 
-    - match: \b(if|else|for|while|mod|extern|using|struct|proc|do|in|return)\b
+    - match: \b(if|else|for|while|mod|extern|using|struct|proc|do|in|as|comptime|enum|return)\b
       scope: keyword.iridis
     
     - match: \b(u8|u16|u32|u64|i8|i16|i32|i64|f32|f64|string)\b
@@ -21,7 +21,7 @@ contexts:
       captures:
         0: support.type.iridis
     
-    - match: \[;^\]
+    - match: \[;^\!]
       captures:
         0: keyword.operator.iridis
 
