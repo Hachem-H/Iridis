@@ -13,7 +13,7 @@
 static inline bool IsValidProjectName(const char* name)
 {
     for (int i = 0; i < strlen(name); i++)
-        if (!isalpha(name[i]) || !isdigit(name[i]) || name[i] != '_')
+        if (!isalpha(name[i]) && !isdigit(name[i]) && name[i] != '_')
             return false;
     return true;
 }
@@ -69,7 +69,17 @@ int CMDLineNew(int argc, char* argv[])
 
 int CMDLineBuild(int argc, char* argv[])
 {
-    return 0;
+    char* path = NULL;
+    if (argc == 4)
+        path = ".";
+    else
+        path = argv[2];
+
+    ProjectConfiguration configuration;
+    bool result = ReadProjectConfiguration(&configuration, path);
+    LOG_INFO("ReadProjectConfiguration() = %d", result);
+    DestroyProjectConfiguration(&configuration);
+    return result;
 }
 
 int CMDLineRun(int argc, char* argv[])

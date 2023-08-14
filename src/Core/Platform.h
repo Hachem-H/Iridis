@@ -13,4 +13,5 @@
 #include <stdbool.h>
 
 bool MakeDirectory(const char* path);
+bool RemoveDirectory(const char* path);
 void EnableConsoleColors();

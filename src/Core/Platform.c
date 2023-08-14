@@ -4,6 +4,7 @@
     #include <windows.h>
 #elif defined(IRIDIS_LINUX) || defined(IRIDIS_DARWIN)
     #include <sys/stat.h>
+    #include <unistd.h>
 #endif
 
 bool MakeDirectory(const char* path)
@@ -13,6 +14,18 @@ bool MakeDirectory(const char* path)
         return true;
 #elif defined(IRIDIS_LINUX) || defined(IRIDIS_DARWIN)
     if (mkdir(path, 0777) == 0)
+        return true;
+#endif
+
+    return false;
+}
+bool RemoveDirectory(const char* path)
+{
+#if defined(IRIDIS_WINDOWS)
+    if (RemoveDirectory(path))
+        return true;
+#elif defined(IRIDIS_LINUX) || defined(IRIDIS_DARWIN)
+    if (rmdir(path) == 0)
         return true;
 #endif
 

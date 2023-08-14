@@ -1,3 +1,6 @@
 [submodule "Vendor/stb"]
 	path = Vendor/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Vendor/tomlc99"]
+	path = Vendor/tomlc99
+	url = https://github.com/cktan/tomlc99.git

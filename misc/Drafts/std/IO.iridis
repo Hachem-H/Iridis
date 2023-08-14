@@ -8,7 +8,7 @@ comptime if OS.Platform == .Windows
 PrintCharacter :: proc(character: u8)
 {
     comptime if OS.Platform == OS.Platforms.Linux
-                OS.Platform == OS.Platofrms.Darwin
+                OS.Platform == OS.Platforms.Darwin
     {
         comptime if OS.Architecture == .x86
         {
@@ -48,7 +48,7 @@ PrintCharacter :: proc(character: u8)
 PrintString :: proc(text: string)
 {
     comptime if OS.Platform == OS.Platforms.Linux || 
-                OS.Platform == OS.Platofrms.Darwin
+                OS.Platform == OS.Platforms.Darwin
     {
         comptime if OS.Architecture == .x86
         {
