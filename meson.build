@@ -30,5 +30,5 @@ executable('iridis',
     sources:             iridisSourceFiles,
     include_directories: iridisIncludeDirectories,
     link_with: [tomlc99],
-    link_args: ['-lLLVM-15' ]
+    link_args: ['-lLLVM-15']
 )

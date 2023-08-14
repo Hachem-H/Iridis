@@ -11,11 +11,11 @@
 
 bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 {
-    size_t configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+1;
+    size_t configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+2;
     char* configFilepath = (char*)malloc(configFilepathLength);
     snprintf(configFilepath, configFilepathLength, "%s/iridis.toml", projectPath);
-
     char* configFile = ReadFile(configFilepath);
+
     if (configFile == NULL)
     {
         LOG_ERROR("`%s` is not a valid Iridis project.", projectPath);
@@ -25,8 +25,8 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
     free(configFilepath);
 
     char errorBuffer[500];
-
     toml_table_t* config = toml_parse(configFile, errorBuffer, sizeof(errorBuffer));
+    free(configFile);
     
     if (!config)
     {
@@ -176,12 +176,7 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
         }
     }
 
-    free(projectConfig);
-    free(buildConfig);
-
     toml_free(config);
-    free(configFile);
-    
     return true;
 }
 
