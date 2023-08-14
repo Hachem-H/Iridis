@@ -1,0 +1,86 @@
+OS :: import!("std.OS")
+
+comptime if OS.Platform == .Windows
+{
+    Win32 :: import!("Win32")
+}
+
+PrintCharacter :: proc(character: u8)
+{
+    comptime if OS.Platform & OS.Platforms.Linux != 0 || OS.Platform & OS.Platofrms.Darwin != 0
+    {
+        comptime if OS.Architecture == .x86
+        {
+            asm!(`mov eax, 4
+                  mov ebx, 1,
+                  mov ecx, {},
+                  mov edx, 1,
+                  int 0x80`, character)
+            return
+        }
+
+        comptime if OS.Architecture == .x64
+        {
+            asm!(`mov rax, 4
+                  mov rbx, 1,
+                  mov rcx, {},
+                  mov rdx, 1,
+                  syscall`, character)
+            return
+        }
+        
+        IO.Error("Unsupported architecture")
+        OS.Panic()
+    }
+
+    comptime if OS.Platform & OS.Platforms.Windows != 0
+    {
+        consoleHandle := Win32.GetStdHandle(Win32.STD_OUTPUT_HANDLE)
+        Win32.WriteConsoleA(consoleHandle, &character, 1, nil, nil)
+    }
+
+    IO.Error("Unsupported architecture")
+    OS.Panic()
+}
+
+PrintString :: proc(text: string)
+{
+    comptime if OS.Platform & OS.Platforms.Linux != 0 || OS.Platform & OS.Platofrms.Darwin != 0
+    {
+        comptime if OS.Architecture == .x86
+        {
+            asm!(`mov eax, 4
+                  mov ebx, 1,
+                  mov ecx, {},
+                  mov edx, {},
+                  int 0x80`, 
+                  &text[0], 
+                  len!(text))
+            return
+        }
+
+        comptime if OS.Architecture == .x64
+        {
+            asm!(`mov rax, 4
+                  mov rbx, 1,
+                  mov rcx, {},
+                  mov rdx, {},
+                  syscall`, 
+                  &text[0],
+                  len!(text))
+            return
+        }
+        
+        IO.Error("Unsupported architecture")
+        OS.Panic()
+    }
+
+    comptime if OS.Platform & OS.Platforms.Windows != 0
+    {
+        consoleHandle := Win32.GetStdHandle(Win32.STD_OUTPUT_HANDLE)
+        Win32.WriteConsoleA(consoleHandle, &text[0], len!(text), nil, nil)
+    }
+
+    IO.Error("Unsupported architecture")
+    OS.Panic()
+}

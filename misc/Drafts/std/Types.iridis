@@ -1,5 +1,4 @@
 // TODOs(Hachem)
-// - StringBuilder
 // - HashMap
 // - Iterators
 
@@ -8,7 +7,7 @@ Memory :: import!("Memory")
 /************ DYNAMIC-ARRAY ************/
 
 #[private]
-INITIAL_CAPACITY : u32 : 64
+INITIAL_DYNAMIC_ARRAY_CAPACITY : u32 : 64
 
 DynamicArray<T> :: struct
 {
@@ -33,7 +32,7 @@ DoubleDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayEr
 
     for i in 0..<array.size; do
         newBuffer[i] = array.buffer[i]
-    array.allocator.Free(&array.alloactor, array.buffer)
+    array.allocator.Free(&array.allocator, array.buffer)
 
     array.buffer   = newBuffer
     array.capacity = newCapacity
@@ -42,7 +41,7 @@ DoubleDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayEr
 #[private]
 HalfDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError?
 {
-    if array.capacity <= INITIAL_CAPACITY; do
+    if array.capacity <= INITIAL_DYNAMIC_ARRAY_CAPACITY; do
         return
     
     newCapacity := array.capacity/2
@@ -60,9 +59,9 @@ HalfDynamicArrayCapacity<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayErro
 
 CreateDynamicArray<T> :: proc(allocator: Memory.Allocator) -> DynamicArray<T>
 {
-    return DynamicArray
+    return DynamicArray<T>
     {
-        capacity  = INITIAL_CAPACITY,
+        capacity  = INITIAL_DYNAMIC_ARRAY_CAPACITY,
         size      = 0,
         allocator = allocator,
         buffer    = allocator.Allocate<T>(&allocator, INITIAL_CAPACITY),
@@ -80,7 +79,7 @@ PushToDynamicArray<T> :: proc(array: ^DynamicArray<T>, elements: ..T)
     }
 }
 
-PopDynamicArray<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError!
+PopDynamicArray<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError?
 {
     if array.size == 0; do
         return .EmptyBuffer
@@ -91,7 +90,7 @@ PopDynamicArray<T> :: proc(array: ^DynamicArray<T>) -> DynamicArrayError!
         HalfDynamicArrayCapacity(array)
 }
 
-InsertInDynamicArray<T> :: proc(array: ^DynamicArray<T>, element: T, at: u32) -> DynamicArrayError!
+InsertInDynamicArray<T> :: proc(array: ^DynamicArray<T>, element: T, at: u32) -> DynamicArrayError?
 {
     if at >= array.size; do
         return .IndexOutOfBounds
@@ -105,7 +104,7 @@ InsertInDynamicArray<T> :: proc(array: ^DynamicArray<T>, element: T, at: u32) ->
     array.size += 1
 }
 
-DeleteInDynamicArray<T> :: proc(array: ^DynamicArray<T>, at: u32) -> DynamicArrayError!
+DeleteInDynamicArray<T> :: proc(array: ^DynamicArray<T>, at: u32) -> DynamicArrayError?
 {
     if at >= array.size; do
         return .IndexOutOfBounds
@@ -122,7 +121,7 @@ DeleteInDynamicArray<T> :: proc(array: ^DynamicArray<T>, at: u32) -> DynamicArra
 ClearDynamicArray<T> :: proc(array: ^DynamicArray<T>)
 {
     array.size = 0
-    while array.capacity > INITIAL_CAPACITY; do
+    while array.capacity > INITIAL_DYNAMIC_ARRAY_CAPACITY; do
         HalfDynamicArrayCapacity(array)
 }
 
@@ -134,4 +133,137 @@ DynamicArrayAt<T> :: proc(array: ^DynamicArray<T>) -> T
 DestoryDynamicArray<T> :: proc(array: DynamicArray<T>)
 {
     array.allocator.Free(&array.allocator, array.buffer)
+}
+
+/************ HASH-MAP ************/
+
+LOAD_FACTOR              : f64 : 0.7
+SHRINK_FACTOR            : f64 : 0.2
+INITIAL_HASHMAP_CAPACITY : u32 : 16
+
+HashmapError :: enum
+{
+    KeyNotFound
+}
+
+#[private]
+Bucket<K: #Stringable, V> :: struct
+{
+    key   : K,
+    value : V,
+}
+
+Hashmap<K, V> :: struct
+{
+    capacity : u32,
+    buckets  : DynamicArray<Bucket<K, B>>
+}
+
+CreateHashmap<K: #Stringable, V> :: proc(allocator: Memory.Allocator, capacity: u32) -> Hashmap<K, V>
+{
+    return Hashmap<K, V>
+    {
+        capacity = capacity,
+        buckets  = CreateDynamicArray(allocator)
+    }
+}
+
+#[private]
+HashFunction<K: #Stringable> :: proc(key: K, capacity: u32)
+{
+    stringKey := tostring!(key)
+    hashValue := 0
+    for character in stringKey; do
+        hashValue += (hashValue as u32) * (i+1)
+    return hashValue % capacity
+}
+
+InsertInHashmap<K: #Stringable, V> :: proc(map: ^Hashmap<K, V>, key: K, value: V)
+{
+    hash := HashFunction(key, map.capacity)
+    bucketIndex := hash % map.capacity
+
+    for i in 0..<map.buckets.size
+    {
+        bucket := map.buckets[i]
+
+        if bucket.key == key
+        {
+            bucket.value = value
+            return
+        }
+    }
+
+    newBucket := Bucket<K, V> { key, value }
+    PushToDynamicArray(&map.buckets, newBucket)
+
+    if map.buckets.size > map.capacity * LOAD_FACTOR; do
+        ResizeHashmap(map, map.capacity*2)
+}
+
+GetFromHashmap<K: #Stringable, V> :: proc(map: ^Hashmap<K, V>, key: K) -> HashmapError?V
+{
+    hash := hashfunction(key, map.capacity)
+    bucketIndex := hash % map.capacity
+    
+    for i in 0..<map.buckets.size
+    {
+        bucket := map.buckets[i]
+
+        if bucket.key == key; do
+            return bucket
+    }
+
+    return .KeyNotFound
+}
+
+RemoveFromHashmap<K: #Stringable, V> :: proc(map: ^Hashmap<K, V>, key: K) -> HashmapError?
+{
+    hash := HashFunction(key, map.capacity)
+    bucketIndex := hash % map.capacity
+    
+    for i in 0..<map.buckets.size
+    {
+        bucket := map.buckets[i]
+
+        if bucket.key == key
+        {
+            removedValue := bucket.value
+            DeleteInDynamicArray(&map.buckets, i)!
+
+            if map.size < map.capacity*SHRINK_FACTOR
+            {
+                newCapacity := max!(map.capacity/2, INITIAL_HASHMAP_CAPACITY)
+                ResizeHashmap(map, newCapacity)
+            }
+        }
+    }
+
+    return .KeyNotFound
+}
+
+ResizeHashmap<K: #Stringable, V> :: proc(map: ^Hashmap<K, V>, newCapacity: u32)
+{
+    newBuckets := CreateDynamicArray<Bucket<K, V>>(map.allocator)
+
+    for i in 0..<map.buckets.size
+    {
+        bucket := map.buckets[i]
+        newHash := HashFunction(bucket.key, newCapacity)
+        newBucket := Bucket<K, V>
+        {
+            key = bucket.key,
+            value = bucket.value,
+        }
+        PushToDynamicArray(&newBuckets, newBucket)
+    }
+
+    DestroyDynamicArray(&newBuckets)
+    map.buckets = buckets
+    map.capacity = newCapacity
+}
+
+ResizeHashmap<K: #Stringable, V> :: proc(map: ^Hashmap<K, V>)
+{
+    DestroyDynamicArray(&map.buckets)
 }
