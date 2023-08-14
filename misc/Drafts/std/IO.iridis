@@ -7,7 +7,8 @@ comptime if OS.Platform == .Windows
 
 PrintCharacter :: proc(character: u8)
 {
-    comptime if OS.Platform & OS.Platforms.Linux != 0 || OS.Platform & OS.Platofrms.Darwin != 0
+    comptime if OS.Platform == OS.Platforms.Linux
+                OS.Platform == OS.Platofrms.Darwin
     {
         comptime if OS.Architecture == .x86
         {
@@ -33,10 +34,11 @@ PrintCharacter :: proc(character: u8)
         OS.Panic()
     }
 
-    comptime if OS.Platform & OS.Platforms.Windows != 0
+    comptime if OS.Platform & OS.Platforms.Windows == 0
     {
         consoleHandle := Win32.GetStdHandle(Win32.STD_OUTPUT_HANDLE)
         Win32.WriteConsoleA(consoleHandle, &character, 1, nil, nil)
+        return
     }
 
     IO.Error("Unsupported architecture")
@@ -45,7 +47,8 @@ PrintCharacter :: proc(character: u8)
 
 PrintString :: proc(text: string)
 {
-    comptime if OS.Platform & OS.Platforms.Linux != 0 || OS.Platform & OS.Platofrms.Darwin != 0
+    comptime if OS.Platform == OS.Platforms.Linux || 
+                OS.Platform == OS.Platofrms.Darwin
     {
         comptime if OS.Architecture == .x86
         {
@@ -79,6 +82,7 @@ PrintString :: proc(text: string)
     {
         consoleHandle := Win32.GetStdHandle(Win32.STD_OUTPUT_HANDLE)
         Win32.WriteConsoleA(consoleHandle, &text[0], len!(text), nil, nil)
+        return
     }
 
     IO.Error("Unsupported architecture")
