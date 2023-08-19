@@ -1,2 +1,0 @@
-[warnings]
-c_args = ['-Wno-everything']
