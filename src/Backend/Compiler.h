@@ -1,3 +1,3 @@
 #pragma once
 
-int CompileSourceCode(const char* sourceCode);
+int CompileSourceCode(const char* outputPath, const char* sourcePath);

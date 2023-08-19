@@ -15,9 +15,9 @@ int CMDLineRun(int argc, char* argv[]);
 int CMDLineCompile(int argc, char* argv[]);
 int CMDLineGenBind(int argc, char* argv[]);
 
-void PrintUsage();
-void PrintNewHelp();
-void PrintBuildHelp();
-void PrintRunHelp();
-void PrintCompileHelp();
-void PrintGenBindHelp();
+void PrintUsage(void);
+void PrintNewHelp(void);
+void PrintBuildHelp(void);
+void PrintRunHelp(void);
+void PrintCompileHelp(void);
+void PrintGenBindHelp(void);

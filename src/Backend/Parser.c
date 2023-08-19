@@ -33,7 +33,7 @@ static void PrintErrorLocation(Parser* parser)
     }
 
     printf("%s%d%s: %s\n", CONSOLE_COLORS_GREEN, line, CONSOLE_MODE_RESET, parser->sourceLines[line-1]);
-    for (int i = 0; i < numDigitsInLine+column+1; i++)
+    for (uint32_t i = 0; i < numDigitsInLine+column+1; i++)
         printf(" ");
     printf("^ %shere%s", CONSOLE_MODE_UNDERLINE, CONSOLE_MODE_RESET);
 }
@@ -65,9 +65,8 @@ static void HandleIdentifier(Parser* parser)
         expression.procedure.name = strdup(identifierName);
         
         LLVMTypeRef returnType = LLVMVoidType();
-        LLVMTypeRef paramTypes[] = {};
 
-        LLVMTypeRef functionType = LLVMFunctionType(returnType, paramTypes, 0, 0);
+        LLVMTypeRef functionType = LLVMFunctionType(returnType, NULL, 0, 0);
         LLVMValueRef entryPointFunction = LLVMAddFunction(parser->module, expression.procedure.name, functionType);
          
         LLVMBasicBlockRef entryBlock = LLVMAppendBasicBlock(entryPointFunction, "entry");
@@ -80,9 +79,7 @@ static void HandleIdentifier(Parser* parser)
     {
         ExpressionAST expression;
         expression.structure.name = strdup(identifierName);
-
-        LLVMTypeRef structTypes[] = {};
-        LLVMStructSetBody(LLVMStructCreateNamed(LLVMGetGlobalContext(), expression.structure.name), structTypes, 0, false);
+        LLVMStructSetBody(LLVMStructCreateNamed(LLVMGetGlobalContext(), expression.structure.name), NULL, 0, false);
         free(expression.structure.name);
     } break;
 
@@ -136,5 +133,6 @@ void Parse(char* sourceCode)
 
     LLVMDisposeModule(parser.module);
     LLVMDisposeBuilder(parser.builder);
+    LLVMShutdown();
 }
 

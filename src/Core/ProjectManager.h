@@ -36,7 +36,7 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath);
 void DestroyProjectConfiguration(ProjectConfiguration* configuration);
 
 void GenerateProject(ProjectConfiguration* configuration);
-void BuildProject(ProjectConfiguration* configuration);
+bool BuildProject(ProjectConfiguration* configuration);
 void RunProject(ProjectConfiguration* configuration);
 void TestProject(ProjectConfiguration* configuration);
 void CleanProject(ProjectConfiguration* configuration);

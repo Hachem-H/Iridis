@@ -3,11 +3,111 @@
 #include "Utils.h"
 #include "Log.h"
 
+#include "Backend/Compiler.h"
+
 #include <toml.h>
 #include <stb_ds.h>
 
 #include <string.h>
 #include <stdlib.h>
+
+static bool EndsWith(const char* string, const char* suffix)
+{
+    size_t stringLength = strlen(string);
+    size_t suffixLength = strlen(suffix);
+    if (stringLength < suffixLength)
+        return false;
+    return strcmp(string + (stringLength-suffixLength), suffix) == 0;
+}
+
+static void RecursivelyGetDirectories(const char* path, char*** directories)
+{
+#if defined(IRIDIS_WINDOWS)
+    WIN32_FIND_DATA findFileData;
+    HANDLE fileHandle = FindFirstFile(strcat(strcat(strdup(path), "\\"), "*"), &findFileData);
+
+    if (fileHandle == INVALID_HANDLE_VALUE)
+        return;
+
+    do
+    {
+        if (strcmp(findFileData.cFileName, ".") == 0 || strcmp(findFileData.cFileName, "..") == 0)
+            continue;
+
+        char fullpath[MAX_PATH];
+        snprintf(fullpath, sizeof(fullpath), "%s\\%s", path, findFileData.cFileName);
+
+        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+            stbds_arrput(*directories, strdup(fullpath));
+            RecursivelyGetDirectories(fullpath, directories);
+        }
+    } while (FindNextFile(fileHandle, &findFileData) != 0);
+
+    FindClose(fileHandle);
+#elif defined(IRIDIS_UNIX)
+    DIR* directory = opendir(path);
+    if (!directory)
+        return;
+
+    struct dirent* entry;
+    while ((entry = readdir(directory)) != NULL)
+    {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        char fullpath[PATH_MAX];
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+        struct stat statbuf;
+        if (stat(fullpath, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
+        {
+            stbds_arrput(*directories, strdup(fullpath));
+            RecursivelyGetDirectories(fullpath, directories);
+        }
+    }
+
+    closedir(directory);
+#endif
+}
+
+static void RecursivelyGetFiles(const char* path, char*** files)
+{
+#if defined(IRIDIS_WINDOWS)
+    WIN32_FIND_DATA findFileData;
+    HANDLE findHandle = FindFirstFile(strcat(strcat(path, "\\*"), ".iridis"), &findFileData);
+
+    if (findHandle == INVALID_HANDLE_VALUE)
+        return;
+
+    do
+    {
+        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            continue;
+
+        char fullPath[MAX_PATH];
+        snprintf(fullPath, sizeof(fullPath), "%s\\%s", path, findFileData.cFileName);
+        arrput(*files, strdup(fullPath));
+    } while (FindNextFile(findHandle, &findFileData) != 0);
+
+    FindClose(findHandle);
+#elif defined(IRIDIS_UNIX)
+    DIR* directory = opendir(path);
+    if (directory == NULL)
+        return;
+
+    struct dirent* entry;
+    while ((entry = readdir(directory)) != NULL)
+    {
+        if (entry->d_type == DT_REG && EndsWith(entry->d_name, ".iridis"))
+        {
+            char fullPath[PATH_MAX];
+            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, entry->d_name);
+            arrput(*files, strdup(fullPath));
+        }
+    }
+#endif
+}
 
 bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 {
@@ -245,16 +345,93 @@ void GenerateProject(ProjectConfiguration* configuration)
     free(sourceCodePath);
 }
 
-void BuildProject(ProjectConfiguration* configuration)
+bool BuildProject(ProjectConfiguration* configuration)
 {
+    char* buildProfile;
+
+    switch (configuration->buildConfiguration.compilationProfile)
+    {
+    case CompilationProfile_Debug:        buildProfile = (char*) "debug";        break;
+    case CompilationProfile_Release:      buildProfile = (char*) "release";      break;
+    case CompilationProfile_Distribution: buildProfile = (char*) "distribution"; break;
+    default: break;
+    }
+    
+    size_t configPathLength = strlen(configuration->projectPath)+strlen("/iridis.toml")+1;
+    size_t outputPathLength = strlen(configuration->projectPath)+strlen(configuration->outputDirectoryPath)+2;
+    size_t sourcePathLength = strlen(configuration->projectPath)+strlen(configuration->sourceDirectoryPath)+2;
+    size_t targetPathLength = outputPathLength+strlen(buildProfile)+1;
+
+    char* configPath = (char*) malloc(configPathLength);
+    char* outputPath = (char*) malloc(outputPathLength);
+    char* sourcePath = (char*) malloc(sourcePathLength);
+    char* targetPath = (char*) malloc(targetPathLength);
+
+    snprintf(configPath, configPathLength, "%s/iridis.toml", configuration->projectPath);
+    snprintf(outputPath, outputPathLength, "%s/%s", configuration->projectPath, configuration->outputDirectoryPath);
+    snprintf(sourcePath, sourcePathLength, "%s/%s", configuration->projectPath, configuration->sourceDirectoryPath);
+    snprintf(targetPath, targetPathLength, "%s/%s", outputPath, buildProfile);
+
+    MakeDirectory(outputPath);
+    MakeDirectory(targetPath);
+
+    char** sourceDirectories = NULL;
+    char** sourceFiles       = NULL;
+
+    char* currentWorkingDirectory = ChangeDirectory(sourcePath);
+    RecursivelyGetDirectories(".", &sourceDirectories);
+    RecursivelyGetFiles(".", &sourceFiles);
+    ChangeDirectory(currentWorkingDirectory);
+    free(currentWorkingDirectory);
+
+    for (int i = 0; i < stbds_arrlen(sourceDirectories); i++)
+    {
+        size_t pathLength = strlen(targetPath)+strlen(sourceDirectories[i])+2;
+        char* pathBuffer = (char*) malloc(pathLength);
+        snprintf(pathBuffer, pathLength, "%s/%s", targetPath, sourceDirectories[i]);
+        MakeDirectory(pathBuffer);
+        free(pathBuffer);
+    }
+
+    for (int i = 0; i < stbds_arrlen(sourceFiles); i++)
+    {
+        size_t outputFileLength = strlen(targetPath)+strlen(sourceFiles[i])+1;
+        size_t sourceFileLength = sourcePathLength+strlen(sourceFiles[i])+1;
+
+        char* outputFile = (char*) malloc(outputFileLength);
+        char* sourceFile = (char*) malloc(sourceFileLength);
+
+        snprintf(outputFile, outputFileLength, "%s/%s", targetPath, sourceFiles[i]);
+        snprintf(sourceFile, sourceFileLength, "%s/%s", sourcePath, sourceFiles[i]);
+
+        outputFile[outputFileLength-strlen("iridis")+0] = 'o';
+        outputFile[outputFileLength-strlen("iridis")+1] = 0;
+
+        CompileSourceCode(outputFile, sourceFile);
+        free(outputFile);
+    }
+
+    for (int i = 0; i < stbds_arrlen(sourceDirectories); i++)
+        free(sourceDirectories[i]);
+    for (int i = 0; i < stbds_arrlen(sourceFiles); i++)
+        free(sourceFiles[i]);
+
+    stbds_arrfree(sourceDirectories);
+
+    free(configPath);
+    free(outputPath);
+    free(targetPath);
+    return true;
 }
 
 void RunProject(ProjectConfiguration* configuration)
 {
+    BuildProject(configuration);
 }
 
 void TestProject(ProjectConfiguration* configuration)
 {
+    (void) configuration;
 }
 
 void CleanProject(ProjectConfiguration* configuration)

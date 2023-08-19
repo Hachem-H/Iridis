@@ -12,7 +12,7 @@
 
 static inline bool IsValidProjectName(const char* name)
 {
-    for (int i = 0; i < strlen(name); i++)
+    for (size_t i = 0; i < strlen(name); i++)
         if (!isalpha(name[i]) && !isdigit(name[i]) && name[i] != '_')
             return false;
     return true;
@@ -21,6 +21,7 @@ static inline bool IsValidProjectName(const char* name)
 int CMDLineHelp(int argc, char* argv[])
 {
     PrintUsage();
+    (void) argc; (void) argv;
     return 0;
 }
 
@@ -57,10 +58,10 @@ int CMDLineNew(int argc, char* argv[])
 
     configuration.name = name;
     configuration.type = type;
-    configuration.version = "0.0.1";
+    configuration.version = (char*) "0.0.1";
 
-    configuration.sourceDirectoryPath = "src";
-    configuration.outputDirectoryPath = "bin";
+    configuration.sourceDirectoryPath = (char*) "src";
+    configuration.outputDirectoryPath = (char*) "bin";
 
     GenerateProject(&configuration);
     LOG_INFO("Successfully create the %s `%s`\n", strcmp(type, "exe") == 0 ? "executable" : "library", name);
@@ -71,19 +72,21 @@ int CMDLineBuild(int argc, char* argv[])
 {
     char* path = NULL;
     if (argc == 4)
-        path = ".";
+        path = (char*) ".";
     else
         path = argv[2];
 
     ProjectConfiguration configuration;
     bool result = ReadProjectConfiguration(&configuration, path);
-    LOG_INFO("ReadProjectConfiguration() = %d", result);
+    result += BuildProject(&configuration);
+
     DestroyProjectConfiguration(&configuration);
     return result;
 }
 
 int CMDLineRun(int argc, char* argv[])
 {
+    (void) argc; (void) argv;
     return 0;
 }
 
@@ -102,23 +105,22 @@ int CMDLineCompile(int argc, char* argv[])
     }
 
     char* sourceFilePath = argv[2];
-    char* sourceCode = ReadFile(sourceFilePath);
+    char* outputFilePath = strdup(sourceFilePath);
+    outputFilePath[strlen(outputFilePath)-strlen("iridis")+0] = 'o';
+    outputFilePath[strlen(outputFilePath)-strlen("iridis")+1] = 0;
 
-    if (!sourceCode)
-        return -1;
-
-    int compileStatus = CompileSourceCode(sourceCode);
-
-    free(sourceCode);
+    int compileStatus = CompileSourceCode(outputFilePath, sourceFilePath);
+    free(outputFilePath);
     return compileStatus;
 }
 
 int CMDLineGenBind(int argc, char* argv[])
 {
+    (void) argc; (void) argv;
     return 0;
 }
 
-void PrintUsage()
+void PrintUsage(void)
 {
     printf("%sUsage: iridis [command] [options]\n\n%s", CONSOLE_COLORS_GREEN, CONSOLE_MODE_RESET);
 
@@ -137,7 +139,7 @@ void PrintUsage()
     printf("  run %s`iridis [command] help`%s to get additional help information for each command.\n", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
 }
 
-void PrintNewHelp()
+void PrintNewHelp(void)
 {
     printf("%sUsage: iridis new [type] [name]\n\n%s", CONSOLE_COLORS_GREEN, CONSOLE_MODE_RESET);
 
@@ -152,7 +154,7 @@ void PrintNewHelp()
     printf("%s  help%s   : Display this help information.\n\n", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
 }
 
-void PrintBuildHelp()
+void PrintBuildHelp(void)
 {
     printf("%sUsage: iridis build [optional: project location]\n\n%s", CONSOLE_COLORS_GREEN, CONSOLE_MODE_RESET);
 
@@ -170,7 +172,7 @@ void PrintBuildHelp()
     printf("%s  help%s                           : Display this help information.\n\n", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
 }
 
-void PrintRunHelp()
+void PrintRunHelp(void)
 {
     printf("%sUsage: iridis run [optional: project location]\n\n%s", CONSOLE_COLORS_GREEN, CONSOLE_MODE_RESET);
 
@@ -189,7 +191,7 @@ void PrintRunHelp()
     printf("%s  help%s                           : Display this help information.\n\n", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
 }
 
-void PrintCompileHelp()
+void PrintCompileHelp(void)
 {
     printf("%sUsage: iridis compile [file]\n\n%s", CONSOLE_COLORS_GREEN, CONSOLE_MODE_RESET);
 
@@ -208,7 +210,7 @@ void PrintCompileHelp()
     printf("%s  help%s                           : Display this help information.\n\n", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
 }
 
-void PrintGenBindHelp()
+void PrintGenBindHelp(void)
 {
     printf("%sUsage: iridis genbind [file] --output [header file]\n\n%s", CONSOLE_COLORS_GREEN, CONSOLE_MODE_RESET);
 

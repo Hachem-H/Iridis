@@ -5,10 +5,12 @@
 #include "Parser.h"
 
 #include "Core/Log.h"
+#include "Core/Utils.h"
+
 #include <stb_ds.h>
 
-int CompileSourceCode(const char* sourceCode)
+int CompileSourceCode(const char* outputPath, const char* sourcePath)
 {
-    Parse((char*) sourceCode);
+    LOG_INFO("%s -> %s", sourcePath, outputPath);
     return 0;
 }
