@@ -58,10 +58,10 @@ int CMDLineNew(int argc, char* argv[])
 
     configuration.name = name;
     configuration.type = type;
-    configuration.version = (char*) "0.0.1";
+    configuration.version = "0.0.1";
 
-    configuration.sourceDirectoryPath = (char*) "src";
-    configuration.outputDirectoryPath = (char*) "bin";
+    configuration.sourceDirectoryPath = "src";
+    configuration.outputDirectoryPath = "bin";
 
     GenerateProject(&configuration);
     LOG_INFO("Successfully create the %s `%s`\n", strcmp(type, "exe") == 0 ? "executable" : "library", name);
@@ -72,7 +72,7 @@ int CMDLineBuild(int argc, char* argv[])
 {
     char* path = NULL;
     if (argc == 4)
-        path = (char*) ".";
+        path = ".";
     else
         path = argv[2];
 

@@ -11,104 +11,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-static bool EndsWith(const char* string, const char* suffix)
-{
-    size_t stringLength = strlen(string);
-    size_t suffixLength = strlen(suffix);
-    if (stringLength < suffixLength)
-        return false;
-    return strcmp(string + (stringLength-suffixLength), suffix) == 0;
-}
-
-static void RecursivelyGetDirectories(const char* path, char*** directories)
-{
-#if defined(IRIDIS_WINDOWS)
-    WIN32_FIND_DATA findFileData;
-    HANDLE fileHandle = FindFirstFile(strcat(strcat(strdup(path), "\\"), "*"), &findFileData);
-
-    if (fileHandle == INVALID_HANDLE_VALUE)
-        return;
-
-    do
-    {
-        if (strcmp(findFileData.cFileName, ".") == 0 || strcmp(findFileData.cFileName, "..") == 0)
-            continue;
-
-        char fullpath[MAX_PATH];
-        snprintf(fullpath, sizeof(fullpath), "%s\\%s", path, findFileData.cFileName);
-
-        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        {
-            stbds_arrput(*directories, strdup(fullpath));
-            RecursivelyGetDirectories(fullpath, directories);
-        }
-    } while (FindNextFile(fileHandle, &findFileData) != 0);
-
-    FindClose(fileHandle);
-#elif defined(IRIDIS_UNIX)
-    DIR* directory = opendir(path);
-    if (!directory)
-        return;
-
-    struct dirent* entry;
-    while ((entry = readdir(directory)) != NULL)
-    {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-            continue;
-
-        char fullpath[PATH_MAX];
-        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
-
-        struct stat statbuf;
-        if (stat(fullpath, &statbuf) == 0 && S_ISDIR(statbuf.st_mode))
-        {
-            stbds_arrput(*directories, strdup(fullpath));
-            RecursivelyGetDirectories(fullpath, directories);
-        }
-    }
-
-    closedir(directory);
-#endif
-}
-
-static void RecursivelyGetFiles(const char* path, char*** files)
-{
-#if defined(IRIDIS_WINDOWS)
-    WIN32_FIND_DATA findFileData;
-    HANDLE findHandle = FindFirstFile(strcat(strcat(path, "\\*"), ".iridis"), &findFileData);
-
-    if (findHandle == INVALID_HANDLE_VALUE)
-        return;
-
-    do
-    {
-        if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-            continue;
-
-        char fullPath[MAX_PATH];
-        snprintf(fullPath, sizeof(fullPath), "%s\\%s", path, findFileData.cFileName);
-        arrput(*files, strdup(fullPath));
-    } while (FindNextFile(findHandle, &findFileData) != 0);
-
-    FindClose(findHandle);
-#elif defined(IRIDIS_UNIX)
-    DIR* directory = opendir(path);
-    if (directory == NULL)
-        return;
-
-    struct dirent* entry;
-    while ((entry = readdir(directory)) != NULL)
-    {
-        if (entry->d_type == DT_REG && EndsWith(entry->d_name, ".iridis"))
-        {
-            char fullPath[PATH_MAX];
-            snprintf(fullPath, sizeof(fullPath), "%s/%s", path, entry->d_name);
-            arrput(*files, strdup(fullPath));
-        }
-    }
-#endif
-}
-
 bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 {
     size_t configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+2;
@@ -351,9 +253,9 @@ bool BuildProject(ProjectConfiguration* configuration)
 
     switch (configuration->buildConfiguration.compilationProfile)
     {
-    case CompilationProfile_Debug:        buildProfile = (char*) "debug";        break;
-    case CompilationProfile_Release:      buildProfile = (char*) "release";      break;
-    case CompilationProfile_Distribution: buildProfile = (char*) "distribution"; break;
+    case CompilationProfile_Debug:        buildProfile = "debug";        break;
+    case CompilationProfile_Release:      buildProfile = "release";      break;
+    case CompilationProfile_Distribution: buildProfile = "distribution"; break;
     default: break;
     }
     
@@ -380,7 +282,7 @@ bool BuildProject(ProjectConfiguration* configuration)
 
     char* currentWorkingDirectory = ChangeDirectory(sourcePath);
     RecursivelyGetDirectories(".", &sourceDirectories);
-    RecursivelyGetFiles(".", &sourceFiles);
+    RecursivelyGetFiles(".", ".iridis", &sourceFiles);
     ChangeDirectory(currentWorkingDirectory);
     free(currentWorkingDirectory);
 
@@ -417,6 +319,7 @@ bool BuildProject(ProjectConfiguration* configuration)
         free(sourceFiles[i]);
 
     stbds_arrfree(sourceDirectories);
+    stbds_arrfree(sourceFiles);
 
     free(configPath);
     free(outputPath);

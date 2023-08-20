@@ -10,6 +10,7 @@ iridisSourceFiles = [
     'src/Backend/Parser.c',
     'src/Backend/Lexer.c',
     'src/Backend/Token.c',
+    'src/Backend/AST.c',
 
     'src/Core/Implementations.c',
     'src/Core/ProjectManager.c',

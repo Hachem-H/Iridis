@@ -7,7 +7,7 @@
 
 #include <stb_ds.h>
 
-static Lexer LexingState = (Lexer)
+static Lexer LexingState =
 {
     .tokenInfos = NULL,
     .buffer     = NULL,
@@ -20,8 +20,8 @@ static Lexer LexingState = (Lexer)
 
     .insideSingleLineComment = false,
     .insideMultilineComment  = false,
-    .insideQuote             = false,
     .insideFloat             = false,
+    .insideQuote             = false,
 };
 
 TokenInfo CreateTokenInfo(const uint32_t line, const uint32_t column, const char* identifier)

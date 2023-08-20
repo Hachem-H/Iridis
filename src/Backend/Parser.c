@@ -1,10 +1,7 @@
 #include "Parser.h"
-#include "AST.h"
 
 #include <stdio.h>
 #include <stb_ds.h>
-
-#include <llvm-c/ExecutionEngine.h>
 
 static Token* GetToken(Parser* parser)
 {
@@ -61,26 +58,45 @@ static void HandleIdentifier(Parser* parser)
     {
     case TokenType_Procedure:
     {
-        ExpressionAST expression;
-        expression.procedure.name = strdup(identifierName);
-        
-        LLVMTypeRef returnType = LLVMVoidType();
-
-        LLVMTypeRef functionType = LLVMFunctionType(returnType, NULL, 0, 0);
-        LLVMValueRef entryPointFunction = LLVMAddFunction(parser->module, expression.procedure.name, functionType);
-         
-        LLVMBasicBlockRef entryBlock = LLVMAppendBasicBlock(entryPointFunction, "entry");
-        LLVMPositionBuilderAtEnd(parser->builder, entryBlock);
-        free(expression.procedure.name);
+        Node node;
+        node.type = ProcedureNode;
+        node.procedureDeclaration.name = strdup(identifierName);
+        stbds_arrpush(parser->nodes, node);
     } break;
-
-
+    
     case TokenType_Structure:
     {
-        ExpressionAST expression;
-        expression.structure.name = strdup(identifierName);
-        LLVMStructSetBody(LLVMStructCreateNamed(LLVMGetGlobalContext(), expression.structure.name), NULL, 0, false);
-        free(expression.structure.name);
+        Node node;
+        node.type = StructureNode;
+        node.structDeclaration.name = strdup(identifierName);
+        stbds_arrpush(parser->nodes, node);
+    } break;
+
+    case TokenType_Integer:
+    {
+        Node node;
+        node.type = IntegerDeclaration;
+        node.integerDeclaration.name  = strdup(identifierName);
+        node.integerDeclaration.value = GetToken(parser)->literal.integer;
+        stbds_arrpush(parser->nodes, node);
+    } break;
+
+    case TokenType_Float:
+    {
+        Node node;
+        node.type = FloatDeclaration;
+        node.floatDeclaration.name  = strdup(identifierName);
+        node.floatDeclaration.value = GetToken(parser)->literal.floating;
+        stbds_arrpush(parser->nodes, node);
+    } break;
+
+    case TokenType_String:
+    {
+        Node node;
+        node.type = StringDeclaration;
+        node.stringDeclaration.name  = strdup(identifierName);
+        node.stringDeclaration.value = GetToken(parser)->literal.identifier;
+        stbds_arrpush(parser->nodes, node);
     } break;
 
     default: 
@@ -92,23 +108,14 @@ static void HandleIdentifier(Parser* parser)
     free(identifierName);
 }
 
-void Parse(char* sourceCode)
+Parser Parse(char* sourceCode)
 {
-    // TODO(Hachem): Proper backend
-    LLVMInitializeX86TargetInfo();
-    LLVMInitializeX86Target();
-    LLVMInitializeX86TargetMC();
-    LLVMInitializeX86AsmParser();
-    LLVMInitializeX86AsmPrinter();
-
     Parser parser;
     parser.tokens            = Tokenize(sourceCode);
     parser.sourceLines       = NULL;
+    parser.nodes             = NULL;
     parser.currentTokenIndex = 0;
 
-    parser.builder            = LLVMCreateBuilder();
-    parser.module             = LLVMModuleCreateWithName("Test");
-    
     char* sourceLine = strtok(sourceCode, "\n");
     while (sourceLine != NULL)
     {
@@ -124,15 +131,12 @@ void Parse(char* sourceCode)
         token = GetNextToken(&parser);
     }
 
-    char* generatedIR = LLVMPrintModuleToString(parser.module);
-    printf("%s\n", generatedIR);
-    LLVMDisposeMessage(generatedIR);
-    
-    stbds_arrfree(parser.sourceLines);
-    DestroyTokens(parser.tokens);
-
-    LLVMDisposeModule(parser.module);
-    LLVMDisposeBuilder(parser.builder);
-    LLVMShutdown();
+    return parser;
 }
 
+void DestroyParser(Parser* parser)
+{
+    stbds_arrfree(parser->sourceLines);
+    DestroyTokens(parser->tokens);
+    stbds_arrfree(parser->nodes);
+}

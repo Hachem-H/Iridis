@@ -1,20 +1,49 @@
 #pragma once
 
-typedef struct ProcedureAST_t
+typedef enum NodeType_t
 {
-    char* name;
-} ProcedureAST;
+    IntegerDeclaration,
+    StringDeclaration,
+    FloatDeclaration,
 
-typedef struct StructureAST_t
-{
-    char* name;
-} StructureAST;
+    ProcedureNode,
+    StructureNode,
+} NodeType;
 
-typedef struct ExpressionAST_t
+typedef struct Node_t
 {
     union
     {
-        ProcedureAST procedure;
-        StructureAST structure;
+        struct
+        {
+            char* name;
+            int value;
+        } integerDeclaration;
+
+        struct
+        {
+            char* name;
+            float value;
+        } floatDeclaration;
+
+        struct
+        {
+            char* name;
+            char* value;
+        } stringDeclaration;
+
+        struct
+        {
+            char* name;
+        } procedureDeclaration;
+
+        struct
+        {
+            char* name;
+        } structDeclaration;
     };
-} ExpressionAST;
+    
+    NodeType type;
+} Node;
+
+void DestroyNode(Node* node);
