@@ -22,6 +22,7 @@ int CompileSourceCode(const char* outputPath, const char* sourcePath)
         return -1;
     
     Parser parser = Parse(sourceCode);
+    free(sourceCode);
 
     for (int i = 0; i < stbds_arrlen(parser.nodes); i++)
     {
@@ -78,5 +79,6 @@ int CompileSourceCode(const char* outputPath, const char* sourcePath)
     LLVMDisposeBuilder(builder);
     LLVMDisposeModule(module);
     LLVMShutdown();
+
     return 0;
 }

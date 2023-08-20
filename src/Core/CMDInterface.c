@@ -77,11 +77,12 @@ int CMDLineBuild(int argc, char* argv[])
         path = argv[2];
 
     ProjectConfiguration configuration;
-    bool result = ReadProjectConfiguration(&configuration, path);
-    result += BuildProject(&configuration);
-
+    if (!ReadProjectConfiguration(&configuration, path))
+        return -1;
+    if (!BuildProject(&configuration))
+        return -1;
     DestroyProjectConfiguration(&configuration);
-    return result;
+    return 0;
 }
 
 int CMDLineRun(int argc, char* argv[])

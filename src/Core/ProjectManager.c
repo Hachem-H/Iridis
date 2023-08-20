@@ -311,6 +311,7 @@ bool BuildProject(ProjectConfiguration* configuration)
 
         CompileSourceCode(outputFile, sourceFile);
         free(outputFile);
+        free(sourceFile);
     }
 
     for (int i = 0; i < stbds_arrlen(sourceDirectories); i++)
@@ -324,6 +325,8 @@ bool BuildProject(ProjectConfiguration* configuration)
     free(configPath);
     free(outputPath);
     free(targetPath);
+    free(sourcePath);
+
     return true;
 }
 
