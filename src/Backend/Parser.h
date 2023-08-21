@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common.h"
+
 #include "AST.h"
 #include "Token.h"
 #include "Lexer.h"
@@ -8,7 +10,7 @@
 
 typedef struct Parser_t
 {
-    int currentTokenIndex;
+    i32 currentTokenIndex;
     char** sourceLines;
 
     Token* tokens;

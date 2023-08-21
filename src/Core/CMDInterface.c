@@ -1,3 +1,5 @@
+#include "Common.h"
+
 #include "ProjectManager.h"
 #include "CMDInterface.h"
 #include "Utils.h"
@@ -8,24 +10,23 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
-static inline bool IsValidProjectName(const char* name)
+internal bool IsValidProjectName(const char* name)
 {
-    for (size_t i = 0; i < strlen(name); i++)
+    for (usize i = 0; i < strlen(name); i++)
         if (!isalpha(name[i]) && !isdigit(name[i]) && name[i] != '_')
             return false;
     return true;
 }
 
-int CMDLineHelp(int argc, char* argv[])
+i32 CMDLineHelp(i32 argc, char* argv[])
 {
     PrintUsage();
     (void) argc; (void) argv;
     return 0;
 }
 
-int CMDLineNew(int argc, char* argv[])
+i32 CMDLineNew(i32 argc, char* argv[])
 {
     if (argc != 4)
     {
@@ -68,7 +69,7 @@ int CMDLineNew(int argc, char* argv[])
     return 0;
 }
 
-int CMDLineBuild(int argc, char* argv[])
+i32 CMDLineBuild(i32 argc, char* argv[])
 {
     char* path = NULL;
     if (argc == 4)
@@ -85,13 +86,13 @@ int CMDLineBuild(int argc, char* argv[])
     return 0;
 }
 
-int CMDLineRun(int argc, char* argv[])
+i32 CMDLineRun(i32 argc, char* argv[])
 {
     (void) argc; (void) argv;
     return 0;
 }
 
-int CMDLineCompile(int argc, char* argv[])
+i32 CMDLineCompile(i32 argc, char* argv[])
 {
     if (argc < 3)
     {
@@ -110,12 +111,12 @@ int CMDLineCompile(int argc, char* argv[])
     outputFilePath[strlen(outputFilePath)-strlen("iridis")+0] = 'o';
     outputFilePath[strlen(outputFilePath)-strlen("iridis")+1] = 0;
 
-    int compileStatus = CompileSourceCode(outputFilePath, sourceFilePath);
+    i32 compileStatus = CompileSourceCode(outputFilePath, sourceFilePath);
     free(outputFilePath);
     return compileStatus;
 }
 
-int CMDLineGenBind(int argc, char* argv[])
+i32 CMDLineGenBind(i32 argc, char* argv[])
 {
     (void) argc; (void) argv;
     return 0;

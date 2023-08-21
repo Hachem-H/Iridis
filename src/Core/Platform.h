@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common.h"
+
 #if defined(_WIN32) || defined(_WIN64)
     #define IRIDIS_WINDOWS
     #include <windows.h>
@@ -18,7 +20,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
 
 bool MakeDirectory(const char* path);
 char* ChangeDirectory(const char* path);

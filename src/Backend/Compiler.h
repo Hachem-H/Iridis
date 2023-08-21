@@ -1,3 +1,5 @@
 #pragma once
 
-int CompileSourceCode(const char* outputPath, const char* sourcePath);
+#include "Common.h"
+
+i32 CompileSourceCode(const char* outputPath, const char* sourcePath);

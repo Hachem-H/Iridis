@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <stb_ds.h>
 
-static Token* GetToken(Parser* parser)
+internal Token* GetToken(Parser* parser)
 {
     return &parser->tokens[parser->currentTokenIndex];
 }
 
-static Token* GetNextToken(Parser* parser)
+internal Token* GetNextToken(Parser* parser)
 {
     if (parser->currentTokenIndex+1 >= stbds_arrlen(parser->tokens))
         return NULL;
@@ -17,25 +17,25 @@ static Token* GetNextToken(Parser* parser)
     return GetToken(parser);
 }
 
-static void PrintErrorLocation(Parser* parser)
+internal void PrintErrorLocation(Parser* parser)
 {
-    uint32_t line   = GetToken(parser)->line;
-    uint32_t column = GetToken(parser)->column;
+    u32 line   = GetToken(parser)->line;
+    u32 column = GetToken(parser)->column;
 
-    int numDigitsInLine = 0;
-    for (int number = line; number != 0;)
+    i32 numDigitsInLine = 0;
+    for (i32 number = line; number != 0;)
     {
         number /= 10;
         numDigitsInLine++;
     }
 
     printf("%s%d%s: %s\n", CONSOLE_COLORS_GREEN, line, CONSOLE_MODE_RESET, parser->sourceLines[line-1]);
-    for (uint32_t i = 0; i < numDigitsInLine+column+1; i++)
+    for (u32 i = 0; i < numDigitsInLine+column+1; i++)
         printf(" ");
     printf("^ %shere%s", CONSOLE_MODE_UNDERLINE, CONSOLE_MODE_RESET);
 }
 
-static void HandleIdentifier(Parser* parser)
+internal void HandleIdentifier(Parser* parser)
 {
     char* identifierName = strdup(GetToken(parser)->literal.identifier);
     GetNextToken(parser);
@@ -43,8 +43,8 @@ static void HandleIdentifier(Parser* parser)
     if (GetNextToken(parser)->type != TokenType_Colon &&
         GetNextToken(parser)->type != TokenType_Equal)
     {
-        uint32_t line   = GetToken(parser)->line;
-        uint32_t column = GetToken(parser)->column;
+        u32 line   = GetToken(parser)->line;
+        u32 column = GetToken(parser)->column;
 
         LOG_ERROR("Expected `=` or `:` after type declaration @ Line: %d, Column: %d", line, column);
         PrintErrorLocation(parser);

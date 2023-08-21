@@ -7,7 +7,7 @@
 
 #include <stb_ds.h>
 
-static Lexer LexingState =
+global Lexer LexingState =
 {
     .tokenInfos = NULL,
     .buffer     = NULL,
@@ -24,7 +24,7 @@ static Lexer LexingState =
     .insideQuote             = false,
 };
 
-TokenInfo CreateTokenInfo(const uint32_t line, const uint32_t column, const char* identifier)
+TokenInfo CreateTokenInfo(const u32 line, const u32 column, const char* identifier)
 {
     TokenInfo tokenInfo;
     tokenInfo.line   = line;
@@ -35,7 +35,7 @@ TokenInfo CreateTokenInfo(const uint32_t line, const uint32_t column, const char
 
 Token* Tokenize(const char* source)
 {
-    for (size_t i = 0; i < strlen(source); i++)
+    for (usize i = 0; i < strlen(source); i++)
     {
         char character = source[i];
         char nextCharacter = (i+1 < strlen(source)) ? source[i+1] : 0x00;
@@ -53,7 +53,7 @@ Token* Tokenize(const char* source)
             if (LexingState.insideFloat)
             {
                 LexingState.insideFloat = false;
-                size_t floatLength = i - LexingState.floatStartIndex;
+                usize floatLength = i - LexingState.floatStartIndex;
                 char* floatBuffer = (char*)malloc(floatLength + 1);
                 strncpy(floatBuffer, source + LexingState.floatStartIndex, floatLength);
                 floatBuffer[floatLength] = '\0';
@@ -193,16 +193,16 @@ Token* Tokenize(const char* source)
     }
     
     Token* tokens = NULL;
-    for (int i = 0; i < stbds_arrlen(LexingState.tokenInfos); i++)
+    for (i32 i = 0; i < stbds_arrlen(LexingState.tokenInfos); i++)
     {
-        uint32_t line   = LexingState.tokenInfos[i].line;
-        uint32_t column = LexingState.tokenInfos[i].column;
+        u32 line   = LexingState.tokenInfos[i].line;
+        u32 column = LexingState.tokenInfos[i].column;
         char* buffer    = LexingState.tokenInfos[i].identifier;
         Token token = TokenFromString(line, column, buffer);
         stbds_arrpush(tokens, token);
     }
 
-    for (int i = 0; i < stbds_arrlen(LexingState.tokenInfos); i++)
+    for (i32 i = 0; i < stbds_arrlen(LexingState.tokenInfos); i++)
         free(LexingState.tokenInfos[i].identifier);
 
     stbds_arrfree(LexingState.tokenInfos);

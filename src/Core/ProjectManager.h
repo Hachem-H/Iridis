@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
+#include "Common.h"
 
 typedef enum CompilationProfile_t
 {

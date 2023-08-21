@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include "Common.h"
 
 typedef enum TokenType_t
 {
@@ -46,18 +46,18 @@ typedef struct Token_t
     char* representation;
     TokenType type;
 
-    uint32_t line;
-    uint32_t column;
+    u32 line;
+    u32 column;
 
     union
     {
         char*  identifier;
         double floating;
-        int    integer;
+        i32    integer;
     } literal;
 } Token;
 
-Token TokenFromString(int line, int column, const char* buffer);
+Token TokenFromString(i32 line, i32 column, const char* buffer);
 char* StringFromTokenType(TokenType type);
 
 void DestroyTokens(Token* tokens);

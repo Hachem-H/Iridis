@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
+#include "Common.h"
 
 char* ReadFile(const char* path);
 char* GetFileName(const char* path);

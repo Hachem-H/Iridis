@@ -1,3 +1,5 @@
+#include "Common.h"
+
 #include "Core/ProjectManager.h"
 #include "Core/CMDInterface.h"
 #include "Core/Platform.h"
@@ -8,7 +10,7 @@
 
 #include <stb_ds.h>
 
-int main(int argc, char** argv)
+i32 main(i32 argc, char** argv)
 {
     EnableConsoleColors();
 
@@ -28,7 +30,7 @@ int main(int argc, char** argv)
         { "genbind", CMDLineGenBind },
     };
 
-    for (size_t i = 0; i < sizeof(commandEntries)/sizeof(CommandEntry); i++)
+    for (usize i = 0; i < sizeof(commandEntries)/sizeof(CommandEntry); i++)
     {
         if (strcmp(argv[1], commandEntries[i].command) == 0)
             return commandEntries[i].callback(argc, argv);

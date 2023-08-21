@@ -13,7 +13,7 @@
 
 bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 {
-    size_t configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+2;
+    usize configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+2;
     char* configFilepath = (char*)malloc(configFilepathLength);
     snprintf(configFilepath, configFilepathLength, "%s/iridis.toml", projectPath);
     char* configFile = ReadFile(configFilepath);
@@ -89,7 +89,7 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
         output->authors = NULL;
         if (authors)
         {
-            for (int i = 0; ;i++)
+            for (i32 i = 0; ;i++)
             {
                 toml_datum_t author = toml_string_at(authors, i);
                 if (!author.ok)
@@ -151,7 +151,7 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 
         if (includeDirectories)
         {
-            for (int i = 0; ;i++)
+            for (i32 i = 0; ;i++)
             {
                 toml_datum_t directory = toml_string_at(includeDirectories, i);
                 if (!directory.ok)
@@ -165,7 +165,7 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 
         if (importDirectories)
         {
-            for (int i = 0; ;i++)
+            for (i32 i = 0; ;i++)
             {
                 toml_datum_t directory = toml_string_at(importDirectories, i);
                 if (!directory.ok)
@@ -191,15 +191,15 @@ void DestroyProjectConfiguration(ProjectConfiguration* configuration)
     free(configuration->sourceDirectoryPath);
     free(configuration->outputDirectoryPath);
     
-    for (int i = 0; i < stbds_arrlen(configuration->authors); i++)
+    for (i32 i = 0; i < stbds_arrlen(configuration->authors); i++)
         free(configuration->authors[i]);
     stbds_arrfree(configuration->authors);
 
     free(configuration->buildConfiguration.targetName);
 
-    for (int i = 0; i < stbds_arrlen(configuration->buildConfiguration.includeDirectories); i++)
+    for (i32 i = 0; i < stbds_arrlen(configuration->buildConfiguration.includeDirectories); i++)
         free(configuration->buildConfiguration.includeDirectories[i]);
-    for (int i = 0; i < stbds_arrlen(configuration->buildConfiguration.importDirectories); i++)
+    for (i32 i = 0; i < stbds_arrlen(configuration->buildConfiguration.importDirectories); i++)
         free(configuration->buildConfiguration.importDirectories[i]);
     
     stbds_arrfree(configuration->buildConfiguration.includeDirectories);
@@ -208,10 +208,10 @@ void DestroyProjectConfiguration(ProjectConfiguration* configuration)
 
 void GenerateProject(ProjectConfiguration* configuration)
 {
-    size_t nameLength       = strlen(configuration->name);
-    size_t sourcePathLength = nameLength + strlen(configuration->sourceDirectoryPath) + 2;
-    size_t configPathLength = nameLength + strlen("/iridis.toml") + 1;
-    size_t codePathLength   = sourcePathLength + strlen("/main.iridis") + 1;
+    usize nameLength       = strlen(configuration->name);
+    usize sourcePathLength = nameLength + strlen(configuration->sourceDirectoryPath) + 2;
+    usize configPathLength = nameLength + strlen("/iridis.toml") + 1;
+    usize codePathLength   = sourcePathLength + strlen("/main.iridis") + 1;
 
     char* sourceDirectoryPath = (char*)malloc(sourcePathLength);
     char* configFilePath      = (char*)malloc(configPathLength);
@@ -259,10 +259,10 @@ bool BuildProject(ProjectConfiguration* configuration)
     default: break;
     }
     
-    size_t configPathLength = strlen(configuration->projectPath)+strlen("/iridis.toml")+1;
-    size_t outputPathLength = strlen(configuration->projectPath)+strlen(configuration->outputDirectoryPath)+2;
-    size_t sourcePathLength = strlen(configuration->projectPath)+strlen(configuration->sourceDirectoryPath)+2;
-    size_t targetPathLength = outputPathLength+strlen(buildProfile)+1;
+    usize configPathLength = strlen(configuration->projectPath)+strlen("/iridis.toml")+1;
+    usize outputPathLength = strlen(configuration->projectPath)+strlen(configuration->outputDirectoryPath)+2;
+    usize sourcePathLength = strlen(configuration->projectPath)+strlen(configuration->sourceDirectoryPath)+2;
+    usize targetPathLength = outputPathLength+strlen(buildProfile)+1;
 
     char* configPath = (char*) malloc(configPathLength);
     char* outputPath = (char*) malloc(outputPathLength);
@@ -286,9 +286,9 @@ bool BuildProject(ProjectConfiguration* configuration)
     ChangeDirectory(currentWorkingDirectory);
     free(currentWorkingDirectory);
 
-    for (int i = 0; i < stbds_arrlen(sourceDirectories); i++)
+    for (i32 i = 0; i < stbds_arrlen(sourceDirectories); i++)
     {
-        size_t pathLength = strlen(targetPath)+strlen(sourceDirectories[i])+2;
+        usize pathLength = strlen(targetPath)+strlen(sourceDirectories[i])+2;
         char* pathBuffer = (char*) malloc(pathLength);
         snprintf(pathBuffer, pathLength, "%s/%s", targetPath, sourceDirectories[i]);
         MakeDirectory(pathBuffer);
@@ -296,11 +296,11 @@ bool BuildProject(ProjectConfiguration* configuration)
     }
     
 
-    size_t totalFiles = stbds_arrlen(sourceFiles);
-    for (size_t i = 0; i < totalFiles; i++)
+    usize totalFiles = stbds_arrlen(sourceFiles);
+    for (usize i = 0; i < totalFiles; i++)
     {
-        size_t outputFileLength = strlen(targetPath)+strlen(sourceFiles[i])+1;
-        size_t sourceFileLength = sourcePathLength+strlen(sourceFiles[i])+1;
+        usize outputFileLength = strlen(targetPath)+strlen(sourceFiles[i])+1;
+        usize sourceFileLength = sourcePathLength+strlen(sourceFiles[i])+1;
 
         char* outputFile = (char*) malloc(outputFileLength);
         char* sourceFile = (char*) malloc(sourceFileLength);
@@ -312,25 +312,25 @@ bool BuildProject(ProjectConfiguration* configuration)
         outputFile[outputFileLength-strlen("iridis")+1] = 0;
 
         float progress = (float)(i+1)/totalFiles;
-        int barWidth = 50;
-        int progressWidth = (progress*barWidth);
+        i32 barWidth = 50;
+        i32 progressWidth = (progress*barWidth);
 
         printf("\r%s[%s%s", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET, CONSOLE_COLORS_GREEN);
-        for (int j = 0; j < progressWidth; j++)
+        for (i32 j = 0; j < progressWidth; j++)
             putchar('=');
-        for (int j = 0; j < barWidth-progressWidth; j++)
+        for (i32 j = 0; j < barWidth-progressWidth; j++)
             putchar(' ');
         printf("%s%s]%s", CONSOLE_MODE_RESET, CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
-        printf("  %d%% %s%s%s", (int)(progress*100), CONSOLE_MODE_ITALIC, sourceFile, CONSOLE_MODE_RESET);
+        printf("  %d%% %s%s%s", (i32)(progress*100), CONSOLE_MODE_ITALIC, sourceFile, CONSOLE_MODE_RESET);
 
         if (i >= 1)
         {
-            int size = (int)strlen(sourceFiles[i-1])-(int)strlen(sourceFiles[i]);
+            i32 size = (i32)strlen(sourceFiles[i-1])-(i32)strlen(sourceFiles[i]);
             if (size > 0)
             {
-                for (int j = 0; j < size; j++)
+                for (i32 j = 0; j < size; j++)
                     putchar(' ');
-                for (int j = 0; j < size; j++)
+                for (i32 j = 0; j < size; j++)
                     putchar('\b');
             }
         }
@@ -345,9 +345,9 @@ bool BuildProject(ProjectConfiguration* configuration)
 
     putchar('\n');
 
-    for (int i = 0; i < stbds_arrlen(sourceDirectories); i++)
+    for (i32 i = 0; i < stbds_arrlen(sourceDirectories); i++)
         free(sourceDirectories[i]);
-    for (int i = 0; i < stbds_arrlen(sourceFiles); i++)
+    for (i32 i = 0; i < stbds_arrlen(sourceFiles); i++)
         free(sourceFiles[i]);
 
     stbds_arrfree(sourceDirectories);

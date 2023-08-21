@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Common.h"
+
 typedef enum NodeType_t
 {
     IntegerDeclaration,
@@ -17,7 +19,7 @@ typedef struct Node_t
         struct
         {
             char* name;
-            int value;
+            i32 value;
         } integerDeclaration;
 
         struct

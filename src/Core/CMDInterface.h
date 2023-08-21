@@ -1,6 +1,6 @@
 #pragma once
 
-typedef int (*CommandFunction)(int, char*[]);
+typedef i32 (*CommandFunction)(i32, char*[]);
 
 typedef struct CommandEntry_t
 {
@@ -8,12 +8,12 @@ typedef struct CommandEntry_t
     CommandFunction callback;
 } CommandEntry;
 
-int CMDLineHelp(int argc, char* argv[]);
-int CMDLineNew(int argc, char* argv[]);
-int CMDLineBuild(int argc, char* argv[]);
-int CMDLineRun(int argc, char* argv[]);
-int CMDLineCompile(int argc, char* argv[]);
-int CMDLineGenBind(int argc, char* argv[]);
+i32 CMDLineHelp(i32 argc, char* argv[]);
+i32 CMDLineNew(i32 argc, char* argv[]);
+i32 CMDLineBuild(i32 argc, char* argv[]);
+i32 CMDLineRun(i32 argc, char* argv[]);
+i32 CMDLineCompile(i32 argc, char* argv[]);
+i32 CMDLineGenBind(i32 argc, char* argv[]);
 
 void PrintUsage(void);
 void PrintNewHelp(void);

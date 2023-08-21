@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include <stb_ds.h>
 
@@ -19,7 +18,7 @@ char* ReadFile(const char* path)
     }
 
     fseek(file, 0, SEEK_END);
-    size_t bufferSize = ftell(file);
+    usize bufferSize = ftell(file);
     rewind(file);
 
     char* buffer = (char*) malloc(bufferSize);
@@ -39,8 +38,8 @@ char* GetFileName(const char* path)
 
 bool EndsWith(const char* string, const char* suffix)
 {
-    size_t stringLength = strlen(string);
-    size_t suffixLength = strlen(suffix);
+    usize stringLength = strlen(string);
+    usize suffixLength = strlen(suffix);
     if (stringLength < suffixLength)
         return false;
     return strcmp(string + (stringLength-suffixLength), suffix) == 0;

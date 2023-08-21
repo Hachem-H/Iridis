@@ -11,7 +11,7 @@
 #include <llvm-c/Core.h>
 #include <stb_ds.h>
 
-int CompileSourceCode(const char* outputPath, const char* sourcePath)
+i32 CompileSourceCode(const char* outputPath, const char* sourcePath)
 {
     LLVMContextRef context = LLVMGetGlobalContext();
     LLVMBuilderRef builder = LLVMCreateBuilder();
@@ -24,7 +24,7 @@ int CompileSourceCode(const char* outputPath, const char* sourcePath)
     Parser parser = Parse(sourceCode);
     free(sourceCode);
 
-    for (int i = 0; i < stbds_arrlen(parser.nodes); i++)
+    for (i32 i = 0; i < stbds_arrlen(parser.nodes); i++)
     {
         Node node = parser.nodes[i];
     

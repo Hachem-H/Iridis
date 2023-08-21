@@ -4,19 +4,18 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include <stb_ds.h>
 
-static bool IsInteger(const char* buffer)
+internal bool IsInteger(const char* buffer)
 {
-    for (int i = 0; buffer[i] != 0x00; i++)
+    for (i32 i = 0; buffer[i] != 0x00; i++)
         if (!isdigit(buffer[i]))
             return false;
     return true; 
 }
 
-static bool IsFloat(const char* buffer)
+internal bool IsFloat(const char* buffer)
 {
     char* endPointer;
     strtod(buffer, &endPointer);
@@ -26,7 +25,7 @@ static bool IsFloat(const char* buffer)
     return true;
 }
 
-static void ProcessStringLiteral(char* string)
+internal void ProcessStringLiteral(char* string)
 {
     char* source = string;
     char* destination = string;
@@ -70,7 +69,7 @@ static void ProcessStringLiteral(char* string)
     *destination = '\0'; 
 }
 
-Token TokenFromString(int line, int column, const char* buffer)
+Token TokenFromString(i32 line, i32 column, const char* buffer)
 {
     Token token;
     token.line   = line;
@@ -187,7 +186,7 @@ void DestroyToken(Token* token)
 
 void DestroyTokens(Token* tokens)
 {
-    for (int i = 0; i < stbds_arrlen(tokens); i++)
+    for (i32 i = 0; i < stbds_arrlen(tokens); i++)
         DestroyToken(&tokens[i]);
     stbds_arrfree(tokens);
 }
