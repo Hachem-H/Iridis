@@ -294,8 +294,10 @@ bool BuildProject(ProjectConfiguration* configuration)
         MakeDirectory(pathBuffer);
         free(pathBuffer);
     }
+    
 
-    for (int i = 0; i < stbds_arrlen(sourceFiles); i++)
+    size_t totalFiles = stbds_arrlen(sourceFiles);
+    for (size_t i = 0; i < totalFiles; i++)
     {
         size_t outputFileLength = strlen(targetPath)+strlen(sourceFiles[i])+1;
         size_t sourceFileLength = sourcePathLength+strlen(sourceFiles[i])+1;
@@ -309,10 +311,39 @@ bool BuildProject(ProjectConfiguration* configuration)
         outputFile[outputFileLength-strlen("iridis")+0] = 'o';
         outputFile[outputFileLength-strlen("iridis")+1] = 0;
 
+        float progress = (float)(i+1)/totalFiles;
+        int barWidth = 50;
+        int progressWidth = (progress*barWidth);
+
+        printf("\r%s[%s%s", CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET, CONSOLE_COLORS_GREEN);
+        for (int j = 0; j < progressWidth; j++)
+            putchar('=');
+        for (int j = 0; j < barWidth-progressWidth; j++)
+            putchar(' ');
+        printf("%s%s]%s", CONSOLE_MODE_RESET, CONSOLE_MODE_BOLD, CONSOLE_MODE_RESET);
+        printf("  %d%% %s%s%s", (int)(progress*100), CONSOLE_MODE_ITALIC, sourceFile, CONSOLE_MODE_RESET);
+
+        if (i >= 1)
+        {
+            int size = (int)strlen(sourceFiles[i-1])-(int)strlen(sourceFiles[i]);
+            if (size > 0)
+            {
+                for (int j = 0; j < size; j++)
+                    putchar(' ');
+                for (int j = 0; j < size; j++)
+                    putchar('\b');
+            }
+        }
+
+        fflush(stdout);
+
         CompileSourceCode(outputFile, sourceFile);
+
         free(outputFile);
         free(sourceFile);
     }
+
+    putchar('\n');
 
     for (int i = 0; i < stbds_arrlen(sourceDirectories); i++)
         free(sourceDirectories[i]);
