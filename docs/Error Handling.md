@@ -37,7 +37,7 @@ SomeProc :: proc()
     value := DivideNumbers(123, 0)? // Note the presence of ?
 
     if value; do
-        IO.PrintLine("Got a value of {}", value)
+        IO.PrintLine("Got a value of {}", value^) // De-reference to get the result
     else; do
         IO.PrintLine("Got a possible error")
 }
@@ -102,7 +102,7 @@ SomeProc :: proc()
 
 We can also forward the error to the calling function like this
 ```iridis
-SomeProc :: proc() -> ? // Type inferred due to the presence of the errors
+SomeProc :: proc() -> PossibleErrors?
 {
     value := try DivideNumbers(1, 0)
 }

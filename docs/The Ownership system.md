@@ -9,8 +9,8 @@ main :: proc()
 {
     allocator := Mem.GetGlobalAllocator()
     
-    buffer := Mem.Allocate<i32>(&allocator, 1000)
-    Mem.Free(&allocator, buffer)
+    buffer := Mem.Allocate<i32>(&allocator, 1000)!
+    Mem.Free(&allocator, buffer)!
 }
 ```
 
@@ -21,10 +21,10 @@ main :: proc()
 {
     allocator := Mem.GetGlobalAllocator()
     
-    buffer := Mem.Allocate<i32>(&allocator, 1000)
+    buffer := Mem.Allocate<i32>(&allocator, 1000)!
     newOwner := buffer
     
-    Mem.Free(&allocator, buffer)
+    Mem.Free(&allocator, buffer)!
     // ^ This line will not compile anymore
 }
 ```
@@ -32,18 +32,18 @@ main :: proc()
 The ownership has moved from `buffer` to `newOwner`. Meaning, I simply cannot use the `buffer` variable at all until ownership is passed to it.  I.E. I can move use the `newOwner` to free the buffer.
 
 ```iridis
-buffer := Mem.Allocate<i32>(&allocator, 1000)
+buffer := Mem.Allocate<i32>(&allocator, 1000)!
 newOwner := buffer
     
-allocator.Free(newOwner)
+allocator.Free(newOwner)!
 ```
 Or simply give `buffer` ownership back
 ```iridis
-buffer := Mem.Allocate<i32>(&allocator, 1000)
+buffer := Mem.Allocate<i32>(&allocator, 1000)!
 newOwner := buffer
 // ...
 buffer := newOwner
-Mem.Free(buffer)
+Mem.Free(buffer)!
 ```
 
 ## Scoping
@@ -55,14 +55,14 @@ main :: proc()
 {
     allocator := Mem.GetGlobalAllocator()
     
-    someBuffer := Mem.Allocate<i32>(&allocator, 1000)
+    someBuffer := Mem.Allocate<i32>(&allocator, 1000)!
     {
         someCopy := someBuffer
-        Mem.Free(&allocator, someCopy)
+        Mem.Free(&allocator, someCopy)!
     }
     
     // ...
-    Mem.Free(&allocator, someBuffer)
+    Mem.Free(&allocator, someBuffer)!
 }
 ```
 This code will simply not compile, there is a rather visible double free situation, though in a larger code base this might not be very visible. If we run through the code really quickly, we can see that ownership of `someBuffer` is passed over to `someCopy`, meaning freeing `someBuffer` will not even work since ownership is passed over to `someCopy` which is now out of scope.
@@ -89,10 +89,10 @@ main :: proc()
     allocator := Mem.GetGlobalAllocator()
     
     bufferSize :: 1000
-    buffer := Mem.Allocate<i32>(&allocator, bufferSize)
+    buffer := Mem.Allocate<i32>(&allocator, bufferSize)!
     PrintSomeBuffer(buffer, bufferSize)
     // `buffer` got ownership back after the procedure return
-    Mem.Free(&allocator, buffer)
+    Mem.Free(&allocator, buffer)!
 }
 ```
 
@@ -116,16 +116,16 @@ main :: proc()
     bufferSize :: 7
     hachem := Human
     {
-        name     = Mem.Allocate<char>(&allocator, bufferSize),
+        name     = Mem.Allocate<char>(&allocator, bufferSize)!,
         nameSize = bufferSize,
     }
     
     // ...
-    Mem.Copy("Hachem", hachem.name, hachem.nameSize)
+    Mem.Copy("Hachem", hachem.name, hachem.nameSize)!
     hachem.name[hachem.nameSize] = 0
     // ...
     
-    Mem.Free(&allocator, human.name)
+    Mem.Free(&allocator, human.name)!
 }
 ```
 
@@ -138,10 +138,10 @@ main :: proc()
 {
     allocator := Mem.GetGlobalAllocator()
     
-    buffer := Mem.Allocate<i32>(&allocator, 1000)
+    buffer := Mem.Allocate<i32>(&allocator, 1000)!
     newOwner := unsafe buffer
     
-    Mem.Free(&allocator, buffer)
+    Mem.Free(&allocator, buffer)!
 }
 ```
 

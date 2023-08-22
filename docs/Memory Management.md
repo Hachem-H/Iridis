@@ -1,18 +1,62 @@
-# Portability
+# Memory Management
 
-Iridis is advertised as a system's programming language. So memory management (allocation and freeing) is left to the programmer. Now this is slightly of an issue for portability. Lets say that Iridis has predefined Allocate and Free procedures that it uses through out the entire standard library. If i wrote my custom kernel or if this is running on bare metal. I would have my own custom allocation methods. In turn I would not be able to use any of the standard library functions as they use their own allocators. This is the issue for example in C or Rust, where in C you would have to re-implement the entire C standard library from scratch (It is quite small, though it is still an annoying task), and in Rust you would have to compile without linking to the standard library in the first place.
-
-Iridis solves this by the idea of a Allocators. Simply put, an allocator is a structure with 2 callbacks, `Alloc` and `Free`. Meaning you can pass in your own custom allocate and free methods. For example, lets say that we were in a custom bare-metal environment, I could implement a custom allocator like this 
+Memory Management probably has to be one of the important topics when discussing a low-level programming language. The question lies in "How do I allocate/free memory safely?". Well, the heart of the memory manager lies in the `Memory.Allocator` structure, defined as:
 
 ```iridis
+// std/Memory.iridis
+
+MemoryError :: enum
+{
+    InsufficientMemory,
+    Fragmentation,
+    BufferTooLarge,
+	
+    DoubleFree,
+    InvalidPointer,
+	
+    // ...
+}
+
+Allocator<T> :: struct
+{
+    Allocate<T> : proc(^Allocator, u32) -> MemoryError?^T,
+    Free<T>     : proc(^Allocator, ^T)  -> MemoryError?,
+}
+
+Allocate<T> :: proc(allocator: ^Allocator, count: u32) -> MemoryError?^T
+{
+     return allocator.Allocate<T>(allocator, count)?
+}
+
+Free<T> :: proc(allocator: ^Allocator, buffer: ^T)  -> MemoryError?
+{
+    try allocator.Free<T>(allocator, buffer)?
+    temp := buffer
+}
+
+UnsafeFree<T> :: proc(allocator: ^Allocator, buffer: ^T)  -> MemoryError?
+{
+    try allocator.Free<T>(allocator, buffer)?
+}
+```
+
+We notice that the `Allocator` struct contains two simple callbacks, `Allocate` and `Free`. Creating an allocator involves simply implementing both of these functions. We also note the usage of the helper functions `Memory.Allocate`,  `Memory.Free` and  `Memory.Unsafe`, which simplify the usage of clearing up the ownership after a buffer has been freed.
+
+## Portability
+Why the custom `Allocator` structure? Can't you have a simple `Allocate` and `Free`?  Lets say that Iridis has predefined Allocate and Free procedures that it uses through out the entire standard library. If i wrote my custom kernel or if this is running on bare metal. I would have my own custom allocation methods. In turn I would not be able to use any of the standard library functions as they use their own allocators. This is the issue for example in C or Rust, where in C you would have to re-implement the entire C standard library from scratch (It is quite small, though it is still an annoying task), and in Rust you would have to compile without linking to the standard library in the first place.
+
+On the other hand, since I have custom allocators, I can build the entire standard library in such a way that it depends on passing in an allocator. For example consider this code being some custom kernel code:
+
+```
 Memory :: import!("std.Memory")
+Types  :: import!("std.Types")
 
-CustomAlloc<T> :: proc(count: i32) -> ^T
+CustomAlloc<T> :: proc(context: ^Allocator, count: i32) -> MemoryError?^T
 {
     // ...
 }
 
-CustomFree<T> :: proc(buffer: ^T)
+CustomFree<T> :: proc(context: ^Allocator, buffer: ^T) -> MemoryError?
 {
     // ...
 }
@@ -24,278 +68,156 @@ main :: proc()
         Alloc = CustomAlloc,
         Free  = CustomFree,
     }
-}
-```
-
-Now how is this useful? Well, simply let the standard library not use a pre-defined custom allocator. When ever you have to deal with a data structure which deals with memory allocation. Simply pass it one. For example consider dynamic arrays, if I had my kernel, I could use the standard library one with my allocator like this:
-
-```iridis
-// ...
-
-Types :: import!("std.Types")
-
-main :: proc()
-{
-    customAllocator := Memory.Allocator
-    {
-        Alloc = CustomAlloc,
-        Free  = CustomFree,
-    }
-
-    dynamicArray := Types.CreateDynamicArray<i32>(customAllocator)
+    
+    dynamicArray := Types.CreateDynamicArray<i32>(&customAllocator)
     defer Types.DestroyDynamicArray(dynamicArray)
     
     Types.PushToDynamicArray(&dynamicArray, 1, 2, 3)
 }
 ```
 
-Now, what if I was on Windows and Linux or whatever, some platform that natively is supported by Iridis? well simply, the memory module has a `DefaultAllocator` which you could use like so:
+If I wanted to use the built-in implementation of the dynamic array, I can simply just pass in my custom allocator to the `CreateDynamicArray`, which lets the standard library use this particular implementation of the allocator. This also means that you can use multiple types of allocators at the same time, unlike Odin where you would have to set the context per-scope.
+
+## Allocation Trackers
+
+Since I pass in context through every single allocation, we can draft a simple implementation of the `DefaultAllocator` which can track if all memory allocated is freed. We can first implement the procedures used for the supported operating systems as so.
 
 ```iridis
-main :: proc()
+#[private]
+InternalAlloc<T> :: proc(context: ^Allocator, count: i32) -> MemoryError?^T
 {
-    dynamicArray := Types.CreateDynamicArray<i32>(Memory.GetDefaultAllocator())
-    defer Types.DestroyDynamicArray(dynamicArray)
-    
-    Types.PushToDynamicArray(&dynamicArray, 1, 2, 3)
+	// OS dependent
+}
 
+#[private]
+InternalFree<T> :: proc(context: ^Allocator, buffer: ^T) -> MemoryError?
+{
+	// OS dependent
+}
+
+#[private]
+InternalAllocator := Allocator
+{
+    Allocate = InternalAlloc,
+    Free     = InternalFree,
 }
 ```
 
-# Memory Safety
-
-Now, its not enough that I should be able to allocate memory. I should be able to do so safely. Mainly, avoiding memory leaks. So when I allocate a buffer, I want to make sure that it is eventually freed. *Now how can I do this in Iridis?* Of course this will lie in the standard library implementation of the `DefaultAllocator`
-
-We can start by defining the `DefaultAlloc`/`DefaultFree` methods like this, such as `InternalAlloc`/`InternalFree` are operating system dependent:
+The start by implementing the default allocator as follows:
 
 ```iridis
-#[private]
-InternalAlloc<T> :: proc(count: i32) -> ^T
-{
-	// ...
-}
-
-#[private]
-InternalFree<T> :: proc(buffer: ^T)
-{
-	// ...
-}
-
-#[private]
-DefaultAlloc<T> :: proc(count: i32) -> ^T
-{
-    buffer := InternalAlloc<T>(count)
-    return buffer
-}
-
-#[private]
-DefaultFree<T> :: proc(buffer: ^T)
-{
-    InternalFree(buffer)
-}
-
-GetDefaultAllocator :: proc() -> Allocator
-{
-    return Allocator
-    {
-        Alloc = DefaultAlloc,
-        Free  = DefaultFree,
-    }
-}
-```
-
-Now you might be wondering: *why doesn't the `DefaultAlloc`/`DefaultFree` just implement the native procedures directly instead of making a different procedure for it?* Well my friend, because this is not going to **ONLY** be the implementation. What I can start by doing, is defining a simple `MemoryTracker` which is a dynamic array. But wait, *don't dynamic arrays use allocators to do stuff?* but if this is the default allocator, what will it use? Well, this is why I did the 2 internal procedures
-
-```iridis
-Types   :: import!("std.Types")
 Runtime :: import!("std.Runtime")
 
-#[private]
-InternalAllocator :: Allocator
+DefaultAllocator :: struct using Allocator
 {
-    Alloc = InternalAlloc
-    Free  = InternalFree,
+     tracker : Types.DynamicArray<(Runtime.CallTrace, u32)>
 }
 
 #[private]
-MemoryTracker := Types.CreateDynamicArray<(Runtime.StackTrace, i32)>(InternalAllocator)
-// The Runtime Stacktrace is a type which holds information about where the functions were called. We can use this determine where an allocation happened.
-// The i32 is the allocated buffer address.
-```
-
-meaning we can modify the `DefaultAlloc`/`DefaultFree` functions to push allocation and free data to the  memory tracker like this
-
-```
-#[private]
-DefaultAlloc<T> :: proc(count: i32) -> ^T
+DefaultAlloc<T> :: proc(context: ^Allocator, count: u32) -> MemoryError?^T
 {
-    buffer := InternalAlloc<T>(count)
-    Types.PushToDynamicArray(&MemoryTracker, (Runtime.GetStackTrace(), buffer));
+    allocator := context as ^DefaultAllocator
+
+    buffer := try InternalAlloc<T>(count)
+    address := unsafe buffer
+    tracked := (Runtime.GetStackTrace(), address as u32)
+    Types.PushToDynamicArray(&allocator.tracker, tracked)
+
     return buffer
 }
 
 #[private]
-DefaultFree<T> :: proc(buffer: ^T)
+DefaultFree<T> :: proc(context: ^Allocator, buffer: ^T) -> MemoryError?
 {
+    allocator := context as ^DefaultAllocator
     bufferIndex := 0
-    for i in 0..<MemoryTracker.size
-    {
-        (_, address) := Types.DynamicArrayAt(MemoryTracker, i)
-        if address == buffer; do
+
+   for i in 0..<allocator.tracker.size
+   {
+        (_, address) := Types.DynamicArrayAt(allocator.tracker, i)
+        if address == buffer as u32; do
             bufferIndex = i
-    }
-    Types.DynamicArrayPopAt(&MemoryTracker, bufferIndex)
-    
-    InternalFree(buffer)
+   }
+        
+    Types.DynamicArrayRemoveAt(&allocator.tracker, bufferIndex)!
+    try InternalFree(buffer)
 }
 ```
 
-Noe that we stored them, *then what?* Well, let me introduce you to a keyword called `defer`. What `defer` usually does, is that it executes a line of code when a scope ends. But when you do it globally, it would run this line of code at the end of the program execution. So what I could do, is check if all the buffers have been freed like this:
+The `DefaultAlloc` and `DefaultFree` procedures track the memory allocations by storing the runtime stack-trace (where the allocation has happened) and the buffer address. So we can simply implement the `CreateDefaultAllocator` and `DestroyDefaultAllocator` in such a way that it checks if all the memory blocks have been freed.
 
 ```iridis
-IO :: import!("std.IO")
-
-defer
+CreateDefaultAllocator :: proc() -> DefaultAllocator
 {
-    if MemoryTracker.size != 0
+    return DefaultAllocator
     {
-        for (location, address) in MemoryTracker; do
-            IO.Error("You allocated a buffer at address {} in {} but it wasn't freed", address, location)
+        Allocate = DefaultAllocate,
+        Free     = DefaultFree,
+        tracker  = Types.CreateDynamicArray(&InternalAllocator)
     }
+}
+
+DestroyDefaultAllocator :: proc(allocator: ^DefaultAllocator)
+{
+    if allocator.tracker.size != 0; do
+    for i in allocator.tracker.size
+    {
+        (callTrace, address) = allocator.tracker.buffer[i]
+        IO.ErrorLine("Unfreed buffer @ {}: ", address)
+
+        for entry in callTrace; do
+            io.Error("{}:{} in {}", entry.line, entry.file, entry.name)
+
+        Types.DestroyDynamicArray(&allocator.tracker)
+    }
+    
+    temp := allocator
 }
 ```
 
-This way, we can inform the programmer that they didn't free their memory without forcing them into weird programming paradigms, (like the rust borrow checker). But I hear you saying: *Wouldn't this make allocation in general slower?* And the answer to that is... yes. Smart-ass.
+Although this implementation is rather slow, the actual implementation in the standard library will be signifcantly faster, and the 'memory tracker' will only be enabled in the `debug` and `release` profiles.
 
-## Optimizing safe memory allocation
+## Other types of allocators
+### Global Allocator
+Simply put, the global allocator is a default allocator which runs in the global scope. The `DestroyDefaultAllocator` is ran after the program ends using the global defer.
+```iridis
+OS :: import!("std.OS")
 
-I want to introduce you the `comptime` keyword, which turns anything into a compile time statement (this includes `if`, `for` and`while`). Basically, Iridis can compile into 3 different profiles;
-
-- Debug: "Compile with no optimizations and debug symbols"
-- Release: "Compile with optimizations and debug symbols"
-- Distribution: "Compile with max optimizations and no debug symbols"
-
-Well, iridis has access to the runtime information from the compiler. So, we can use when to check what profile we are using. And ONLY check for non-freed blocks in the distribution build like this:
-
-```
-comptime if Runtime.profile != .Distribution
+comptime if OS.IsSupported()
 {
-    #[private]
-    MemoryTracker := Types.CreateDynamicArray<...>(InternalAllocator) 
-
-    defer
-    {
-        // ...
-    }
-}
-
-// ...
-
-#[private]
-DefaultAlloc<T> :: proc(count: i32) -> ^T
-{
-    comptime if Runtime.profile != .Distribution
-    {
-        buffer := InternalAlloc<T>(count)
-        Types.PushToDynamicArray(&MemoryTracker, (Runtime.GetStackTrace(), buffer));
-    }
-
-    return buffer
-}
-
-#[private]
-DefaultFree<T> :: proc(buffer: ^T)
-{
-    comptime if Runtime.profile != .Distribution
-    {
-        bufferIndex := 0
-        for i in 0..<MemoryTracker.size
-        {
-            (_, address) := Types.DynamicArrayAt(MemoryTracker, i)
-            if address == buffer; do
-                bufferIndex = i
-        }
-
-        Types.DynamicArrayPopAt(&MemoryTracker, bufferIndex)
-    }
-
-    InternalFree(buffer)
+    GlobalAllocator := CreateDefaultAllocator()
+    defer DestroyDefaultAllocator(&GlobalAllocator)
 }
 ```
 
-## Local Allocators
+Its worth noting that comptime works a lot like `#ifdef` in C.
 
-Realistically, I will probably split this into a `GlobalAllocator` and a `DefaultAllocator`, as it would be practicall for game-developpment. Consider this example:
-
+### Fixed Buffer Allocator
+A fixed buffer allocator simply allocates memory to a buffer instead of a heap. For instance:
 ```iridis
 Memory :: import!("std.Memory")
 
-// ...
-
-UpdateEntities :: proc()
-{
-    allocator := Memory.GetGlobalAllocator()
-    entities := allocator.Allocate<Entity>(100)
-    UpdateEntity(entities)
-}
-
-// ...
-
 main :: proc()
 {
-    while GameIsRunning(); do
-        UpdateEntites()
-}
-```
-
-This is obviously a memory leak, but we would get a 100 error messages per game cycle about the memory not being freed and that's simply not ideal. What would be better is to a have a local allocator where it would be instant.
-
-``` iridis
-// ...
-
-UpdateEntities :: proc()
-{
-    allocator := Memory.CreateDefaultAllocator()
-    defer Memory.DestroyDefaultAllocator(allocator)
+    buffer := [1000; 0] // A buffer of 1000x zeros
+    allocator := CreateFixedBufferAllocator(&buffer)
     
-    entities := allocator.Allocate<Entity>(100)
-    UpdateEntity(entities)
-}
-
-// ...
-```
-
-When the `DestroyDefaultAllocator` method is called, we would immediately get information about the memory leak and cause a crash possibly. And so the `GlobalAllocator` would simply be a default one where the global `defer` would call the destroy procedure.
-
-# Residue Allocator
-
-Now due to the way that we wrote our `GlobalAllocator` we can simply use the same exact method to implement a _Residue Allocator_ which should be used. What a residue allocator does is that you allocate the memory like normal, and when the memory is freed, it would free all the memory up-front.
-
-```iridis
-// In this case, the MemoryTracker doesn't need to store the stack trace since we aren't warning the programmer
-
-defer
-{
-    for address in MemoryTracker; do
-    	InternalFree(address)
+    ints := Memory.Allocate<i32>(&allocator, 5)
+    // ... 
+    Memory.Free(&allocator, ints)
 }
 ```
 
- Though, yes, this would mean that using the this comes with reduced performance to maintain a log of allocated buffers. Which is why when you use the _Resiude Allocator_, when the program exit, you will have a duck being mean to you:
-
+### Residue Allocator
+This allocator should never be used and is only implemented as a joke. What a residue allocator does is simply frees all the memory up-front. This would mean that using the this comes with reduced performance to maintain a log of allocated buffers. Which is why when you use the Resiude Allocator, when the program exit, you will have a duck yelling at you:
 ```
       __
   __( o)>  A real programmer
-  \ <_ )    manages his own memory.
-   `---'   
+  \ <_ )      manages his own memory.
+   `---'              - A wise duck
      ||     
    ==^^==
 ```
 
-# Conclusion
-
-The way that Iridis handles memory management through the use of `comptime` and the `defer` keyword allows it to be quite portable and makes it quite useful in terms of kernel design.
-
 ---
-
-*It is very important to note that this is not and probably will not be the actual implementation as it is quite inefficient. In reality, I will probably use the concept of memory arenas and better heap block searching*.
+_It is very important to note that these are how the allocators will work in practice and will probably end up having completely different internal implementations._
