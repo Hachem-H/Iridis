@@ -22,20 +22,24 @@ local operators = {
     ':', '=', '^', '&',
 }
 
+local booleans = {
+    'true', 'false'
+}
+
 function GenerateVimScript()
     local syntax = [[
 if exists("b:current_syntax")
     finish
 endif
 
-syntax keyword iridisKeywords ]]
-    syntax = syntax .. table.concat(keywords, ' ') .. [[
+syntax keyword iridisKeywords ]] .. table.concat(keywords, ' ') .. [[
 
-syntax keyword iridisTypes ]]
-    syntax = syntax .. table.concat(types, ' ') .. [[
+syntax keyword iridisTypes ]] .. table.concat(types, ' ') .. [[
 
 syntax match iridisInteger "\-\?\<\d\+\>" display
 syntax match iridisFloat "\-\?\<[0-9][0-9_]*\%(\.[0-9][0-9_]*\)\%([eE][+-]\=[0-9_]\+\)\=" display
+syntax keyword iridisBool ]] .. table.concat(booleans, ' ') [[
+
 syntax match iridisHex "\<0[xX][0-9A-Fa-f]\+\>" display
 syntax match iridisDoz "\<0[zZ][0-9a-bA-B]\+\>" display
 syntax match iridisOct "\<0[oO][0-7]\+\>" display
@@ -71,6 +75,7 @@ hi link iridisLineComment  Comment
 hi link iridisBlockComment Comment
 
 hi link iridisKeywords Keyword
+hi link iridisBool     Boolean
 hi link iridisTypes    Type
 
 hi link iridisPointer Operator
@@ -153,6 +158,14 @@ function GenerateVSCodeScript()
             ]
         },
         {
+            "name": "boolean.true",
+            "match": "true",
+        },
+        {
+            "name": "boolean.false",
+            "match": "false",
+        },
+        {
             "name": "function.call.iridis",
             "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\s*(?=\\()",
             "captures": {
@@ -208,6 +221,11 @@ contexts:
     - match: \[]]..table.concat(operators, "")..[[]
       captures:
         0: keyword.operator.iridis
+
+    - match: true
+      scope: boolean.true
+    - match: false
+      scope: boolean.false
 
     - match: \b(\d*\.?\d+)\b
       captures:
