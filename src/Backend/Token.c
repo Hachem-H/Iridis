@@ -128,6 +128,17 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
         token.literal.identifier[strlen(token.literal.identifier)-1]=0;
     }
 
+    else if (strcmp(buffer, "true"))
+    {
+        token.type = TokenType_Bool;
+        token.literal.boolean = true;
+    }
+    else if (strcmp(buffer, "false"))
+    {
+        token.type = TokenType_Bool;
+        token.literal.boolean = false;
+    }
+
     else
     {
         token.type = TokenType_Identifier;
@@ -145,6 +156,7 @@ char* StringFromTokenType(TokenType type)
     case TokenType_Integer:     return "Integer";
     case TokenType_String:      return "String";
     case TokenType_Float:       return "Float";
+    case TokenType_Bool:        return "Bool";
 
     case TokenType_Enumeration: return "Enumeration";
     case TokenType_Procedure:   return "Procedure";

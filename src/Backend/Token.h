@@ -8,6 +8,7 @@ typedef enum TokenType_t
     TokenType_Integer,
     TokenType_String,
     TokenType_Float,
+    TokenType_Bool,
 
     TokenType_Enumeration,
     TokenType_Procedure,
@@ -54,6 +55,7 @@ typedef struct Token_t
         char*  identifier;
         double floating;
         i32    integer;
+        bool   boolean;
     } literal;
 } Token;
 
