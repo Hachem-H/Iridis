@@ -72,7 +72,6 @@ i32 CompileSourceCode(const char* outputPath, const char* sourcePath)
     char* generatedIR = LLVMPrintModuleToString(module);
     FILE* output = fopen(outputPath, "w");
     fputs(generatedIR, output);
-    puts(generatedIR);
     fclose(output);
 
     LLVMDisposeMessage(generatedIR);

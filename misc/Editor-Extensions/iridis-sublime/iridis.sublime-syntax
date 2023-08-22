@@ -13,15 +13,15 @@ contexts:
     - include: strings
     - include: string-escaped-char
 
-    - match: \b(if|else|for|while|mod|extern|using|struct|proc|do|in|as|comptime|enum|return)\b
+    - match: \b(if|else|for|while|match|return|struct|proc|mod|enum|defer|do|in|comptime|as|try|extern|using)\b
       scope: keyword.iridis
     
-    - match: \b(u8|u16|u32|u64|i8|i16|i32|i64|f32|f64|string)\b
+    - match: \b(u8|u16|u32|u64|i8|i16|i32|i64|c8|c16|c32|c64|f32|f64|char|string|cstring)\b
       scope: type.iridis
       captures:
         0: support.type.iridis
     
-    - match: \[;^\!]
+    - match: \[+-*/%:=^&]
       captures:
         0: keyword.operator.iridis
 
@@ -98,3 +98,4 @@ contexts:
       scope: constant.character.escape.iridis
     - match: \\.
       scope: invalid.illegal.unknown-escape.iridis
+    

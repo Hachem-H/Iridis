@@ -83,10 +83,10 @@ SomeProc :: proc()
     value := DivideNumbers(123, 0)
     match value
     {
-        value => IO.PrintLine("Got value of {}", value)
-
         .DivideByZero  => IO.PrintLine("Division by zero error")
         .IllegalNumber => IO.PrintLine("Got the forbidden number")
+
+        else => IO.PrintLine("Got value of {}", value)
     }
 }
 ```

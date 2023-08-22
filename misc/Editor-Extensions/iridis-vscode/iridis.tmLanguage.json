@@ -3,18 +3,19 @@
     "patterns": [
         {
             "name": "keyword.iridis",
-            "match": "\\b(if|else|for|while|mod|extern|using|struct|proc|enum|comptime|as|do|in|return)\\b"
+            "match": "\\b(if|else|for|while|match|return|struct|proc|mod|enum|defer|do|in|comptime|as|try|extern|using)\\b"
         },
         {
             "name": "type.iridis",
-            "match": "\\b(u8|u16|u32|u64|i8|i16|i32|i64|f32|f64|string)\\b",
+            "match": "\\b(u8|u16|u32|u64|i8|i16|i32|i64|c8|c16|c32|c64|f32|f64|char|string|cstring)\\b",
+    
             "captures": {
                 "0": { "name": "support.type.iridis" }
             }
         },
         {
             "name": "operator.iridis",
-            "match": "[;^!]",
+            "match": "[+-*/%:=^&]",
             "captures": {
                 "0": { "name": "keyword.operator.iridis" }
             }
@@ -79,3 +80,4 @@
         }
     ]
 }
+    
