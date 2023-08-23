@@ -8,6 +8,7 @@ bin/
 bin-int/
 
 build/
+Sandbox/
 
 .cache/
 .clangd
