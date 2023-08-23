@@ -78,15 +78,15 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
 
     if (IsInteger(buffer))
     {
-        token.type =  TokenType_Integer;
-        token.literal.integer = atoi(buffer);
+        token.type =  TokenType_Number;
+        token.literal.number = (double) atoi(buffer);
         return token;
     }
 
     if (IsFloat(buffer))
     {
-        token.type = TokenType_Float;
-        token.literal.floating = atof(buffer);
+        token.type = TokenType_Number;
+        token.literal.number = (double) atof(buffer);
         return token;
     }
 
@@ -153,9 +153,8 @@ char* StringFromTokenType(TokenType type)
     switch (type)
     {
     case TokenType_Identifier:  return "Identifier";
-    case TokenType_Integer:     return "Integer";
+    case TokenType_Number:      return "Number";
     case TokenType_String:      return "String";
-    case TokenType_Float:       return "Float";
     case TokenType_Bool:        return "Bool";
 
     case TokenType_Enumeration: return "Enumeration";
@@ -188,6 +187,22 @@ char* StringFromTokenType(TokenType type)
     case TokenType_Minus:       return "Minus";
     case TokenType_Asterisk:    return "Asterisk";
     case TokenType_Slash:       return "Slash";
+    }
+}
+
+i32 GetTokenPrecedence(TokenType type)
+{
+    switch (type)
+    {
+    case TokenType_Plus:
+    case TokenType_Minus:
+        return 10;
+
+    case TokenType_Asterisk:
+    case TokenType_Slash:
+        return 20;
+
+    default: return -1;
     }
 }
 

@@ -5,9 +5,8 @@
 typedef enum TokenType_t
 {
     TokenType_Identifier,
-    TokenType_Integer,
+    TokenType_Number,
     TokenType_String,
-    TokenType_Float,
     TokenType_Bool,
 
     TokenType_Enumeration,
@@ -53,14 +52,15 @@ typedef struct Token_t
     union
     {
         char*  identifier;
-        double floating;
-        i32    integer;
         bool   boolean;
+        double number;
     } literal;
 } Token;
 
 Token TokenFromString(i32 line, i32 column, const char* buffer);
 char* StringFromTokenType(TokenType type);
+
+i32 GetTokenPrecedence(TokenType type);
 
 void DestroyTokens(Token* tokens);
 void DestroyToken(Token* token);
