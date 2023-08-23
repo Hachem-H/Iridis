@@ -90,14 +90,14 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
         return token;
     }
 
-    if      (strcmp(buffer, "[")       == 0) token.type = TokenType_RBracket;
-    else if (strcmp(buffer, "]")       == 0) token.type = TokenType_LBracket;
-    else if (strcmp(buffer, "{")       == 0) token.type = TokenType_RBrace;
-    else if (strcmp(buffer, "}")       == 0) token.type = TokenType_LBrace;
-    else if (strcmp(buffer, "(")       == 0) token.type = TokenType_RParen;
-    else if (strcmp(buffer, ")")       == 0) token.type = TokenType_LParen;
-    else if (strcmp(buffer, "<")       == 0) token.type = TokenType_RAngle;
-    else if (strcmp(buffer, ">")       == 0) token.type = TokenType_LAngle;
+    if      (strcmp(buffer, "[")       == 0) token.type = TokenType_LBracket;
+    else if (strcmp(buffer, "]")       == 0) token.type = TokenType_RBracket;
+    else if (strcmp(buffer, "{")       == 0) token.type = TokenType_LBrace;
+    else if (strcmp(buffer, "}")       == 0) token.type = TokenType_RBrace;
+    else if (strcmp(buffer, "(")       == 0) token.type = TokenType_LParen;
+    else if (strcmp(buffer, ")")       == 0) token.type = TokenType_RParen;
+    else if (strcmp(buffer, "<")       == 0) token.type = TokenType_LAngle;
+    else if (strcmp(buffer, ">")       == 0) token.type = TokenType_RAngle;
     else if (strcmp(buffer, "+")       == 0) token.type = TokenType_Plus;
 
     else if (strcmp(buffer, "-")       == 0) token.type = TokenType_Minus;
@@ -128,12 +128,12 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
         token.literal.identifier[strlen(token.literal.identifier)-1]=0;
     }
 
-    else if (strcmp(buffer, "true"))
+    else if (strcmp(buffer, "true") == 0)
     {
         token.type = TokenType_Bool;
         token.literal.boolean = true;
     }
-    else if (strcmp(buffer, "false"))
+    else if (strcmp(buffer, "false") == 0)
     {
         token.type = TokenType_Bool;
         token.literal.boolean = false;

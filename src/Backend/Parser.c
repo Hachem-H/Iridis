@@ -166,12 +166,9 @@ Node* ParsePrototype(Parser* parser, char* name)
         puts("You have to give the procedure arguments, you do so by stating them inside the prototype.");
         return NULL;
     }
-    
-    char** arguments = NULL;
-    while (GetNextToken(parser)->type == TokenType_Identifier)
-        stbds_arrpush(arguments, GetToken(parser)->literal.identifier);
 
-    if (GetToken(parser)->type != TokenType_LParen)
+    GetNextToken(parser);
+    if (GetToken(parser)->type != TokenType_RParen)
     {
         LOG_ERROR("Unexpected `%s` in procedure prototype.", GetToken(parser)->representation);
         PrintErrorLocation(parser);
@@ -180,13 +177,12 @@ Node* ParsePrototype(Parser* parser, char* name)
     }
 
     GetNextToken(parser);
-    Node* prototype = CreateProcedurePrototype(name, arguments);
+    Node* prototype = CreateProcedurePrototype(name, NULL);
     return prototype;
 }
 
 Node* ParseProcedure(Parser* parser, char* name)
 {
-    GetNextToken(parser);
     Node* prototype = ParsePrototype(parser, name);
     if (prototype == NULL)
         return NULL;
@@ -222,9 +218,8 @@ internal void HandleIdentifier(Parser* parser)
             LOG_DEBUG("Variable");
             DestroyNode(expression);
         }
-        else
-            GetNextToken(parser);
     }
+    GetNextToken(parser);
 
     if (GetToken(parser)->type != TokenType_Colon &&
         GetToken(parser)->type != TokenType_Equal)
@@ -233,6 +228,9 @@ internal void HandleIdentifier(Parser* parser)
         PrintErrorLocation(parser);
         puts("You should add `:` to define a constant or a `=` for a variable.");
     }
+    
+    GetNextToken(parser);
+    GetNextToken(parser);
 
     if (GetToken(parser)->type == TokenType_Procedure)
     {
