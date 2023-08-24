@@ -127,11 +127,11 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
         {
             char* profileString = profile.u.s;
 
-            if (strcmp(profileString, "debug") == 0)
+            if (streql(profileString, "debug"))
                 output->buildConfiguration.compilationProfile = CompilationProfile_Debug;
-            else if (strcmp(profileString, "release") == 0)
+            else if (streql(profileString, "release"))
                 output->buildConfiguration.compilationProfile = CompilationProfile_Release;
-            else if (strcmp(profileString, "distribution") == 0)
+            else if (streql(profileString, "distribution"))
                 output->buildConfiguration.compilationProfile = CompilationProfile_Distribution;
             else
             {

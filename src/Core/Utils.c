@@ -42,7 +42,7 @@ bool EndsWith(const char* string, const char* suffix)
     usize suffixLength = strlen(suffix);
     if (stringLength < suffixLength)
         return false;
-    return strcmp(string + (stringLength-suffixLength), suffix) == 0;
+    return streql(string + (stringLength-suffixLength), suffix);
 }
 
 void RecursivelyGetDirectories(const char* path, char*** directories)
@@ -56,7 +56,8 @@ void RecursivelyGetDirectories(const char* path, char*** directories)
 
     do
     {
-        if (strcmp(findFileData.cFileName, ".") == 0 || strcmp(findFileData.cFileName, "..") == 0)
+        if (streql(findFileData.cFileName, ".") || 
+            streql(findFileData.cFileName, ".."))
             continue;
 
         char fullpath[MAX_PATH];
@@ -78,7 +79,8 @@ void RecursivelyGetDirectories(const char* path, char*** directories)
     struct dirent* entry;
     while ((entry = readdir(directory)) != NULL)
     {
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+        if (streql(entry->d_name, ".") || 
+            streql(entry->d_name, ".."))
             continue;
 
         char fullpath[PATH_MAX];

@@ -90,35 +90,35 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
         return token;
     }
 
-    if      (strcmp(buffer, "[")       == 0) token.type = TokenType_LBracket;
-    else if (strcmp(buffer, "]")       == 0) token.type = TokenType_RBracket;
-    else if (strcmp(buffer, "{")       == 0) token.type = TokenType_LBrace;
-    else if (strcmp(buffer, "}")       == 0) token.type = TokenType_RBrace;
-    else if (strcmp(buffer, "(")       == 0) token.type = TokenType_LParen;
-    else if (strcmp(buffer, ")")       == 0) token.type = TokenType_RParen;
-    else if (strcmp(buffer, "<")       == 0) token.type = TokenType_LAngle;
-    else if (strcmp(buffer, ">")       == 0) token.type = TokenType_RAngle;
-    else if (strcmp(buffer, "+")       == 0) token.type = TokenType_Plus;
+    if      (streql(buffer, "["))      token.type = TokenType_LBracket;
+    else if (streql(buffer, "]"))      token.type = TokenType_RBracket;
+    else if (streql(buffer, "{"))      token.type = TokenType_LBrace;
+    else if (streql(buffer, "}"))      token.type = TokenType_RBrace;
+    else if (streql(buffer, "("))      token.type = TokenType_LParen;
+    else if (streql(buffer, ")"))      token.type = TokenType_RParen;
+    else if (streql(buffer, "<"))      token.type = TokenType_LAngle;
+    else if (streql(buffer, ">"))      token.type = TokenType_RAngle;
+    else if (streql(buffer, "+"))      token.type = TokenType_Plus;
 
-    else if (strcmp(buffer, "-")       == 0) token.type = TokenType_Minus;
-    else if (strcmp(buffer, "*")       == 0) token.type = TokenType_Asterisk;
-    else if (strcmp(buffer, "/")       == 0) token.type = TokenType_Slash;
-    else if (strcmp(buffer, ":")       == 0) token.type = TokenType_Colon;
-    else if (strcmp(buffer, ";")       == 0) token.type = TokenType_SemiColon;
-    else if (strcmp(buffer, "^")       == 0) token.type = TokenType_Caret;
-    else if (strcmp(buffer, "&")       == 0) token.type = TokenType_Ampersand;
-    else if (strcmp(buffer, "!")       == 0) token.type = TokenType_Bang;
-    else if (strcmp(buffer, "=")       == 0) token.type = TokenType_Equal;
-    else if (strcmp(buffer, ",")       == 0) token.type = TokenType_Comma;
-    else if (strcmp(buffer, ".")       == 0) token.type = TokenType_Period;
-    else if (strcmp(buffer, "'")       == 0) token.type = TokenType_Quote;
-    else if (strcmp(buffer, "\"")      == 0) token.type = TokenType_DoubleQuote;
+    else if (streql(buffer, "-"))      token.type = TokenType_Minus;
+    else if (streql(buffer, "*"))      token.type = TokenType_Asterisk;
+    else if (streql(buffer, "/"))      token.type = TokenType_Slash;
+    else if (streql(buffer, ":"))      token.type = TokenType_Colon;
+    else if (streql(buffer, ";"))      token.type = TokenType_SemiColon;
+    else if (streql(buffer, "^"))      token.type = TokenType_Caret;
+    else if (streql(buffer, "&"))      token.type = TokenType_Ampersand;
+    else if (streql(buffer, "!"))      token.type = TokenType_Bang;
+    else if (streql(buffer, "="))      token.type = TokenType_Equal;
+    else if (streql(buffer, ","))      token.type = TokenType_Comma;
+    else if (streql(buffer, "."))      token.type = TokenType_Period;
+    else if (streql(buffer, "'"))      token.type = TokenType_Quote;
+    else if (streql(buffer, "\""))     token.type = TokenType_DoubleQuote;
 
-    else if (strcmp(buffer, "enum")    == 0) token.type = TokenType_Enumeration;
-    else if (strcmp(buffer, "struct")  == 0) token.type = TokenType_Structure;
-    else if (strcmp(buffer, "proc")    == 0) token.type = TokenType_Procedure;
-    else if (strcmp(buffer, "extern")  == 0) token.type = TokenType_External;
-    else if (strcmp(buffer, "mod")     == 0) token.type = TokenType_Module;
+    else if (streql(buffer, "enum"))   token.type = TokenType_Enumeration;
+    else if (streql(buffer, "struct")) token.type = TokenType_Structure;
+    else if (streql(buffer, "proc"))   token.type = TokenType_Procedure;
+    else if (streql(buffer, "extern")) token.type = TokenType_External;
+    else if (streql(buffer, "mod"))    token.type = TokenType_Module;
 
     else if (buffer[0] == '"')
     {
@@ -128,12 +128,12 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
         token.literal.identifier[strlen(token.literal.identifier)-1]=0;
     }
 
-    else if (strcmp(buffer, "true") == 0)
+    else if (streql(buffer, "true"))
     {
         token.type = TokenType_Bool;
         token.literal.boolean = true;
     }
-    else if (strcmp(buffer, "false") == 0)
+    else if (streql(buffer, "false"))
     {
         token.type = TokenType_Bool;
         token.literal.boolean = false;

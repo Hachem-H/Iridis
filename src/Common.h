@@ -1,11 +1,14 @@
 #pragma once
 
+#include <string.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
 #define internal static
 #define global   static
+
+#define streql(str1, str2) (strcmp(str1, str2) == 0)
 
 typedef uint64_t u64;
 typedef uint32_t u32;

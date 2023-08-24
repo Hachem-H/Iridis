@@ -32,7 +32,7 @@ i32 main(i32 argc, char** argv)
 
     for (usize i = 0; i < sizeof(commandEntries)/sizeof(CommandEntry); i++)
     {
-        if (strcmp(argv[1], commandEntries[i].command) == 0)
+        if (streql(argv[1], commandEntries[i].command))
             return commandEntries[i].callback(argc, argv);
     }
 

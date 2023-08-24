@@ -34,7 +34,7 @@ i32 CMDLineNew(i32 argc, char* argv[])
         return -1;
     }
 
-    if (strcmp(argv[2], "help") == 0)
+    if (streql(argv[2], "help"))
     {
         PrintNewHelp();
         return 0;
@@ -43,7 +43,8 @@ i32 CMDLineNew(i32 argc, char* argv[])
     char* type = argv[2];
     char* name = argv[3];
 
-    if (strcmp(type, "exe") != 0 && strcmp(type, "lib") != 0)
+    if (!streql(type, "exe") && 
+        !streql(type, "lib"))
     {
         LOG_ERROR("Unknown project type: `%s`.\n         You can created an executable (exe) or a library (lib).", type);
         return -1;
@@ -65,7 +66,7 @@ i32 CMDLineNew(i32 argc, char* argv[])
     configuration.outputDirectoryPath = "bin";
 
     GenerateProject(&configuration);
-    LOG_INFO("Successfully create the %s `%s`\n", strcmp(type, "exe") == 0 ? "executable" : "library", name);
+    LOG_INFO("Successfully create the %s `%s`\n", streql(type, "exe") ? "executable" : "library", name);
     return 0;
 }
 
@@ -100,7 +101,7 @@ i32 CMDLineCompile(i32 argc, char* argv[])
         return -1;
     }
     
-    if (strcmp(argv[2], "help") == 0)
+    if (streql(argv[2], "help"))
     {
         PrintCompileHelp();
         return 0;
