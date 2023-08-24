@@ -1,6 +1,6 @@
 # Interoperability with C
 
-Iridis is meant to serve as an alternative or a replacement for C, but that does not mean that it cannot interact with already existing C code. For example, we may find ourselves in a large C project where we would like to use Iridis to implement certain features. Consider I had this code base for instance:
+Iridis is meant to serve as an alternative or a replacement for C, but that does not mean that it cannot interact with already pre-existing C code. For example, we may find ourselves in a large project where we would like to use Iridis to implement certain features. Consider this code base for instance:
 
 ```c
 // SomeFile.h
@@ -20,6 +20,8 @@ void PrintPersonData(Person person);
 ```
 
 ```c
+// SomeFile.c
+
 #include "SomeFile.h"
 
 void SomeObscureFunction()
@@ -34,7 +36,7 @@ void PrintPersonData(Person person)
 }
 ```
 
-There is 2 ways we could use this in Iridis
+There is 2 ways we could call these functions from Iridis
 
 ## Manual Interoperability
 
@@ -55,7 +57,7 @@ PrintPersonData     :: extern proc (Person)
 SomeObscureFunction :: extern proc ()
 ```
 
-The `extern` keyword automatically changes the procedure to the C calling conventions (so no name mangling). It is also important that `cstring` is just `^u8`under the hood, though it is preferred to use `cstring` instead since the built-in `len!` will work in a similar manner to `strlen`. 
+The `extern` keyword automatically changes the procedure to the C calling conventions (so no name mangling). It is also important that `cstring` is just `^u8`under the hood, though it is preferred to use `cstring` instead since the built-in `len!` procedure will work in a similar manner to `strlen`. 
 
 ```iridis
 // main.iridis
@@ -79,7 +81,7 @@ And all that would be left would be linking, since in this case the main unit is
 
 ```
 $ clang -o SomeFile.o -c SomeFile.c
-$ iridis compile -o main.o -i main.iridis
+$ iridis compile main.iridis -o main.iridis
 $ iridis link main.o SomeFile.o -o Application
 $ ./Application
 Name: Hachem
@@ -143,7 +145,7 @@ int main()
 Linking also works the same way
 
 ```
-$ iridis compile -i SomeFile.iridis -o SomeFile.o
+$ iridis compile SomeFile.iridis -o SomeFile.o
 $ clang -o main.o -c main.c
 $ clang -o Application main.o SomeFile.o
 $ ./Application
@@ -160,10 +162,7 @@ Similarly to how C has the `#include` directive, Iridis has one specifically for
 
 ```iridis
 SomeFile :: include!("SomeFile.h")
-SomeFile :: mod
-{
-    SomeObscureFunction :: extern proc (Person)
-}
+SomeObscureFunction :: extern proc (Person)
 
 main :: proc()
 {
@@ -174,13 +173,11 @@ main :: proc()
     }
 
     SomeFile.PrintPersonData(hachem)
-    SomeFile.SomeObscureFunction()
+   SomeObscureFunction()
 }
 ```
 
-Notice how I had to call the `SomeObscureFunction` from an extern? The same way you would do per translation unit in C._Just noting that i placed in a module so it would be considered the same-ish library_.
-
-We compile this the same exact way.
+Notice how I had to call the `SomeObscureFunction` from an extern? The same way you would do per translation unit in C. We compile this the same exact way.
 
 ### Calling Iridis from C
 
@@ -202,7 +199,6 @@ typedef struct Person
 } Person;
 
 extern void PrintPersonData(Person);
-extern void SomeObscureProcedure();
 ```
 
 And we can use it in the same exact way that you would expect. Compiling is also identical.

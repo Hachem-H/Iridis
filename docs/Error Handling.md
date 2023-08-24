@@ -1,5 +1,5 @@
 # Error Handling
-Errors are an inate part of writing code. You cannot write an entire program without encountering at least a place where your program errors out. It's just programing goes. Unlike other languages where the error is part of the language library (like `std::optional`, or `Result<T>`), error handling and optional values are one, and are built in as parts of the language. For example, consider this extremely complicated procedure:
+Errors are an innate part of writing code. You cannot write an entire program without having at least one place where your program errors out. It's just how programing goes. Unlike certain other programming languages, wherein error categories and optional types are included as components of the language's standard library (e.g., `std::optional` or `Result<T, E>`/`Option<T>`), these kinds of types are integrated directly into Iridis as intrinsic elements of the language. For the sake of simplicity, both error and optional types are represented as a single type. Consider the following highly complicated procedure as an example:
 
 ```iridis
 DivideNumbers :: proc(a: i32, b: i32) -> i32
@@ -8,7 +8,7 @@ DivideNumbers :: proc(a: i32, b: i32) -> i32
 }
 ```
 
-We can simply call it and storing the reuslt in some `value` variable:
+We can simply call it and while storing the result in some `value` variable:
 
 ```iridis
 SomeProc :: proc()
@@ -17,7 +17,7 @@ SomeProc :: proc()
 }
 ```
 
-This seems fine and all, but there are some obvious errors that might problematic, for example, division by zero. Well we can account for that with the error type, (In Iridis, the error and optional types are one).
+This seems fine and all, but there are some obvious errors that might problematic, for example, division by zero. Well, we can account for that with the `Possible` type notated with `?T`
 
 ```iridis
 DivideNumbers :: proc(a: i23, b: i32) -> ?i32
@@ -28,7 +28,7 @@ DivideNumbers :: proc(a: i23, b: i32) -> ?i32
 }
 ```
 
-Now, when we want to call it, all we have to do is check for the error.
+Now, when we want to call it, all we have to do is check of a value has been returned.
 ```iridis
 IO :: import!("std.IO")
 
@@ -37,13 +37,13 @@ SomeProc :: proc()
     value := DivideNumbers(123, 0)? // Note the presence of ?
 
     if value; do
-        IO.PrintLine("Got a value of {}", value^) // De-reference to get the result
+        IO.PrintLine("Got a value of {}", value!) // unwrap the value
     else; do
         IO.PrintLine("Got a possible error")
 }
 ```
 
-Or you could also give a potential default value instead
+Or you could also give a potential default value instead if a return was not provided
 ```iridis
 SomeProc :: proc()
 {
@@ -52,7 +52,7 @@ SomeProc :: proc()
 }
 ```
 
-## Error enums
+## Error Types
 Let's say for sake of argument that we had several possible errors, we can put them all in an error enum like this:
 ```
 PossibleErrors :: enum
@@ -62,7 +62,7 @@ PossibleErrors :: enum
 }
 ```
 
-We would modify the `DivideNumbers` procedure to return this enum by simply changing the declaration
+We would modify the `DivideNumbers` procedure to return this enum by simply changing the declaration of the `Possible` type, notation wise, the Rust equivalent of `Result<T, E>` would be a `E?T`
 ```iridis
 DivideNumbers :: proc(a: i32, b: i32) -> PossibleErrors?i32
 {
@@ -76,7 +76,7 @@ DivideNumbers :: proc(a: i32, b: i32) -> PossibleErrors?i32
 }
 ```
 
-And now we can handle each error seperatly (default values still work):
+And now we can handle each error separately (default values still work):
 ```iridis
 SomeProc :: proc()
 {
@@ -91,16 +91,18 @@ SomeProc :: proc()
 }
 ```
 
-## Ignoring or fowarding the error
-Sometimes, we can be sure that an error wont happen, _or we feel too lazy to handle the error ourselves_. So, I added the ability to ignore the error completly.
+## Ignoring or forwarding the error
+Sometimes, we can be sure that an error wont happen, _or we feel too lazy to handle the error ourselves_. In those types of cases, we can simply force unwrap the procedure result directly, like so:
 ```iridis
 SomeProc :: proc()
 {
-    value := DivideNumbers(1, 2)!
+    value1 := DivideNumbers(1, 2)!
+    value2 := DivideNumbers(1, 0)!
+    // ^ This crashes your program
 }
 ```
 
-We can also forward the error to the calling function like this
+We can also forward the error to the calling procedure like this:
 ```iridis
 SomeProc :: proc() -> PossibleErrors?
 {
@@ -108,4 +110,28 @@ SomeProc :: proc() -> PossibleErrors?
 }
 ```
 
-In this particular example, `SomeProc` will return an error of `PossibleErrors.DivideByZero` with a void return.
+In this particular example, `SomeProc` will return an error of `PossibleErrors.DivideByZero` with a void return. For more complicated function where multiple errors can happen, you can simply add your second error enum in the possible declaration, _(This might change in future iterations)_:
+
+```
+SomeErrors :: enum
+{
+    DivideByZero,
+    IllegalNumber,
+}
+
+SomeMoreErrors :: enum
+{
+	EmptyString,
+	StringTooLong,
+}
+
+SomeProc      :: proc() -> SomeErrors?     { /* ... */ }
+SomeOtherProc :: proc() -> SomeMoreErrors? { /* ... */ }
+
+Calling :: proc() -> SomeErrors, SomeMoreErrors?
+{
+	try SomeProc()
+	try SomeOtherProc()
+}
+```
+
