@@ -38,7 +38,7 @@ syntax keyword iridisTypes ]] .. table.concat(types, ' ') .. [[
 
 syntax match iridisInteger "\-\?\<\d\+\>" display
 syntax match iridisFloat "\-\?\<[0-9][0-9_]*\%(\.[0-9][0-9_]*\)\%([eE][+-]\=[0-9_]\+\)\=" display
-syntax keyword iridisBool ]] .. table.concat(booleans, ' ') [[
+syntax keyword iridisBool ]] .. table.concat(booleans, ' ').. [[
 
 syntax match iridisHex "\<0[xX][0-9A-Fa-f]\+\>" display
 syntax match iridisDoz "\<0[zZ][0-9a-bA-B]\+\>" display
@@ -59,13 +59,6 @@ syntax match iridisBuiltinCall "\v\w+!\s*(\()@="
 
 syntax match iridisPointer "\^" display
 syntax match iridisAddress "&"  display
-syntax match iridisSet ":"  display
-syntax match iridisEql "="  display
-syntax match iridisMod "%"  display
-syntax match iridisAdd "+"  display
-syntax match iridisSub "-"  display
-syntax match iridisMul "*"  display
-syntax match iridisDiv "/"  display
 
 hi link iridisFunctionDecl Function
 hi link iridisFunctionCall Function
