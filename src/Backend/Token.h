@@ -53,7 +53,7 @@ typedef struct Token_t
     {
         char*  identifier;
         bool   boolean;
-        double number;
+        f64 number;
     } literal;
 } Token;
 

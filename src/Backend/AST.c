@@ -5,7 +5,7 @@
 
 #include <stb_ds.h>
 
-Node* CreateNumber(double number)
+Node* CreateNumber(f64 number)
 {
     Node* node = (Node*) malloc(sizeof(Node));
     node->type = NodeType_Number;

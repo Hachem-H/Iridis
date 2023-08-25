@@ -79,14 +79,14 @@ Token TokenFromString(i32 line, i32 column, const char* buffer)
     if (IsInteger(buffer))
     {
         token.type =  TokenType_Number;
-        token.literal.number = (double) atoi(buffer);
+        token.literal.number = (f64) atoi(buffer);
         return token;
     }
 
     if (IsFloat(buffer))
     {
         token.type = TokenType_Number;
-        token.literal.number = (double) atof(buffer);
+        token.literal.number = (f32) atof(buffer);
         return token;
     }
 

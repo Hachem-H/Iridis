@@ -311,7 +311,7 @@ bool BuildProject(ProjectConfiguration* configuration)
         outputFile[outputFileLength-strlen("iridis")+0] = 'o';
         outputFile[outputFileLength-strlen("iridis")+1] = 0;
 
-        float progress = (float)(i+1)/totalFiles;
+        f32 progress = (f32)(i+1)/totalFiles;
         i32 barWidth = 50;
         i32 progressWidth = (progress*barWidth);
 

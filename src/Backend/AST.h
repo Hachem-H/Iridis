@@ -20,65 +20,30 @@ typedef enum NodeType_t
     NodeType_ProcedurePrototype,
 } NodeType;
 
-typedef struct NumberNode
-{
-    double value;
-} NumberNode;
-
-typedef struct StringNode
-{
-    char* value;
-} StringNode;
-
-typedef struct VariableNode
-{
-    char* name;
-} VariableNode;
-
-typedef struct BinaryExpressionNode_t
-{
-    Node* left;
-    Node* right;
-    TokenType operator;
-} BinaryExpressionNode;
-
-typedef struct ProcedureCallNode_t
-{
-    char* callee;
-    Node** arguments;
-} ProcedureCallNode;
-
-typedef struct ProcedurePrototypeNode_t
-{
-    char* name;
-    char** arguments;
-} ProcedurePrototypeNode;
-
-typedef struct ProcedureNode_t
-{
-    Node* prototype;
-    Node** body;
-} ProcedureNode;
-
 struct Node
 {
     NodeType type;
 
     union
     {
-        NumberNode   number;
-        StringNode   string;
-        VariableNode variable;
+        struct { f64 value;   } number;
+        struct { char* value; } string;
+        struct { char* name;  } variable;
 
-        BinaryExpressionNode binaryExpression;
+        struct { Node* left;
+                 Node* right;
+                 TokenType operator; } binaryExpression;
         
-        ProcedureNode          procedure;
-        ProcedureCallNode      procedureCall;
-        ProcedurePrototypeNode procedurePrototype;
+        struct { Node* prototype;
+                 Node** body;      } procedure;
+        struct { char* callee;
+                 Node** arguments; } procedureCall;
+        struct { char* name;
+                 char** arguments; } procedurePrototype;
     };
 };
 
-Node* CreateNumber(double number);
+Node* CreateNumber(f64 number);
 Node* CreateString(char* string);
 Node* CreateVarible(char* name);
 
