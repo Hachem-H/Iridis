@@ -10,6 +10,15 @@
 
 #define streql(str1, str2) (strcmp(str1, str2) == 0)
 
+#define Possible(errorType, okayType)    \
+    struct { bool ok;                    \
+             union { errorType error;    \
+                     okayType some; }; }
+#define Error(T, errorExpression) \
+       (T) { .ok = false, .error = errorExpression, }
+#define Some(T, okayExpression) \
+       (T) { .ok = true, .some = okayExpression, }
+
 typedef uint64_t u64;
 typedef uint32_t u32;
 typedef uint16_t u16;

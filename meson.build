@@ -17,7 +17,7 @@ iridisSourceFiles = [
     'src/Core/ProjectManager.c',
     'src/Core/CMDInterface.c',
     'src/Core/Platform.c',
-    'src/Core/Utils.c',
+    'src/Core/FS.c',
 
     'src/main.c'
 ]
