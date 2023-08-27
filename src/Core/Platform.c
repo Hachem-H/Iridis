@@ -1,5 +1,9 @@
 #include "Platform.h"
 
+#if defined(IRIDIS_WINDOWS)
+    #include <windows.h>
+#endif
+
 bool MakeDirectory(const char* path)
 {
 #if defined(IRIDIS_WINDOWS)
@@ -12,7 +16,8 @@ bool MakeDirectory(const char* path)
 
     return false;
 }
-bool RemoveDirectory(const char* path)
+
+bool DeleteDirectory(const char* path)
 {
 #if defined(IRIDIS_WINDOWS)
     if (RemoveDirectory(path))
@@ -29,9 +34,9 @@ char* ChangeDirectory(const char* path)
 {
 #if defined(IRIDIS_WINDOWS)
     char currentWorkingDirectory[MAX_PATH];
-    DWORD currentWorkingDirectorySize = GetCurrentDirectory(MAX_PATH, buffer);
+    DWORD currentWorkingDirectorySize = GetCurrentDirectory(MAX_PATH, currentWorkingDirectory);
     if (SetCurrentDirectory(path) != 0)
-        if (size != 0)
+        if (currentWorkingDirectorySize != 0)
             return strdup(currentWorkingDirectory);
 #elif defined(IRIDIS_UNIX)
     char currentWorkingDirectory[1024];
@@ -64,8 +69,8 @@ void EnableConsoleColors(void)
 bool FileExists(const char* path)
 {
 #if defined(IRIDIS_WINDOWS)
-    DWORD attribute = GetFileAttribute(path);
-    return (attribute != INVALID_FILE_ATTRIBUTES && !(attribute) & FILE_ATTRIBUTE_DIRECTORY));
+    DWORD attribute = GetFileAttributes(path);
+    return (attribute != INVALID_FILE_ATTRIBUTES && !(attribute & FILE_ATTRIBUTE_DIRECTORY));
 #elif defined(IRIDIS_UNIX)
     return access(path, F_OK) == 0;
 #endif
@@ -74,7 +79,7 @@ bool FileExists(const char* path)
 bool InitializeThread(Thread* thread, void* callback(void*), void* argument)
 {
 #if defined(IRIDIS_WINDOWS)
-    thread->handle = CreateThread(NULL, 0, callback, argument, 0, NULL);
+    thread->handle = CreateThread(NULL, 0, (LPVOID)callback, argument, 0, NULL);
     if (thread->handle == NULL)
         return false;
 #elif defined(IRIDIS_UNIX)

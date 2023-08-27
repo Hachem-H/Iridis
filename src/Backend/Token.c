@@ -187,6 +187,8 @@ char* StringFromTokenType(TokenType type)
     case TokenType_Minus:       return "Minus";
     case TokenType_Asterisk:    return "Asterisk";
     case TokenType_Slash:       return "Slash";
+
+    default: return "Unknown Identifier";
     }
 }
 

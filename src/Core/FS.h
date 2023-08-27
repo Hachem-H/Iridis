@@ -2,7 +2,7 @@
 
 #include "Common.h"
 
-char* ReadFile(const char* path);
+char* ReadFileContents(const char* path);
 char* GetFileName(const char* path);
 bool EndsWith(const char* string, const char* suffix);
 void RecursivelyGetDirectories(const char* path, char*** directories);

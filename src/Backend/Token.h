@@ -2,6 +2,10 @@
 
 #include "Common.h"
 
+#ifdef TokenType
+    #undef TokenType
+#endif
+
 typedef enum TokenType_t
 {
     TokenType_Identifier,

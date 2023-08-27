@@ -8,12 +8,11 @@
 #include "Core/Log.h"
 #include "Core/FS.h"
 
-#include <llvm-c/Core.h>
 #include <stb_ds.h>
 
 i32 CompileSourceCode(const char* outputPath, const char* sourcePath)
 {
-    char* sourceCode = ReadFile(sourcePath);
+    char* sourceCode = ReadFileContents(sourcePath);
     if (!sourceCode)
         return -1;
     

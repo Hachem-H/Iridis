@@ -7,9 +7,13 @@
 
 #include <stb_ds.h>
 
-char* ReadFile(const char* path)
+#if defined(IRIDIS_WINDOWS)
+    #include <windows.h>
+#endif
+
+char* ReadFileContents(const char* path)
 {
-    FILE* file = fopen(path, "r");
+    FILE* file = fopen(path, "rb");
 
     if (!file)
     {
@@ -21,8 +25,8 @@ char* ReadFile(const char* path)
     usize bufferSize = ftell(file);
     rewind(file);
 
-    char* buffer = (char*) malloc(bufferSize);
-    fread(buffer, bufferSize, 1, file);
+    char* buffer = (char*) malloc(bufferSize+1);
+    fread(buffer, 1, bufferSize, file);
     buffer[bufferSize] = 0;
 
     fclose(file);
@@ -49,7 +53,7 @@ void RecursivelyGetDirectories(const char* path, char*** directories)
 {
 #if defined(IRIDIS_WINDOWS)
     WIN32_FIND_DATA findFileData;
-    HANDLE fileHandle = FindFirstFile(strcat(strcat(strdup(path), "\\"), "*"), &findFileData);
+    HANDLE fileHandle = FindFirstFile(strcat(strcat((char*)path, "\\"), "*"), &findFileData);
 
     if (fileHandle == INVALID_HANDLE_VALUE)
         return;
@@ -102,7 +106,7 @@ void RecursivelyGetFiles(const char* path, const char* extention, char*** files)
 {
 #if defined(IRIDIS_WINDOWS)
     WIN32_FIND_DATA findFileData;
-    HANDLE findHandle = FindFirstFile(strcat(strcat(path, "\\*"), extention), &findFileData);
+    HANDLE findHandle = FindFirstFile(strcat(strcat((char*)path, "\\*"), extention), &findFileData);
 
     if (findHandle == INVALID_HANDLE_VALUE)
         return;

@@ -66,7 +66,7 @@ i32 CMDLineNew(i32 argc, char* argv[])
     configuration.outputDirectoryPath = "bin";
 
     GenerateProject(&configuration);
-    LOG_INFO("Successfully create the %s `%s`\n", streql(type, "exe") ? "executable" : "library", name);
+    LOG_INFO("Successfully created the %s `%s`\n", streql(type, "exe") ? "executable" : "library", name);
     return 0;
 }
 

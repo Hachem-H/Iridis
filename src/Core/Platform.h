@@ -4,9 +4,9 @@
 
 #if defined(_WIN32) || defined(_WIN64)
     #define IRIDIS_WINDOWS
-    #include <windows.h>
 #elif defined(__APPLE__) || defined(__linux__)
     #define IRIDIS_UNIX
+
     #include <sys/types.h>
     #include <sys/stat.h>
 
@@ -23,7 +23,7 @@
 
 bool MakeDirectory(const char* path);
 char* ChangeDirectory(const char* path);
-bool RemoveDirectory(const char* path);
+bool DeleteDirectory(const char* path);
 
 bool FileExists(const char* path);
 void EnableConsoleColors(void);
@@ -31,7 +31,7 @@ void EnableConsoleColors(void);
 typedef struct Thread_t
 {
 #if defined(IRIDIS_WINDOWS)
-    HANDLE handle;
+    void* handle;
 #elif defined(IRIDIS_UNIX) 
     pthread_t thread;
 #endif

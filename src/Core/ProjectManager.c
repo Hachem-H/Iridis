@@ -17,7 +17,7 @@ bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
     usize configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+2;
     char* configFilepath = (char*)malloc(configFilepathLength);
     snprintf(configFilepath, configFilepathLength, "%s/iridis.toml", projectPath);
-    char* configFile = ReadFile(configFilepath);
+    char* configFile = ReadFileContents(configFilepath);
 
     if (configFile == NULL)
     {
@@ -374,5 +374,5 @@ void TestProject(ProjectConfiguration* configuration)
 
 void CleanProject(ProjectConfiguration* configuration)
 {
-    RemoveDirectory(configuration->outputDirectoryPath);
+    DeleteDirectory(configuration->outputDirectoryPath);
 }
