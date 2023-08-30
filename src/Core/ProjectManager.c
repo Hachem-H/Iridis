@@ -15,7 +15,7 @@
 bool ReadProjectConfiguration(ProjectConfiguration* output, char* projectPath)
 {
     usize configFilepathLength = strlen(projectPath) + strlen("/iridis.toml")+2;
-    char* configFilepath = (char*)malloc(configFilepathLength);
+    char* configFilepath = alloc(char, configFilepathLength);
     snprintf(configFilepath, configFilepathLength, "%s/iridis.toml", projectPath);
     char* configFile = ReadFileContents(configFilepath);
 
@@ -214,9 +214,9 @@ void GenerateProject(ProjectConfiguration* configuration)
     usize configPathLength = nameLength + strlen("/iridis.toml") + 1;
     usize codePathLength   = sourcePathLength + strlen("/main.iridis") + 1;
 
-    char* sourceDirectoryPath = (char*)malloc(sourcePathLength);
-    char* configFilePath      = (char*)malloc(configPathLength);
-    char* sourceCodePath      = (char*)malloc(codePathLength);
+    char* sourceDirectoryPath = alloc(char, sourcePathLength);
+    char* configFilePath      = alloc(char, configPathLength);
+    char* sourceCodePath      = alloc(char, codePathLength);
 
     snprintf(sourceDirectoryPath, sourcePathLength, "%s/%s", configuration->name, configuration->sourceDirectoryPath);
     snprintf(configFilePath, configPathLength, "%s/iridis.toml", configuration->name);
@@ -265,10 +265,10 @@ bool BuildProject(ProjectConfiguration* configuration)
     usize sourcePathLength = strlen(configuration->projectPath)+strlen(configuration->sourceDirectoryPath)+2;
     usize targetPathLength = outputPathLength+strlen(buildProfile)+1;
 
-    char* configPath = (char*) malloc(configPathLength);
-    char* outputPath = (char*) malloc(outputPathLength);
-    char* sourcePath = (char*) malloc(sourcePathLength);
-    char* targetPath = (char*) malloc(targetPathLength);
+    char* configPath = alloc(char, configPathLength);
+    char* outputPath = alloc(char, outputPathLength);
+    char* sourcePath = alloc(char, sourcePathLength);
+    char* targetPath = alloc(char, targetPathLength);
 
     snprintf(configPath, configPathLength, "%s/iridis.toml", configuration->projectPath);
     snprintf(outputPath, outputPathLength, "%s/%s", configuration->projectPath, configuration->outputDirectoryPath);
@@ -290,7 +290,7 @@ bool BuildProject(ProjectConfiguration* configuration)
     for (i32 i = 0; i < stbds_arrlen(sourceDirectories); i++)
     {
         usize pathLength = strlen(targetPath)+strlen(sourceDirectories[i])+2;
-        char* pathBuffer = (char*) malloc(pathLength);
+        char* pathBuffer = alloc(char, pathLength);
         snprintf(pathBuffer, pathLength, "%s/%s", targetPath, sourceDirectories[i]);
         MakeDirectory(pathBuffer);
         free(pathBuffer);
@@ -303,8 +303,8 @@ bool BuildProject(ProjectConfiguration* configuration)
         usize outputFileLength = strlen(targetPath)+strlen(sourceFiles[i])+1;
         usize sourceFileLength = sourcePathLength+strlen(sourceFiles[i])+1;
 
-        char* outputFile = (char*) malloc(outputFileLength);
-        char* sourceFile = (char*) malloc(sourceFileLength);
+        char* outputFile = alloc(char, outputFileLength);
+        char* sourceFile = alloc(char, sourceFileLength);
 
         snprintf(outputFile, outputFileLength, "%s/%s", targetPath, sourceFiles[i]);
         snprintf(sourceFile, sourceFileLength, "%s/%s", sourcePath, sourceFiles[i]);

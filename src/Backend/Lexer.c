@@ -54,7 +54,7 @@ Token* Tokenize(const char* source)
             {
                 LexingState.insideFloat = false;
                 usize floatLength = i - LexingState.floatStartIndex;
-                char* floatBuffer = (char*)malloc(floatLength + 1);
+                char* floatBuffer = alloc(char, floatLength + 1);
                 strncpy(floatBuffer, source + LexingState.floatStartIndex, floatLength);
                 floatBuffer[floatLength] = '\0';
                 stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.tokenStartLine, LexingState.tokenStartColumn, floatBuffer));
@@ -162,7 +162,7 @@ Token* Tokenize(const char* source)
 
                 if (ispunct(character))
                 {
-                    char* toPush = (char*) malloc(2);
+                    char* toPush = alloc(char, 2);
                     toPush[0] = character;
                     toPush[1] = 0;
                     stbds_arrpush(LexingState.tokenInfos, CreateTokenInfo(LexingState.currentLine, LexingState.currentColumn, toPush));

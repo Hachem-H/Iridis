@@ -7,7 +7,7 @@
 
 Node* CreateNumber(f64 number)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_Number;
     node->number.value = number;
     return node;
@@ -15,7 +15,7 @@ Node* CreateNumber(f64 number)
 
 Node* CreateString(char* string)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_String;
     node->string.value = strdup(string);
     return node;
@@ -23,7 +23,7 @@ Node* CreateString(char* string)
 
 Node* CreateVarible(char* name)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_Variable;
     node->variable.name = strdup(name);
     return node;
@@ -31,7 +31,7 @@ Node* CreateVarible(char* name)
 
 Node* CreateBinaryExpression(TokenType operator, Node* right, Node* left)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_BinaryExpression;
     node->binaryExpression.operator = operator;
     node->binaryExpression.right    = right;
@@ -41,7 +41,7 @@ Node* CreateBinaryExpression(TokenType operator, Node* right, Node* left)
 
 Node* CreateProcedure(Node* prototype, Node** body)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_Procedure;
     node->procedure.body      = body;
     node->procedure.prototype = prototype;
@@ -50,7 +50,7 @@ Node* CreateProcedure(Node* prototype, Node** body)
 
 Node* CreateProcedureCall(char* callee, Node** arguments)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_ProcedureCall;
     node->procedureCall.callee    = strdup(callee);
     node->procedureCall.arguments = arguments;
@@ -59,7 +59,7 @@ Node* CreateProcedureCall(char* callee, Node** arguments)
 
 Node* CreateProcedurePrototype(char* name, char** arguments)
 {
-    Node* node = (Node*) malloc(sizeof(Node));
+    Node* node = alloc(Node, 1);
     node->type = NodeType_ProcedurePrototype;
     node->procedurePrototype.arguments = arguments;
     node->procedurePrototype.name      = strdup(name);

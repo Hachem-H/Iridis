@@ -9,6 +9,7 @@
 #define global   static
 
 #define streql(str1, str2) (strcmp(str1, str2) == 0)
+#define alloc(type, count) (type*) malloc(sizeof(type)*count)
 
 #define Possible(errorType, okayType)    \
     struct { bool ok;                    \

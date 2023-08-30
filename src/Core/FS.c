@@ -25,7 +25,7 @@ char* ReadFileContents(const char* path)
     usize bufferSize = ftell(file);
     rewind(file);
 
-    char* buffer = (char*) malloc(bufferSize+1);
+    char* buffer = alloc(char, bufferSize);
     fread(buffer, 1, bufferSize, file);
     buffer[bufferSize] = 0;
 
