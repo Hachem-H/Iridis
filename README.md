@@ -9,4 +9,4 @@ Iridis is an innovative programming language designed to cater to the needs of v
 ![code example](Branding/README-Example.png)
 
 ## Note
-Iridis is still in its very very early stages, as in, I barely have a functional compiler yet. I am focusing mainly on language design before implementing everything to make sure everything looks fine and I wouldnt have to re-implement a large portion of the compiler simply to add a new large language feature.
+Iridis is still in its very very early stages, as in, I barely have a functional compiler yet. I am focusing mainly on language design before implementing everything to make sure everything looks fine and I wouldnt have to re-implement a large portion of the compiler simply to add a new large language feature. My development pace does vary a lot due to the concurrent management of several ongoing projects, both related and un-related to computer science.
