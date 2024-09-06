@@ -2,7 +2,7 @@
 
 #include "Common.h"
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__) || defined(__CYGWIN__)
     #define IRIDIS_WINDOWS
 #elif defined(__APPLE__) || defined(__linux__)
     #define IRIDIS_UNIX
