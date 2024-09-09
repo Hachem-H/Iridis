@@ -10,3 +10,5 @@ Iridis is an innovative programming language designed to cater to the needs of v
 
 ## Note
 Iridis is still in its very very early stages, as in, I barely have a functional compiler yet. I am focusing mainly on language design before implementing everything to make sure everything looks fine and I wouldnt have to re-implement a large portion of the compiler simply to add a new large language feature. My development pace does vary a lot due to the concurrent management of several ongoing projects, both related and un-related to computer science.
+
+At this current point in time, project development has seized as I am focusing on other projects of which I am finding myself more motivated to work.
